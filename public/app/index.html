@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aurora — Nexus Creator Studio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../app/app.css">
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar" id="sidebar">
+
+      <div class="sidebar-header">
+        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle sidebar">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="sidebar-brand">
+          <div class="sidebar-brand-icon">
+            <i class="fa-solid fa-cube" style="font-size:11px;color:#fff;"></i>
+          </div>
+          <span class="sidebar-brand-text"><a href="../index.html" style="text-decoration: none;">Aurora</a></span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+
+        <div class="nav-section">Create</div>
+
+        <button class="nav-item active" data-target="script-view" data-title="Script Studio" onclick="switchView(this)">
+          <i class="fa-solid fa-pen-nib"></i>
+          <span>Script Studio</span>
+        </button>
+
+        <button class="nav-item" data-target="caption-view" data-title="Caption Studio" onclick="switchView(this)">
+          <i class="fa-solid fa-closed-captioning"></i>
+          <span>Caption Studio</span>
+        </button>
+
+        <button class="nav-item" data-target="thumbnail-view" data-title="Thumbnail Studio" onclick="switchView(this)">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Thumbnail Studio</span>
+        </button>
+
+        <div class="nav-section">Workspace</div>
+
+        <button class="nav-item" data-tooltip="Projects">
+          <i class="fa-solid fa-folder-open"></i>
+          <span>Projects</span>
+        </button>
+
+        <button class="nav-item" data-tooltip="Content Library">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Content Library</span>
+        </button>
+
+        <button class="nav-item" data-tooltip="Exports">
+          <i class="fa-solid fa-arrow-down-to-bracket"></i>
+          <span>Exports</span>
+        </button>
+
+        <div class="nav-section">Insights</div>
+
+        <button class="nav-item" data-tooltip="Analytics">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Analytics</span>
+        </button>
+
+        <button class="nav-item" data-tooltip="Performance">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Performance</span>
+        </button>
+
+        <div class="nav-section">Account</div>
+
+        <button class="nav-item" data-tooltip="Settings">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Settings</span>
+        </button>
+
+        <button class="nav-item" data-tooltip="Profile">
+          <i class="fa-regular fa-circle-user"></i>
+          <span>Profile</span>
+        </button>
+
+      </nav>
+
+      <!-- Footer -->
+      <div class="sidebar-footer">
+        <div class="sidebar-upgrade">
+          <div class="upgrade-label">You're on Free</div>
+          <div class="upgrade-title">Unlock Pro features</div>
+          <button class="upgrade-btn">Upgrade to Pro →</button>
+        </div>
+        <div class="user-row">
+          <div class="user-avatar">NK</div>
+          <div class="user-meta">
+            <div class="user-name">Nilesh Kumar</div>
+            <div class="user-plan">Free · 3 scripts left</div>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <div class="main-wrapper">
+
+      <!-- TOPBAR -->
+      <header class="topbar">
+        <div class="topbar-title">
+          <span id="current-view-title">Script Studio</span>
+          <span class="topbar-badge">LIVE</span>
+        </div>
+        <div style="margin-left:auto;">
+          <button class="btn-primary" onclick="document.querySelector('.upgrade-btn').click()">
+            Upgrade Plan
+          </button>
+        </div>
+      </header>
+
+      <!-- WORKSPACE -->
+      <main class="workspace">
+
+        <!-- ═══ SCRIPT STUDIO VIEW ═══ -->
+        <section id="script-view" class="view-section active">
+
+          <!-- Canvas split: 70% left | 30% right -->
+          <div class="canvas-area">
+
+            <!-- LEFT — Script Canvas -->
+            <div class="script-canvas" id="scriptCanvas">
+
+              <div class="canvas-topbar">
+                <h2>Script Canvas</h2>
+                <button class="copy-full-btn" id="copyFullBtn" onclick="copyFullScript()" style="display:none;">
+                  <i class="fa-regular fa-copy"></i> Copy Script
+                </button>
+              </div>
+
+              <!-- Empty state -->
+              <div class="canvas-empty" id="canvasEmpty">
+                <div class="canvas-empty-icon">✍️</div>
+                <h3>Start shaping your next viral narrative.</h3>
+                <p>Your AI-generated story workspace begins here. Describe your vision below.</p>
+              </div>
+
+              <!-- Generated sections -->
+              <div class="sections-grid" id="sectionsGrid" style="display:none;"></div>
+
+              <!-- Meta bar -->
+              <div class="script-meta-bar" id="scriptMeta" style="display:none;">
+                <div class="meta-item"><strong id="metaWords">—</strong> words</div>
+                <div class="meta-item"><strong id="metaDuration">—</strong> duration</div>
+                <div class="hashtags" id="metaHashtags"></div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT — Hooks Panel -->
+            <div class="hooks-panel">
+              <div class="hooks-panel-title">
+                Hooks
+                <span id="hookCount" style="display:none;">0</span>
+              </div>
+              <div id="hooksContent">
+                <div class="hooks-empty-state">
+                  <div class="ei">🎣</div>
+                  Hooks will appear after you generate a script
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /canvas-area -->
+
+          <!-- FLOATING INPUT BAR -->
+          <div class="input-bar-wrapper">
+            <div class="input-shell">
+              <textarea id="mainInput" rows="1"
+                placeholder="Describe your content topic… e.g. I lost 5kg in 30 days and want to share how"
+                maxlength="300" oninput="autoResize(this)"></textarea>
+              <div class="input-bottom-row">
+                <div class="tone-strip" id="toneStrip"></div>
+                <button class="generate-btn" id="generateBtn" onclick="triggerGenerate()">
+                  <span id="generateIcon">↑</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ═══ CAPTION STUDIO VIEW ═══ -->
+        <section id="caption-view" class="view-section">
+
+          <div class="caption-studio-layout">
+
+            <!-- Header -->
+            <header class="caption-header">
+              <h1 class="clash">Multi-Language Captions</h1>
+              <p class="inter subtitle">Generate accurate captions in 30+ languages from video, audio, or text.</p>
+            </header>
+
+            <!-- Top Grid -->
+            <div class="caption-top-grid">
+
+              <!-- Left: Input Source -->
+              <div class="caption-panel input-source-panel">
+                <div class="panel-header">
+                  <div class="step-num-alt">1</div>
+                  <h2>Input Source</h2>
+                </div>
+
+                <div class="input-tabs">
+                  <button class="in-tab active" onclick="switchCapTab('transcript', this)"><i
+                      class="fa-solid fa-pen"></i> Text</button>
+                  <button class="in-tab" onclick="switchCapTab('url', this)"><i class="fa-solid fa-link"></i> YouTube
+                    URL</button>
+                  <button class="in-tab" onclick="switchCapTab('video', this)"><i class="fa-solid fa-file-video"></i>
+                    Video File</button>
+                  <button class="in-tab" onclick="switchCapTab('audio', this)"><i class="fa-solid fa-microphone"></i>
+                    Audio File</button>
+                </div>
+
+                <div class="tab-panel active" id="tab-transcript">
+                  <div class="transcript-box">
+                    <textarea id="transcriptInput"
+                      placeholder="Paste your transcript here...">The right mindset can change everything.&#10;It's not about being perfect.&#10;It's about being better than you were yesterday.&#10;Small daily progress leads to big results over time.&#10;Stay consistent and never stop growing.</textarea>
+                    <div class="textarea-footer">
+                      <span class="char-count" id="charCount">250 / 5000</span>
+                      <button class="clear-btn" onclick="document.getElementById('transcriptInput').value='';">Clear <i
+                          class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-panel" id="tab-url" style="display:none;">
+                  <div class="url-input-wrap">
+                    <input type="text" id="urlInput" placeholder="https://youtube.com/watch?v=…"
+                      style="width:100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border-soft); border-radius: 8px; color: var(--text);" />
+                  </div>
+                </div>
+
+                <div class="tab-panel" id="tab-video" style="display:none;">
+                  <div class="upload-dropzone" id="videoDropzone">
+                    <input type="file" accept="video/*" id="videoFile" onchange="handleFile(this,'video')"
+                      style="display:none" />
+                    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="upload-text">
+                      <p>Drag & drop a video file here, or <span class="highlight"
+                          onclick="document.getElementById('videoFile').click()">click to upload</span></p>
+                      <span class="upload-sub">Supports .mp4, .mov, .avi</span>
+                      <div id="videoFileName" style="margin-top:8px; color: var(--accent); font-size:12px;"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-panel" id="tab-audio" style="display:none;">
+                  <div class="upload-dropzone" id="audioDropzone">
+                    <input type="file" accept="audio/*" id="audioFile" onchange="handleFile(this,'audio')"
+                      style="display:none" />
+                    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="upload-text">
+                      <p>Drag & drop an audio file here, or <span class="highlight"
+                          onclick="document.getElementById('audioFile').click()">click to upload</span></p>
+                      <span class="upload-sub">Supports .mp3, .wav, .m4a</span>
+                      <div id="audioFileName" style="margin-top:8px; color: var(--accent); font-size:12px;"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right: Preview & Enhancements -->
+              <div class="caption-right-col">
+
+                <div class="caption-panel live-preview-panel">
+                  <div class="panel-topbar">
+                    <h3>Live Preview</h3>
+                  </div>
+                </div>
+              </div>
+
+              <div class="caption-panel ai-enhancements-panel">
+                <div class="panel-header-sm">
+                  <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Enhancements</h3>
+                  <span class="badge-beta">Beta</span>
+                </div>
+                <div class="toggles-grid">
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-regular fa-face-smile"></i> Auto Emojis</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-solid fa-bolt"></i> Viral Style</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-brands fa-tiktok"></i> TikTok Timing</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-solid fa-highlighter"></i> Highlight Keywords</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-solid fa-align-left"></i> Auto Line Breaks</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                  <label class="toggle-row">
+                    <span class="toggle-label"><i class="fa-solid fa-music"></i> Karaoke Effect</span>
+                    <input type="checkbox" checked class="custom-toggle">
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Middle: Output Languages -->
+          <div class="caption-panel output-lang-panel">
+            <div class="panel-header">
+              <div class="step-num-alt">2</div>
+              <h2>Output Languages</h2>
+              <div class="lang-actions-header">
+                <button class="ghost-btn" onclick="selectAllLangs()">Select All</button>
+                <button class="ghost-btn" onclick="clearLangs()">Clear All</button>
+                <button class="action-dd">Popular <i class="fa-solid fa-chevron-down"></i></button>
+              </div>
+            </div>
+
+            <div class="lang-cards-grid" id="langGridContainer">
+              <div class="lang-card active primary" onclick="toggleLangCard('en', this)">
+                <span class="lang-name">English</span>
+                <div class="flag-icon glow-flag">🇺🇸</div>
+                <span class="lang-code">Primary</span>
+                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+              </div>
+              <div class="lang-card active" onclick="toggleLangCard('hi', this)">
+                <span class="lang-name">Hindi</span>
+                <div class="flag-icon">🇮🇳</div>
+                <span class="lang-code">HIN</span>
+                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+              </div>
+              <div class="lang-card active" onclick="toggleLangCard('es', this)">
+                <span class="lang-name">Spanish</span>
+                <div class="flag-icon">🇪🇸</div>
+                <span class="lang-code">SPA</span>
+                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
+              </div>
+              <div class="lang-card" onclick="toggleLangCard('fr', this)">
+                <span class="lang-name">French</span>
+                <div class="flag-icon">🇫🇷</div>
+                <span class="lang-code">FRA</span>
+                <div class="check-circle empty"></div>
+              </div>
+              <div class="lang-card" onclick="toggleLangCard('ar', this)">
+                <span class="lang-name">Arabic</span>
+                <div class="flag-icon">🇸🇦</div>
+                <span class="lang-code">ARA</span>
+                <div class="check-circle empty"></div>
+              </div>
+              <div class="lang-card" onclick="toggleLangCard('zh', this)">
+                <span class="lang-name">Chinese</span>
+                <div class="flag-icon">🇨🇳</div>
+                <span class="lang-code">ZHO</span>
+                <div class="check-circle empty"></div>
+              </div>
+              <div class="lang-card" onclick="toggleLangCard('ja', this)">
+                <span class="lang-name">Japanese</span>
+                <div class="flag-icon">🇯🇵</div>
+                <span class="lang-code">JPN</span>
+                <div class="check-circle empty"></div>
+              </div>
+              <div class="lang-card" onclick="toggleLangCard('ko', this)">
+                <span class="lang-name">Korean</span>
+                <div class="flag-icon">🇰🇷</div>
+                <span class="lang-code">KOR</span>
+                <div class="check-circle empty"></div>
+              </div>
+              <div class="lang-card add-more">
+                <div class="add-icon"><i class="fa-solid fa-plus"></i></div>
+                <span>Add More</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Format & Generate -->
+          <div class="caption-bottom-grid">
+            <div class="caption-panel output-format-panel">
+              <div class="panel-header">
+                <div class="step-num-alt">3</div>
+                <h2>Output Format</h2>
+              </div>
+              <div class="format-options">
+                <button class="fmt-chip active" data-fmt="srt" onclick="toggleFormatNew(this)"><i
+                    class="fa-solid fa-file-lines"></i> SRT File</button>
+                <button class="fmt-chip" data-fmt="txt" onclick="toggleFormatNew(this)"><i
+                    class="fa-solid fa-align-left"></i> Plain Text</button>
+                <button class="fmt-chip" data-fmt="vtt" onclick="toggleFormatNew(this)"><i
+                    class="fa-solid fa-globe"></i> VTT File</button>
+              </div>
+            </div>
+
+            <div class="caption-generate-panel">
+              <button class="gen-hero-btn" id="genBtn" onclick="generateCaptions()">
+                <span id="genBtnText">Generate Captions</span> <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </button>
+              <p class="gen-help-text">AI will generate captions in selected languages.</p>
+            </div>
+          </div>
+
+          <!-- Results -->
+          <div class="results" id="results" style="display:none;">
+            <div class="results-header">
+              <div class="results-title">Generated Captions</div>
+              <div class="results-count" id="resultsCount"></div>
+            </div>
+            <div class="caption-tabs" id="captionTabs"></div>
+            <div id="captionOutputs"></div>
+          </div>
+
+    </div>
+    </section>
+
+    <!-- ═══ THUMBNAIL STUDIO VIEW ═══ -->
+    <section id="thumbnail-view" class="view-section">
+
+      <div class="thumbnail-workspace">
+
+        <!-- Floating Workspace Header -->
+        <header class="workspace-header">
+          <div class="header-content">
+            <div class="header-left">
+              <h1 class="clash">Thumbnail Studio</h1>
+              <p class="inter subtitle">Create thumbnails optimized for attention and clicks.</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="thumbnail-layout">
+
+          <!-- Main Creative Preview (Single Image) -->
+          <div class="thumbnail-feed-container">
+            <div class="single-preview-wrap" id="thumbnailGrid">
+              <!-- Single Immersive Thumbnail -->
+              <div class="thumbnail-card hero large-preview" style="animation-delay: 0.1s">
+                <div class="thumb-img-wrap">
+                  <img id="mainThumbImg" src="assets/thumbnails/hero.png" alt="Thumbnail Preview">
+                  <div class="thumb-overlay">
+                    <div class="thumb-actions">
+                      <button class="action-pill"><i class="fa-solid fa-wand-sparkles"></i> Remix</button>
+                      <button class="action-pill"><i class="fa-solid fa-pen"></i> Edit</button>
+                      <button class="action-pill"><i class="fa-solid fa-arrow-up"></i> Upscale</button>
+                      <button class="action-pill"><i class="fa-solid fa-download"></i></button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI Insights & Creative DNA Panel (Right) -->
+          <aside class="insights-panel-alt creative-dna">
+            <div class="insights-header">
+              <h2 class="mono">CREATIVE DNA</h2>
+              <span class="status-dot online"></span>
+            </div>
+
+            <div class="insights-list">
+              <!-- Dynamic CTR Score -->
+              <div class="insight-card highlight">
+                <label class="mono">ATTENTION SCORE</label>
+                <div class="insight-val-wrap">
+                  <span class="insight-val" id="aiScore">9.8/10</span>
+                  <span class="insight-trend up"><i class="fa-solid fa-arrow-up"></i> High Potential</span>
+                </div>
+                <div class="insight-bar">
+                  <div class="bar-fill" id="aiScoreBar" style="width: 98%"></div>
+                </div>
+              </div>
+
+              <!-- Feeling & Tone -->
+              <div class="insight-card">
+                <label class="mono">FEELING & TONE</label>
+                <div class="insight-val-wrap">
+                  <span class="insight-val-small" id="aiFeeling">Mysterious & Intense</span>
+                </div>
+                <div class="insight-chips" id="aiToneChips">
+                  <span class="chip-sm">Cinematic</span>
+                  <span class="chip-sm">Curiosity</span>
+                  <span class="chip-sm">Solo Journey</span>
+                </div>
+              </div>
+
+              <!-- Color Mood -->
+              <div class="insight-card">
+                <label class="mono">COLOR MOOD</label>
+                <div class="color-mood-swatches" id="aiColorMood">
+                  <div class="swatch" style="background: #0B0D17" title="Deep Midnight"></div>
+                  <div class="swatch" style="background: #1A1C2C" title="Moody Blue"></div>
+                  <div class="swatch" style="background: #7C5CFF" title="Accent Glow"></div>
+                  <div class="swatch" style="background: #FFFFFF" title="High Contrast"></div>
+                </div>
+                <p class="insight-desc" id="aiColorDesc">Deep midnight tones paired with high-contrast highlights to
+                  evoke a sense of isolation.</p>
+              </div>
+
+              <!-- Visual Style -->
+              <div class="insight-card">
+                <label class="mono">VISUAL STYLE</label>
+                <div class="insight-val-wrap">
+                  <span class="insight-val-small" id="aiStyle">Surreal Realism</span>
+                </div>
+                <p class="insight-desc" id="aiStyleDesc">Inspired by high-end concept art and editorial photography
+                  styles.</p>
+              </div>
+
+              <!-- Heatmap / Attention -->
+              <div class="insight-card">
+                <label class="mono">EYE-TRACKING PREDICTION</label>
+                <div class="heatmap-preview">
+                  <div class="heat-point" style="top: 40%; left: 30%"></div>
+                  <div class="heat-point" style="top: 50%; left: 70%"></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+
+        <!-- Floating AI Composer -->
+        <div class="thumbnail-composer-wrapper">
+          <div class="composer-shell glass">
+            <div class="composer-top">
+              <textarea id="thumbPrompt" rows="1"
+                placeholder="Generate a cinematic YouTube thumbnail about surviving alone for 30 days..."
+                oninput="autoResize(this)"></textarea>
+            </div>
+            <div class="composer-bottom">
+              <div class="composer-left">
+                <div class="prompt-chips">
+                  <button class="chip">🎯 Viral</button>
+                  <button class="chip">🎬 Cinematic</button>
+                  <button class="chip">⚡ MrBeast</button>
+                  <button class="chip">🧠 Documentary</button>
+                  <button class="chip">🔥 High CTR</button>
+                </div>
+              </div>
+              <div class="composer-right">
+                <div class="composer-tools">
+                  <button class="tool-btn"><i class="fa-solid fa-image"></i></button>
+                  <button class="tool-btn"><i class="fa-solid fa-display"></i></button>
+                </div>
+                <button class="gen-btn-alt" onclick="generateThumbnails()">
+                  <span>Generate</span>
+                  <i class="fa-solid fa-sparkles"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    </main>
+  </div>
+  </div>
+
+  <!-- ═══ Scripts ═══ -->
+  <script src="app.js"></script>
+
+  <script>
+    // ═══════════════════════════════
+    // SIDEBAR TOGGLE
+    // ═══════════════════════════════
+    const sidebar = document.getElementById('sidebar');
+    document.getElementById('sidebarToggleBtn').addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+    });
+
+    // ═══════════════════════════════
+    // VIEW SWITCHER
+    // ═══════════════════════════════
+    function switchView(btn) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      btn.classList.add('active');
+      const targetId = btn.getAttribute('data-target');
+      if (!targetId) return;
+      document.getElementById('current-view-title').innerText = btn.getAttribute('data-title') || '';
+      document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
+      const target = document.getElementById(targetId);
+      if (target) target.classList.add('active');
+    }
+
+    // ═══════════════════════════════
+    // TONE CHIPS
+    // ═══════════════════════════════
+    const TONES = ['Energetic', 'Educational', 'Dramatic', 'Controversial', 'Inspirational', 'Storytelling', 'Humorous', 'Authority'];
+    let activeTone = 'Energetic';
+
+    function buildToneStrip() {
+      const strip = document.getElementById('toneStrip');
+      strip.innerHTML = TONES.map(t =>
+        `<button class="tone-chip ${t === activeTone ? 'active' : ''}" onclick="selectTone('${t}', this)">${t}</button>`
+      ).join('');
+    }
+
+    function selectTone(tone, el) {
+      activeTone = tone;
+      document.querySelectorAll('.tone-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+    }
+
+    buildToneStrip();
+
+    // ═══════════════════════════════
+    // AUTO RESIZE TEXTAREA
+    // ═══════════════════════════════
+    function autoResize(el) {
+      el.style.height = 'auto';
+      const newHeight = Math.min(el.scrollHeight, 200);
+      el.style.height = newHeight + 'px';
+      if (el.scrollHeight > 200) {
+        el.style.overflowY = 'auto';
+      } else {
+        el.style.overflowY = 'hidden';
+      }
+    }
+
+    // ═══════════════════════════════
+    // GENERATE TRIGGER
+    // ═══════════════════════════════
+    async function triggerGenerate() {
+      const inputEl = document.getElementById('mainInput');
+      const topic = inputEl.value.trim();
+      if (!topic) { inputEl.focus(); return; }
+
+      const btn = document.getElementById('generateBtn');
+      const icon = document.getElementById('generateIcon');
+      btn.disabled = true;
+      icon.innerHTML = '<div class="spinner"></div>';
+
+      // Bridge to app.js which reads #input and #tone
+      let inputField = document.getElementById('input');
+      let toneField = document.getElementById('tone');
+      if (!inputField) {
+        inputField = document.createElement('input');
+        inputField.id = 'input';
+        inputField.style.display = 'none';
+        document.body.appendChild(inputField);
+      }
+      if (!toneField) {
+        toneField = document.createElement('input');
+        toneField.id = 'tone';
+        toneField.style.display = 'none';
+        document.body.appendChild(toneField);
+      }
+      inputField.value = topic;
+      toneField.value = activeTone;
+
+      // Loading states
+      document.getElementById('canvasEmpty').style.display = 'none';
+      document.getElementById('sectionsGrid').style.display = 'none';
+      document.getElementById('scriptMeta').style.display = 'none';
+      document.getElementById('copyFullBtn').style.display = 'none';
+      document.getElementById('hooksContent').innerHTML =
+        '<div class="hooks-empty-state"><div class="spinner" style="margin:0 auto 8px;"></div>Generating hooks…</div>';
+
+      try {
+        if (typeof analyze === 'function') await analyze();
+      } catch (e) {
+        console.error(e);
+      }
+
+      btn.disabled = false;
+      icon.innerHTML = '↑';
+    }
+
+    // ═══════════════════════════════
+    // RENDER SCRIPT RESULT (called by app.js via window.renderScriptResult)
+    // ═══════════════════════════════
+    window.renderScriptResult = function (data) {
+      const grid = document.getElementById('sectionsGrid');
+
+      const SECTION_CONFIG = [
+        { key: 'hook', label: 'Hook', extraClass: 'hook-card-main' },
+        { key: 'problem', label: 'Problem', extraClass: '' },
+        { key: 'shift', label: 'Shift', extraClass: '' },
+        { key: 'value', label: 'Value', extraClass: '' },
+        { key: 'result', label: 'Result', extraClass: '' },
+        { key: 'ending', label: 'Ending', extraClass: 'ending-card' },
+      ];
+
+      grid.innerHTML = SECTION_CONFIG.map(cfg => {
+        const content = data.sections?.[cfg.key] || data[cfg.key] || '';
+        if (!content) return '';
+        return `
+      <div class="section-card ${cfg.extraClass}">
+        <div class="sec-label">${cfg.label}</div>
+        <div class="sec-content">${content}</div>
+      </div>`;
+      }).join('');
+
+      grid.style.display = 'grid';
+      document.getElementById('canvasEmpty').style.display = 'none';
+      document.getElementById('copyFullBtn').style.display = 'inline-flex';
+
+      if (data.wordCount || data.duration) {
+        document.getElementById('metaWords').textContent = data.wordCount || '—';
+        document.getElementById('metaDuration').textContent = data.duration || '—';
+        const tagsEl = document.getElementById('metaHashtags');
+        tagsEl.innerHTML = (data.hashtags || []).map(h => `<span class="hashtag">${h}</span>`).join('');
+        document.getElementById('scriptMeta').style.display = 'flex';
+      }
+
+      renderHooks(data.hooks || data.alternateHooks || []);
+    };
+
+    // ═══════════════════════════════
+    // RENDER HOOKS
+    // ═══════════════════════════════
+    function renderHooks(hooks) {
+      const el = document.getElementById('hooksContent');
+      const countEl = document.getElementById('hookCount');
+      if (!hooks || hooks.length === 0) {
+        el.innerHTML = '<div class="hooks-empty-state"><div class="ei">🎣</div>No hooks returned</div>';
+        countEl.style.display = 'none';
+        return;
+      }
+      countEl.textContent = hooks.length;
+      countEl.style.display = 'inline-flex';
+      el.innerHTML = `<div class="hooks-list">${hooks.map((h, i) => {
+        const text = typeof h === 'string' ? h : (h.text || h.hook || JSON.stringify(h));
+        const isBest = i === 0;
+        return `
+      <div class="hook-item ${isBest ? 'best' : ''}" style="animation-delay:${i * 0.06}s">
+        <div style="flex:1">
+          ${isBest ? '<div class="hook-best-label">⭐ Best</div>' : ''}
+          <div class="hook-text">${text}</div>
+        </div>
+        <button class="hook-copy-btn" onclick="copyHook(this, \`${text.replace(/`/g, '\\`')}\`)">
+          <i class="fa-regular fa-copy"></i>
+        </button>
+      </div>`;
+      }).join('')}</div>`;
+    }
+
+    function copyHook(btn, text) {
+      navigator.clipboard.writeText(text).catch(() => { });
+      btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+      setTimeout(() => btn.innerHTML = '<i class="fa-regular fa-copy"></i>', 1500);
+    }
+
+    function copyFullScript() {
+      const sections = document.querySelectorAll('.section-card .sec-content');
+      const labels = document.querySelectorAll('.section-card .sec-label');
+      let full = '';
+      sections.forEach((s, i) => {
+        full += `[${labels[i]?.textContent}]\n${s.textContent}\n\n`;
+      });
+      navigator.clipboard.writeText(full.trim()).catch(() => { });
+      const btn = document.getElementById('copyFullBtn');
+      btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+      setTimeout(() => btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy Script', 1800);
+    }
+
+    // Enter to generate
+    document.getElementById('mainInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        triggerGenerate();
+      }
+    });
+
+    // ═══════════════════════════════
+    // CAPTION LOGIC
+    // ═══════════════════════════════
+    const LANGUAGES = [
+      { code: "en", name: "English", flag: "🇬🇧", top: true },
+      { code: "hi", name: "Hindi", flag: "🇮🇳", top: true },
+      { code: "es", name: "Spanish", flag: "🇪🇸", top: true },
+      { code: "fr", name: "French", flag: "🇫🇷", top: true },
+      { code: "ar", name: "Arabic", flag: "🇸🇦", top: true },
+      { code: "pt", name: "Portuguese", flag: "🇧🇷", top: true },
+      { code: "de", name: "German", flag: "🇩🇪", top: true },
+      { code: "zh", name: "Chinese", flag: "🇨🇳", top: true },
+      { code: "ja", name: "Japanese", flag: "🇯🇵", top: true },
+      { code: "ko", name: "Korean", flag: "🇰🇷", top: true },
+      { code: "it", name: "Italian", flag: "🇮🇹", top: false },
+      { code: "ru", name: "Russian", flag: "🇷🇺", top: false },
+      { code: "tr", name: "Turkish", flag: "🇹🇷", top: false },
+      { code: "nl", name: "Dutch", flag: "🇳🇱", top: false },
+    ];
+    let selectedLangs = new Set(["en", "hi", "es"]);
+
+    function toggleLangCard(code, el) {
+      const check = el.querySelector('.check-circle');
+      if (selectedLangs.has(code)) {
+        selectedLangs.delete(code);
+        el.classList.remove('active');
+        if (code === 'en') el.classList.remove('primary');
+        check.classList.add('empty');
+        check.innerHTML = '';
+      }
+      else {
+        selectedLangs.add(code);
+        el.classList.add('active');
+        check.classList.remove('empty');
+        check.innerHTML = '<i class="fa-solid fa-check"></i>';
+      }
+    }
+
+    function selectAllLangs() {
+      document.querySelectorAll('.lang-cards-grid .lang-card:not(.add-more)').forEach(el => {
+        const codeMatch = el.getAttribute('onclick').match(/'([^']+)'/);
+        if (codeMatch) {
+          const code = codeMatch[1];
+          if (!selectedLangs.has(code)) {
+            toggleLangCard(code, el);
+          }
+        }
+      });
+    }
+
+    function clearLangs() {
+      document.querySelectorAll('.lang-cards-grid .lang-card:not(.add-more)').forEach(el => {
+        const codeMatch = el.getAttribute('onclick').match(/'([^']+)'/);
+        if (codeMatch) {
+          const code = codeMatch[1];
+          if (selectedLangs.has(code)) {
+            toggleLangCard(code, el);
+          }
+        }
+      });
+    }
+
+    function switchCapTab(name, btnEl) {
+      document.querySelectorAll('#caption-view .tab-panel').forEach(p => p.style.display = 'none');
+      document.querySelectorAll('#caption-view .in-tab').forEach(t => t.classList.remove('active'));
+      const targetPanel = document.getElementById('tab-' + name);
+      if (targetPanel) targetPanel.style.display = 'block';
+      if (btnEl) btnEl.classList.add('active');
+    }
+
+    function toggleFormatNew(el) {
+      el.classList.toggle('active');
+    }
+
+    function handleFile(input, type) {
+      const file = input.files[0]; if (!file) return;
+      const el = document.getElementById(type + 'FileName');
+      if (el) el.textContent = '✓ ' + file.name;
+    }
+
+    ['videoDropzone', 'audioDropzone'].forEach(id => {
+      const el = document.getElementById(id); if (!el) return;
+      el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const fileInput = el.querySelector('input[type="file"]');
+        if (e.dataTransfer.files.length && fileInput) {
+          fileInput.files = e.dataTransfer.files;
+          handleFile(fileInput, id.replace('Dropzone', ''));
+        }
+      });
+    });
+
+    function getActiveInput() {
+      const activePanel = document.querySelector('#caption-view .tab-panel:not([style*="display: none"])');
+      if (!activePanel) return null;
+      const id = activePanel.id;
+      if (id === 'tab-transcript') return { type: 'transcript', value: document.getElementById('transcriptInput').value.trim() };
+      if (id === 'tab-url') return { type: 'url', value: document.getElementById('urlInput').value.trim() };
+      if (id === 'tab-video') return { type: 'video', file: document.getElementById('videoFile').files[0] };
+      if (id === 'tab-audio') return { type: 'audio', file: document.getElementById('audioFile').files[0] };
+      return null;
+    }
+
+    async function generateCaptions() {
+      const input = getActiveInput(); if (!input) return;
+      const langs = [...selectedLangs];
+      const formats = [...document.querySelectorAll('.fmt-chip.active')].map(el => el.dataset.fmt);
+      if (!langs.length) return alert('Select at least one language.');
+      if (!formats.length) return alert('Select at least one format.');
+      if (input.type === 'transcript' && !input.value) return alert('Paste some text.');
+      if (input.type === 'url' && !input.value) return alert('Enter a YouTube URL.');
+      if ((input.type === 'video' || input.type === 'audio') && !input.file) return alert('Select a file.');
+
+      const btn = document.getElementById('genBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div><span>Generating…</span>';
+
+      try {
+        let body, headers = {};
+        if (input.type === 'video' || input.type === 'audio') {
+          const fd = new FormData();
+          fd.append('file', input.file);
+          fd.append('type', input.type);
+          fd.append('langs', JSON.stringify(langs));
+          fd.append('formats', JSON.stringify(formats));
+          body = fd;
+        } else {
+          headers['Content-Type'] = 'application/json';
+          body = JSON.stringify({ type: input.type, value: input.value, langs: JSON.stringify(langs), formats: JSON.stringify(formats) });
+        }
+        const res = await fetch('/caption', { method: 'POST', headers, body });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        renderCaptionResults(data, langs, formats);
+      } catch (err) {
+        alert('Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>Generate Again</span><span>→</span>';
+      }
+    }
+
+    function renderCaptionResults(data, langs, formats) {
+      const tabsEl = document.getElementById('captionTabs');
+      const outputsEl = document.getElementById('captionOutputs');
+      const langMap = Object.fromEntries(LANGUAGES.map(l => [l.code, l]));
+
+      tabsEl.innerHTML = langs.map((code, i) => {
+        const l = langMap[code] || { flag: '🌐', name: code };
+        return `<button class="caption-tab ${i === 0 ? 'active' : ''}" onclick="switchCaptionTab('${code}', this)">${l.flag} ${l.name}</button>`;
+      }).join('');
+
+      outputsEl.innerHTML = langs.map((code, i) => {
+        const l = langMap[code] || { flag: '🌐', name: code };
+        const captions = data.captions?.[code] || {};
+        const defFmt = formats[0] || 'txt';
+        return `
+      <div class="caption-output ${i === 0 ? 'active' : ''}" id="output-${code}">
+        <div class="caption-box">
+          <div class="caption-box-header">
+            <div class="caption-box-lang">${l.flag} ${l.name}</div>
+            <div class="caption-box-actions">
+              <div class="format-switcher">
+                ${formats.map(f =>
+          `<button class="fmt-btn ${f === defFmt ? 'active' : ''}" onclick="switchFormat('${code}','${f}',this)">${f.toUpperCase()}</button>`
+        ).join('')}
+              </div>
+              <button class="caption-action" onclick="copyCaption('${code}')">Copy</button>
+              <button class="caption-action" onclick="downloadCaption('${code}')">Download</button>
+            </div>
+          </div>
+          <div class="caption-text" id="caption-text-${code}">${captions[defFmt] || 'No content.'}</div>
+        </div>
+      </div>`;
+      }).join('');
+
+      document.getElementById('resultsCount').textContent =
+        langs.length + ' language' + (langs.length > 1 ? 's' : '') + ' · ' + formats.join(', ').toUpperCase();
+
+      const results = document.getElementById('results');
+      results.style.display = 'block';
+      results.classList.add('show');
+      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      window._captionData = data;
+      window._captionFormats = formats;
+    }
+
+    function switchCaptionTab(code, btn) {
+      document.querySelectorAll('.caption-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.caption-output').forEach(o => o.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('output-' + code).classList.add('active');
+    }
+
+    function switchFormat(code, fmt, btn) {
+      const parent = btn.closest('.caption-box');
+      parent.querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('caption-text-' + code).textContent =
+        window._captionData?.captions?.[code]?.[fmt] || 'No content.';
+    }
+
+    function copyCaption(code) {
+      navigator.clipboard.writeText(document.getElementById('caption-text-' + code).textContent).catch(() => { });
+      event.target.textContent = 'Copied!';
+      setTimeout(() => event.target.textContent = 'Copy', 2000);
+    }
+
+    function downloadCaption(code) {
+      const textEl = document.getElementById('caption-text-' + code);
+      const fmt = document.querySelector(`#output-${code} .fmt-btn.active`)?.textContent?.trim()?.toLowerCase() || 'txt';
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([textEl.textContent], { type: 'text/plain' }));
+      a.download = `captions_${code}.${fmt}`;
+      a.click();
+    }
+
+    // ═══════════════════════════════
+    // THUMBNAIL STUDIO LOGIC
+    // ═══════════════════════════════
+    function generateThumbnails() {
+      const prompt = document.getElementById('thumbPrompt').value.trim();
+      if (!prompt) return;
+
+      const btn = document.querySelector('.gen-btn-alt');
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner" style="border-top-color: white;"></div><span>Analyzing...</span>';
+
+      // Simulation data
+      const data = {
+        feeling: "Vibrant & High-Energy",
+        style: "Cyberpunk Digital Art",
+        score: "9.4/10",
+        colorDesc: "Electric blues and hot pinks create a high-energy contrast system.",
+        styleDesc: "Sharp focus with exaggerated neon bloom and digital distortion effects.",
+        tones: ["High Octane", "Digital", "Attention Grabber"],
+        swatches: ["#00F2FF", "#FF007A", "#121212", "#FFFFFF"]
+      };
+
+      setTimeout(() => {
+        // Update Image
+        document.getElementById('mainThumbImg').src = 'assets/thumbnails/medium2.png';
+
+        // Update Creative DNA
+        document.getElementById('aiScore').textContent = data.score;
+        document.getElementById('aiScoreBar').style.width = '94%';
+        document.getElementById('aiFeeling').textContent = data.feeling;
+        document.getElementById('aiStyle').textContent = data.style;
+        document.getElementById('aiColorDesc').textContent = data.colorDesc;
+        document.getElementById('aiStyleDesc').textContent = data.styleDesc;
+
+        // Update Tones
+        const toneWrap = document.getElementById('aiToneChips');
+        toneWrap.innerHTML = data.tones.map(t => `<span class="chip-sm">${t}</span>`).join('');
+
+        // Update Swatches
+        const swatchWrap = document.getElementById('aiColorMood');
+        swatchWrap.innerHTML = data.swatches.map(c => `<div class="swatch" style="background: ${c}"></div>`).join('');
+
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }, 2500);
+    }
+
+    buildLangGrid();
+  </script>
+</body>
+
+</html>

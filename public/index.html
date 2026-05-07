@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Automation for Modern Businesses</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <div class="logo">
+                <i class="fa-solid fa-cube logo-icon"></i>
+                <span>Nexus</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+            <a href="app/index.html" class="btn btn-primary nav-btn">Get Started</a>
+            <div class="mobile-menu-icon">
+                <i class="fa-solid fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero">
+        <!-- Subtle permanent grid -->
+        <div class="hero-grid"></div>
+        <div class="dot-matrix"></div>
+        <div class="cursor-glow"></div>
+        <div class="hero-bg-glow"></div>
+
+        <div class="container hero-container">
+            <!-- Dynamic Orbiting/Floating Elements -->
+            <div class="creative-float cf-1 reveal delay-1">
+                <div class="cf-content"><i class="fa-solid fa-bolt text-yellow"></i> 1M+ Views</div>
+            </div>
+            <div class="creative-float cf-2 reveal delay-2">
+                <div class="cf-content"><i class="fa-solid fa-chart-line text-green"></i> 98% Retention</div>
+            </div>
+            <div class="creative-float cf-3 reveal delay-3">
+                <div class="cf-content"><img src="https://i.pravatar.cc/100?img=47" alt="User" class="cf-avatar"> "Went
+                    viral! 🤯"</div>
+            </div>
+            <div class="creative-float cf-4 reveal delay-1">
+                <div class="cf-content"><i class="fa-solid fa-fire text-red" style="color: #ef4444;"></i> Trending #1
+                </div>
+            </div>
+
+            <div class="badge reveal">
+                <span class="badge-tag">New</span>
+                v2.0 is out <i class="fa-solid fa-arrow-right"></i>
+            </div>
+
+            <h1 class="reveal delay-1" style="margin-bottom: 1.5rem; line-height: 1.15;">
+                Stop Guessing. Start<br>
+                <span class="text-gradient" id="dynamic-text"
+                    style="display: inline-block; min-width: 350px; transition: opacity 0.3s ease; text-align: left;">Going
+                    Viral.</span>
+            </h1>
+
+            <p class="reveal delay-2"
+                style="font-size: 1.25rem; max-width: 650px; margin: 0 auto 3rem; color: var(--text-muted); line-height: 1.6;">
+                The AI co-pilot that engineers your ideas into algorithm-breaking hooks and scripts. You focus on
+                filming—we'll handle the views.
+            </p>
+
+            <div class="hero-btns reveal delay-3" style="flex-direction: column; align-items: center; gap: 1rem;">
+                <a href="app/index.html" class="btn btn-primary btn-large btn-glow magnetic-btn"
+                    style="padding: 1.1rem 2.5rem; font-size: 1.15rem; font-weight: 700; letter-spacing: -0.5px;">
+                    <span class="btn-text">Unlock Viral Growth <i class="fa-solid fa-bolt text-yellow"
+                            style="margin-left: 6px;"></i></span>
+                </a>
+                <div class="trust-micro" style="font-size: 0.85rem; color: var(--text-muted); font-weight: 500;">
+                    <i class="fa-solid fa-lock" style="margin-right: 4px; opacity: 0.7;"></i> No credit card required.
+                    Free 7-day trial.
+                </div>
+            </div>
+
+            <div class="trust-avatars reveal delay-3">
+                <div class="avatar-stack">
+                    <img src="https://i.pravatar.cc/100?img=33" alt="Creator">
+                    <img src="https://i.pravatar.cc/100?img=12" alt="Creator">
+                    <img src="https://i.pravatar.cc/100?img=41" alt="Creator">
+                    <img src="https://i.pravatar.cc/100?img=68" alt="Creator">
+                    <div class="avatar-count">10k+</div>
+                </div>
+                <div class="trust-text">Loved by <strong>10,000+</strong> creators worldwide</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Logos Banner -->
+    <section class="logos-banner">
+        <div class="container">
+            <p class="logos-title">TRUSTED BY INNOVATIVE COMPANIES WORLDWIDE</p>
+            <div class="logos-grid">
+                <!-- SVG Placeholders for company logos -->
+                <div class="logo-item"><i class="fa-brands fa-aws"></i></div>
+                <div class="logo-item"><i class="fa-brands fa-google"></i></div>
+                <div class="logo-item"><i class="fa-brands fa-microsoft"></i></div>
+                <div class="logo-item"><i class="fa-brands fa-stripe"></i></div>
+                <div class="logo-item"><i class="fa-brands fa-slack"></i></div>
+                <div class="logo-item"><i class="fa-brands fa-figma"></i></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section (Alternating) -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">FEATURES</span>
+                <h2>AI Features That Take Your<br>Content to the Next Level</h2>
+                <p>Discover how our platform simplifies video creation.</p>
+            </div>
+
+            <!-- Feature 1: Left Mockup, Right Text -->
+            <div class="feature-row row-reverse">
+                <div class="feature-text">
+                    <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <h3>Scroll-Stopping Hooks</h3>
+                    <p>Generate attention-grabbing hooks instantly. Stop overthinking and start capturing your
+                        audience's attention in the first 3 seconds.</p>
+                    <a href="#" class="feature-link">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-mockup">
+                    <div class="mockup-window">
+                        <!-- Placeholder Mockup UI -->
+                        <div class="mockup-header"><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
+                        <div class="mockup-content chat-mockup">
+                            <div class="chat-bubble user-bubble" id="chat-prompt">Generate hooks for weight loss</div>
+                            <div class="chat-bubble ai-bubble" id="chat-resp-1">
+                                <div class="hook-card">
+                                    <strong>Hook #1:</strong> <span id="dyn-hook-1">"Stop doing endless cardio. Do this
+                                        instead..."</span>
+                                    <div class="hook-score text-green"><i class="fa-solid fa-arrow-trend-up"></i> <span
+                                            id="dyn-score-1">99</span>% Viral Score</div>
+                                </div>
+                            </div>
+                            <div class="chat-bubble ai-bubble" id="chat-resp-2">
+                                <div class="hook-card">
+                                    <strong>Hook #2:</strong> <span id="dyn-hook-2">"The #1 reason you're not losing
+                                        belly fat."</span>
+                                    <div class="hook-score text-green"><i class="fa-solid fa-arrow-trend-up"></i> <span
+                                            id="dyn-score-2">94</span>% Viral Score</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 2: Right Mockup, Left Text -->
+            <div class="feature-row">
+                <div class="feature-text">
+                    <div class="feature-icon"><i class="fa-solid fa-pen-nib"></i></div>
+                    <h3>Full Script Generator</h3>
+                    <p>Structured viral scripts in seconds. From hook to call-to-action, let AI write the perfect script
+                        tailored for your niche.</p>
+                    <a href="#" class="feature-link">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-mockup">
+                    <div class="mockup-window">
+                        <div class="mockup-header"><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
+                        <div class="mockup-content typing-mockup">
+                            <div class="typing-container">
+                                <div class="typing-header" id="dyn-type-header">Prompt: "Gym tips for beginners"</div>
+                                <div class="typing-body">
+                                    <span id="dyn-type-body"></span><span class="type-cursor"></span>
+                                </div>
+                            </div>
+                            <div class="processing-bar-container" id="processing-bar-ui">
+                                <div class="processing-label">Synthesizing Script... <span
+                                        class="loading-dots">...</span></div>
+                                <div class="processing-bar">
+                                    <div class="processing-fill"></div>
+                                </div>
+                            </div>
+                            <div class="success-pop" id="success-pop-ui">
+                                <i class="fa-solid fa-rocket"></i> Ready to Export!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature 3: Left Mockup, Right Text -->
+            <div class="feature-row row-reverse">
+                <div class="feature-text">
+                    <div class="feature-icon"><i class="fa-solid fa-closed-captioning"></i></div>
+                    <h3>Caption Generator</h3>
+                    <p>Multi-language subtitles for better reach. Automatically generate accurate captions that keep
+                        viewers engaged even on mute.</p>
+                    <a href="#" class="feature-link">Learn More <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="feature-mockup">
+                    <div class="mockup-window">
+                        <div class="mockup-header"><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
+                        <div class="mockup-content caption-mockup">
+                            <div class="audio-wave">
+                                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+                            </div>
+                            <div class="dynamic-captions">
+                                <span class="cap cap-1" id="cap-w1">The secret to</span>
+                                <span class="cap cap-2 text-yellow" id="cap-w2">fast growth</span>
+                                <span class="cap cap-3" id="cap-w3">is consistency.</span>
+                            </div>
+                            <div class="language-tags" id="dyn-lang-tags">
+                                <span class="lang-tag active">EN</span>
+                                <span class="lang-tag">ES</span>
+                                <span class="lang-tag">FR</span>
+                                <span class="lang-tag">DE</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process-section bg-darker">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">HOW IT WORKS</span>
+                <h2>Our Simple, Smart,<br>and Scalable Process</h2>
+                <p>We've simplified AI adoption so you can focus on results, not complexity.</p>
+            </div>
+
+            <div class="process-grid">
+                <div class="process-card">
+                    <div class="p-number">01</div>
+                    <h3>Enter Idea</h3>
+                    <p>Just type a few words about what you want to create.</p>
+                </div>
+                <div class="process-card">
+                    <div class="p-number">02</div>
+                    <h3>AI Generates Script</h3>
+                    <p>Our AI engines instantly craft a complete, viral-ready script.</p>
+                </div>
+                <div class="process-card">
+                    <div class="p-number">03</div>
+                    <h3>Copy & Post</h3>
+                    <p>Grab your script, shoot your video, and watch the engagement roll in.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Showcase / Transformation -->
+    <section class="showcase-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">PRODUCT DEMO</span>
+                <h2>See How Project X<br>Transforms Your Content</h2>
+                <p>Real-world applications delivering measurable ROI instantly.</p>
+            </div>
+
+            <div class="showcase-content">
+                <div class="showcase-image">
+                    <div class="mockup-window video-scoring-mockup">
+                        <div class="mockup-header"><span class="dot"></span><span class="dot"></span><span
+                                class="dot"></span></div>
+                        <div class="mockup-content scoring-content">
+                            <div class="video-thumbnail">
+                                <i class="fa-solid fa-play"></i>
+                                <div class="duration">00:45</div>
+                            </div>
+                            <div class="scoring-stats">
+                                <div class="score-card">
+                                    <div class="score-label">Virality Score</div>
+                                    <div class="score-value text-green" style="color: #16a34a;">98/100</div>
+                                </div>
+                                <div class="stat-bar-container">
+                                    <div class="stat-label">Retention Probability</div>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill green" style="width: 92%;"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-bar-container">
+                                    <div class="stat-label">Hook Strength</div>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill" style="width: 95%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="showcase-text">
+                    <h3>Structured Script Output</h3>
+                    <p>Get a complete framework tailored for short-form platforms like Instagram Reels and YouTube
+                        Shorts.</p>
+                    <ul class="check-list">
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[HOOK]</strong> Stop doing cardio if
+                            you want...</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[PROBLEM]</strong> You're burning out
+                            before you build muscle.</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[SHIFT]</strong> Start with compound
+                            movements.</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[VALUE]</strong> Here is a 3-day
+                            split you can use.</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[RESULT]</strong> Build mass without
+                            spending hours.</li>
+                        <li><i class="fa-solid fa-check text-primary"></i> <strong>[ENDING]</strong> Save this for your
+                            next gym session!</li>
+                    </ul>
+                    <a href="#" class="btn btn-secondary mt-3">Try the Demo</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section bg-darker">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">BENEFITS</span>
+                <h2>The Key Benefits of AI<br>for Your Content Growth</h2>
+                <p>Unlock new levels of efficiency and capability across your channels.</p>
+            </div>
+
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="b-icon"><i class="fa-solid fa-stopwatch"></i></div>
+                    <h4>Save Time</h4>
+                    <p>Stop spending hours writing. Get a week's worth of content scripted in under 10 minutes.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="b-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                    <h4>Increase Consistency</h4>
+                    <p>Never miss a posting day again because you "didn't know what to say."</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="b-icon"><i class="fa-solid fa-fire"></i></div>
+                    <h4>Improve Engagement</h4>
+                    <p>Our scripts are trained on viral patterns to maximize watch time and retention.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="b-icon"><i class="fa-solid fa-brain"></i></div>
+                    <h4>Remove Creative Block</h4>
+                    <p>Overcome the blank page syndrome. Let AI spark the initial idea and structure it for you.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">PRICING</span>
+                <h2>Excellent AI Automation<br>at the Right Price</h2>
+                <p>Choose the perfect plan tailored to your content needs.</p>
+            </div>
+
+            <div class="pricing-toggle">
+                <span class="toggle-label active" id="monthly-label">Monthly</span>
+                <div class="toggle-switch" id="pricing-toggle">
+                    <div class="toggle-circle"></div>
+                </div>
+                <span class="toggle-label" id="yearly-label">Yearly <span class="discount-badge">Save 20%</span></span>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="p-header">
+                        <h3>Free Plan</h3>
+                        <p>Perfect for beginners testing the waters.</p>
+                    </div>
+                    <div class="p-price">
+                        <span class="currency">$</span><span class="amount" data-monthly="0"
+                            data-yearly="0">0</span><span class="period">/mo</span>
+                    </div>
+                    <a href="app/index.html" class="btn btn-secondary w-100">Get Started</a>
+                    <ul class="p-features">
+                        <li><i class="fa-solid fa-check"></i> Limited scripts per day</li>
+                        <li><i class="fa-solid fa-check"></i> Standard hooks</li>
+                        <li class="disabled"><i class="fa-solid fa-xmark"></i> Caption generation</li>
+                        <li class="disabled"><i class="fa-solid fa-xmark"></i> Multi-language</li>
+                        <li class="disabled"><i class="fa-solid fa-xmark"></i> Priority support</li>
+                    </ul>
+                </div>
+
+                <!-- Pro Plan (Highlighted) -->
+                <div class="pricing-card popular">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="p-header">
+                        <h3>Pro Plan</h3>
+                        <p>Ideal for consistent content creators.</p>
+                    </div>
+                    <div class="p-price">
+                        <span class="currency">$</span><span class="amount" data-monthly="29"
+                            data-yearly="24">29</span><span class="period">/mo</span>
+                    </div>
+                    <a href="app/index.html" class="btn btn-primary w-100">Get Started</a>
+                    <ul class="p-features">
+                        <li><i class="fa-solid fa-check"></i> Unlimited scripts</li>
+                        <li><i class="fa-solid fa-check"></i> Caption generation</li>
+                        <li><i class="fa-solid fa-check"></i> Viral hook library</li>
+                        <li><i class="fa-solid fa-check"></i> Multi-language support</li>
+                        <li><i class="fa-solid fa-check"></i> Priority email support</li>
+                    </ul>
+                </div>
+
+                <!-- Agency Plan -->
+                <div class="pricing-card">
+                    <div class="p-header">
+                        <h3>Agency</h3>
+                        <p>Custom solutions for teams and agencies.</p>
+                    </div>
+                    <div class="p-price">
+                        <span class="currency">$</span><span class="amount" data-monthly="99"
+                            data-yearly="79">99</span><span class="period">/mo</span>
+                    </div>
+                    <a href="app/index.html" class="btn btn-secondary w-100">Get Started</a>
+                    <ul class="p-features">
+                        <li><i class="fa-solid fa-check"></i> Unlimited everything</li>
+                        <li><i class="fa-solid fa-check"></i> Brand voice customization</li>
+                        <li><i class="fa-solid fa-check"></i> Bulk generation</li>
+                        <li><i class="fa-solid fa-check"></i> Team collaboration</li>
+                        <li><i class="fa-solid fa-check"></i> 24/7 Dedicated support</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section bg-darker">
+        <div class="container">
+            <div class="section-header text-center">
+                <span class="section-tag">TESTIMONIALS</span>
+                <h2>What Customers Love<br>About Our Solutions</h2>
+                <p>Don't just take our word for it. Hear from our successful partners.</p>
+            </div>
+
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i></div>
+                    <p class="quote">"This helped me post daily without thinking. I just enter my topic and get a full
+                        script. It's like having a viral producer in my pocket."</p>
+                    <div class="author">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div class="a-info">
+                            <h5>Sarah Jenkins</h5>
+                            <span>Fitness Creator</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i></div>
+                    <p class="quote">"My watch time doubled because of the hooks generated by this AI. Absolute game
+                        changer for my YouTube Shorts strategy."</p>
+                    <div class="author">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div class="a-info">
+                            <h5>Michael Chen</h5>
+                            <span>Tech Reviewer</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star-half-stroke"></i></div>
+                    <p class="quote">"The multi-language captions allowed me to reach a whole new audience in South
+                        America. The automated translation is incredibly accurate."</p>
+                    <div class="author">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div class="a-info">
+                            <h5>Jessica Rodriguez</h5>
+                            <span>Travel Vlogger</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i></div>
+                    <p class="quote">"I used to spend 3 hours writing scripts for my reels. Now I do it in 5 minutes.
+                        The structure is perfect every single time."</p>
+                    <div class="author">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                        <div class="a-info">
+                            <h5>David Thompson</h5>
+                            <span>Finance Influencer</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="container faq-container">
+            <div class="section-header text-center">
+                <span class="section-tag">FAQ</span>
+                <h2>We've Got the Answers<br>You're Looking For</h2>
+                <p>Find quick answers to common questions about our platform.</p>
+            </div>
+
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>How long does it take to get setup?</h4>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Most of our clients are up and running within 24 hours. Our onboarding team assists you every
+                            step of the way to ensure a smooth transition without disrupting your current operations.
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>Do I need coding skills to use the platform?</h4>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Not at all! Our intuitive visual builder allows anyone to create complex automated workflows
+                            using simple drag-and-drop mechanics. No technical background required.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>Is my data secure?</h4>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Security is our top priority. We use AES-256 encryption, comply with GDPR and SOC2 standards,
+                            and perform regular third-party security audits to keep your data safe.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h4>Can I change my plan later?</h4>
+                        <i class="fa-solid fa-plus faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Yes, you can upgrade, downgrade, or cancel your subscription at any time. Prorated refunds
+                            are provided for mid-cycle downgrades or cancellations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="cta-bottom-section">
+        <div class="container">
+            <div class="cta-box">
+                <div class="cta-bg-glow"></div>
+                <h2>Start Creating Viral Content Now</h2>
+                <p>Join thousands of creators already growing with us.</p>
+                <a href="app/index.html" class="btn btn-primary btn-large">Try It Free <i
+                        class="fa-solid fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col brand-col">
+                    <div class="logo">
+                        <i class="fa-solid fa-cube logo-icon"></i>
+                        <span>Nexus</span>
+                    </div>
+                    <p class="footer-desc">Empowering businesses with intelligent automation and data-driven solutions
+                        for the modern world.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                        <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+                        <a href="#"><i class="fa-brands fa-github"></i></a>
+                        <a href="#"><i class="fa-brands fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Product</h4>
+                    <ul>
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Integrations</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Changelog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Nexus Inc. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
