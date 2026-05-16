@@ -14,7 +14,10 @@ async function analyze() {
     });
     data = await res.json();
   } catch (e) {
-    document.getElementById("right").innerHTML = `<div class="right-empty"><p style="color:#ff4d4d;">Network error. Is the server running?</p></div>`;
+    const hooksContent = document.getElementById("hooksContent");
+    if (hooksContent) {
+      hooksContent.innerHTML = `<div class="hooks-empty-state"><p style="color:#ff4d4d;">Network error. Is the server running?</p></div>`;
+    }
     return;
   }
 
@@ -55,6 +58,17 @@ async function analyze() {
     { key: "result",  label: "Result",  time: "22–26s", content: result                          },
     { key: "ending",  label: "Ending",  time: "",       content: ending,  cls: "ending-content"  },
   ].filter(s => s.content);
+
+  if (typeof window.renderScriptResult === "function") {
+    window.renderScriptResult({
+      sections: { hook, problem, shift, value, result, ending },
+      hooks: allHooks,
+      wordCount: script.word_count,
+      duration: script.word_count ? Math.ceil(script.word_count / 2.5) + "s" : "",
+      hashtags: script.hashtags || []
+    });
+    return;
+  }
 
   const copyable = [hook, problem, shift, value, result, ending].filter(Boolean).join("\n\n");
   const hasLabels = /\[HOOK\]/i.test(fs);
