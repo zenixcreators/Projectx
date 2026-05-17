@@ -566,6 +566,24 @@ h6,
   box-shadow: 0 0 24px var(--accent-glow);
 }
 
+.btn-ghost {
+  width: 34px;
+  height: 34px;
+  margin-right: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  background: var(--card);
+  cursor: pointer;
+  transition: background var(--t), color var(--t), border-color var(--t);
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  background: var(--hover);
+  border-color: var(--border-mid);
+}
+
 /* ─────────────────────────────────────────
    WORKSPACE & VIEWS
 ───────────────────────────────────────── */
@@ -603,4 +621,6 @@ h6,
     opacity: 1;
     transform: translateY(0);
   }
+}
+}
 }

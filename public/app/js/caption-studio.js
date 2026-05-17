@@ -1,134 +1,133 @@
 const LANGUAGES = [
-  { code: 'en', name: 'English', flag: 'EN', top: true },
-  { code: 'hi', name: 'Hindi', flag: 'HI', top: true },
-  { code: 'es', name: 'Spanish', flag: 'ES', top: true },
-  { code: 'fr', name: 'French', flag: 'FR', top: true },
-  { code: 'ar', name: 'Arabic', flag: 'AR', top: true },
-  { code: 'pt', name: 'Portuguese', flag: 'PT', top: true },
-  { code: 'de', name: 'German', flag: 'DE', top: true },
-  { code: 'zh', name: 'Chinese', flag: 'ZH', top: true },
-  { code: 'ja', name: 'Japanese', flag: 'JA', top: true },
-  { code: 'ko', name: 'Korean', flag: 'KO', top: true },
-  { code: 'it', name: 'Italian', flag: 'IT', top: false },
-  { code: 'ru', name: 'Russian', flag: 'RU', top: false },
-  { code: 'tr', name: 'Turkish', flag: 'TR', top: false },
-  { code: 'nl', name: 'Dutch', flag: 'NL', top: false },
+  { code: 'Tel', name: 'Telugu', top: true },
+  { code: 'en', name: 'English', top: true },
+  { code: 'hi', name: 'Hindi', top: true },
+  { code: 'es', name: 'Spanish', top: true },
+  { code: 'fr', name: 'French', top: true },
+  { code: 'ar', name: 'Arabic', top: true },
+  { code: 'pt', name: 'Portuguese', top: true },
+  { code: 'de', name: 'German', top: true },
+  { code: 'zh', name: 'Chinese', top: false },
+  { code: 'ja', name: 'Japanese', top: false },
+  { code: 'ko', name: 'Korean', top: false },
+  { code: 'it', name: 'Italian', top: false },
+  { code: 'ru', name: 'Russian', top: false },
+  { code: 'tr', name: 'Turkish', top: false },
+  { code: 'nl', name: 'Dutch', top: false },
 ];
 
-let selectedLangs = new Set(['en', 'hi', 'es']);
+let selectedLangs = new Set([]);
+let langDropdownOpen = false;
 
-function toggleLangCard(code, el) {
-  const check = el.querySelector('.check-circle');
+/* ---- Language Pills ---- */
+function renderLangPills() {
+  const wrap = document.getElementById('langPillsWrap');
+  if (!wrap) return;
+  wrap.innerHTML = [...selectedLangs].map(code => {
+    const l = LANGUAGES.find(x => x.code === code) || { name: code };
+    return `
+      <div class="lang-pill">
+        <span>${l.name}</span>
+        <button class="lang-pill-remove" onclick="toggleLangOpt('${code}')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>`;
+  }).join('');
+}
 
-  if (selectedLangs.has(code)) {
-    selectedLangs.delete(code);
-    el.classList.remove('active');
-    if (code === 'en') el.classList.remove('primary');
-    check.classList.add('empty');
-    check.innerHTML = '';
-    return;
+function removeLang(code) {
+  selectedLangs.delete(code);
+  renderLangPills();
+  renderLangDropdownGrid();
+}
+
+function toggleLangDropdown() {
+  const dd = document.getElementById('langDropdown');
+  if (!dd) return;
+  langDropdownOpen = !langDropdownOpen;
+  dd.style.display = langDropdownOpen ? 'block' : 'none';
+  if (langDropdownOpen) renderLangDropdownGrid();
+}
+
+function renderLangDropdownGrid() {
+  const grid = document.getElementById('langDropdownGrid');
+  if (!grid) return;
+  grid.innerHTML = LANGUAGES.map(l =>
+    `<button class="lang-opt ${selectedLangs.has(l.code) ? 'selected' : ''}" onclick="toggleLangOpt('${l.code}')">${l.name}</button>`
+  ).join('');
+}
+
+function toggleLangOpt(code) {
+  selectedLangs.has(code) ? selectedLangs.delete(code) : selectedLangs.add(code);
+  renderLangPills();
+  renderLangDropdownGrid();
+}
+
+/* Close dropdown on outside click */
+document.addEventListener('click', e => {
+  if (!e.target.closest('.lang-selector-studio-v2')) {
+    const dd = document.getElementById('langDropdown');
+    if (dd) dd.style.display = 'none';
+    langDropdownOpen = false;
   }
+});
 
-  selectedLangs.add(code);
-  el.classList.add('active');
-  check.classList.remove('empty');
-  check.innerHTML = '<i class="fa-solid fa-check"></i>';
-}
-
-function selectAllLangs() {
-  document.querySelectorAll('.lang-cards-grid .lang-card:not(.add-more)').forEach(el => {
-    const codeMatch = el.getAttribute('onclick')?.match(/'([^']+)'/);
-    if (!codeMatch) return;
-
-    const code = codeMatch[1];
-    if (!selectedLangs.has(code)) toggleLangCard(code, el);
-  });
-}
-
-function clearLangs() {
-  document.querySelectorAll('.lang-cards-grid .lang-card:not(.add-more)').forEach(el => {
-    const codeMatch = el.getAttribute('onclick')?.match(/'([^']+)'/);
-    if (!codeMatch) return;
-
-    const code = codeMatch[1];
-    if (selectedLangs.has(code)) toggleLangCard(code, el);
-  });
-}
-
+/* ---- Tab Switching ---- */
 function switchCapTab(name, btnEl) {
-  document.querySelectorAll('#caption-view .tab-panel').forEach(panel => {
-    panel.style.display = 'none';
-  });
-  document.querySelectorAll('#caption-view .in-tab').forEach(tab => tab.classList.remove('active'));
-
-  const targetPanel = document.getElementById('tab-' + name);
-  if (targetPanel) targetPanel.style.display = 'block';
+  document.querySelectorAll('#caption-view .comp-tab-panel').forEach(p => p.style.display = 'none');
+  document.querySelectorAll('#caption-view .mode-btn').forEach(t => t.classList.remove('active'));
+  const panel = document.getElementById('tab-' + name);
+  if (panel) panel.style.display = 'block';
   if (btnEl) btnEl.classList.add('active');
 }
 
+/* ---- Format Toggle ---- */
 function toggleFormatNew(el) {
   el.classList.toggle('active');
 }
 
+/* ---- Char Count ---- */
+function updateCharCount() {
+  const ta = document.getElementById('transcriptInput');
+  const cc = document.getElementById('charCount');
+  if (ta && cc) cc.textContent = ta.value.length + ' / 5000';
+}
+
+/* ---- File Handling ---- */
 function handleFile(input, type) {
   const file = input.files[0];
   if (!file) return;
-
   const el = document.getElementById(type + 'FileName');
-  if (el) el.textContent = 'Selected: ' + file.name;
+  if (el) el.textContent = file.name;
 }
 
-function initCaptionStudio() {
-  ['videoDropzone', 'audioDropzone'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-
-    el.addEventListener('dragover', e => {
-      e.preventDefault();
-      el.classList.add('drag-over');
-    });
-
-    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-
-    el.addEventListener('drop', e => {
-      e.preventDefault();
-      el.classList.remove('drag-over');
-
-      const fileInput = el.querySelector('input[type="file"]');
-      if (e.dataTransfer.files.length && fileInput) {
-        fileInput.files = e.dataTransfer.files;
-        handleFile(fileInput, id.replace('Dropzone', ''));
-      }
-    });
-  });
-}
-
+/* ---- Get Active Input ---- */
 function getActiveInput() {
-  const activePanel = document.querySelector('#caption-view .tab-panel:not([style*="display: none"])');
+  const activePanel = document.querySelector('#caption-view .comp-tab-panel:not([style*="display: none"])');
   if (!activePanel) return null;
 
   if (activePanel.id === 'tab-transcript') {
-    return { type: 'transcript', value: document.getElementById('transcriptInput').value.trim() };
+    return { type: 'transcript', value: document.getElementById('transcriptInput')?.value.trim() };
   }
   if (activePanel.id === 'tab-url') {
-    return { type: 'url', value: document.getElementById('urlInput').value.trim() };
+    return { type: 'url', value: document.getElementById('urlInput')?.value.trim() };
   }
   if (activePanel.id === 'tab-video') {
-    return { type: 'video', file: document.getElementById('videoFile').files[0] };
+    return { type: 'video', file: document.getElementById('videoFile')?.files[0] };
   }
   if (activePanel.id === 'tab-audio') {
-    return { type: 'audio', file: document.getElementById('audioFile').files[0] };
+    return { type: 'audio', file: document.getElementById('audioFile')?.files[0] };
   }
-
   return null;
 }
 
+/* ---- Generate ---- */
 async function generateCaptions() {
   const input = getActiveInput();
   if (!input) return;
 
   const langs = [...selectedLangs];
-  const formats = [...document.querySelectorAll('.fmt-chip.active')].map(el => el.dataset.fmt);
+  const formats = [...document.querySelectorAll('.fmt-pill.active')].map(el => el.dataset.fmt);
 
   if (!langs.length) return alert('Select at least one language.');
   if (!formats.length) return alert('Select at least one format.');
@@ -138,7 +137,12 @@ async function generateCaptions() {
 
   const btn = document.getElementById('genBtn');
   btn.disabled = true;
-  btn.innerHTML = '<div class="spinner"></div><span>Generating...</span>';
+  btn.innerHTML = '<div class="spinner"></div><span>Generating…</span>';
+
+  // Hide empty state, show results container
+  const canvasEmpty = document.getElementById('canvasEmpty');
+  const results = document.getElementById('results');
+  if (canvasEmpty) canvasEmpty.style.display = 'none';
 
   try {
     let body;
@@ -168,92 +172,214 @@ async function generateCaptions() {
     renderCaptionResults(data, langs, formats);
   } catch (err) {
     alert('Error: ' + err.message);
+    if (canvasEmpty) canvasEmpty.style.display = 'flex';
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '<span>Generate Again</span><span>&rarr;</span>';
+    btn.innerHTML = '<span>Generate Captions</span><i class="fa-solid fa-wand-magic-sparkles"></i>';
   }
 }
 
+/* ---- Helper: Extract YouTube ID ---- */
+function getYouTubeId(url) {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+}
+
+/* ---- Render Results ---- */
 function renderCaptionResults(data, langs, formats) {
   const tabsEl = document.getElementById('captionTabs');
   const outputsEl = document.getElementById('captionOutputs');
+  const previewEl = document.getElementById('videoPreview');
   const langMap = Object.fromEntries(LANGUAGES.map(l => [l.code, l]));
+  const input = getActiveInput();
 
-  tabsEl.innerHTML = langs.map((code, i) => {
-    const lang = langMap[code] || { flag: code.toUpperCase(), name: code };
-    return `<button class="caption-tab ${i === 0 ? 'active' : ''}" onclick="switchCaptionTab('${code}', this)">${lang.flag} ${lang.name}</button>`;
+  // Handle Preview
+  if (input.type === 'url' && input.value) {
+    const vidId = getYouTubeId(input.value);
+    if (vidId) {
+      previewEl.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}" allowfullscreen></iframe>`;
+    }
+  } else if (input.type === 'video' && input.file) {
+    const url = URL.createObjectURL(input.file);
+    previewEl.innerHTML = `<video src="${url}" controls style="width:100%; height:100%;"></video>`;
+  } else {
+    previewEl.innerHTML = `
+      <div class="preview-placeholder">
+        <i class="fa-solid fa-file-audio"></i>
+        <span>Audio Waveform Preview</span>
+      </div>`;
+  }
+
+  // Render Tabs
+  const defLang = langs.includes('en') ? 'en' : langs[0];
+
+  tabsEl.innerHTML = langs.map((code) => {
+    const lang = langMap[code] || { name: code };
+    return `<button class="caption-tab ${code === defLang ? 'active' : ''}" onclick="switchCaptionTab('${code}', this)">${lang.name}</button>`;
   }).join('');
 
-  outputsEl.innerHTML = langs.map((code, i) => {
-    const lang = langMap[code] || { flag: code.toUpperCase(), name: code };
+  // Render Outputs
+  outputsEl.innerHTML = langs.map((code) => {
+    const lang = langMap[code] || { name: code };
     const captions = data.captions?.[code] || {};
-    const defFmt = formats[0] || 'txt';
+    const defFmt = formats.includes('srt') ? 'srt' : (formats[0] || 'txt');
+    const content = captions[defFmt] || 'No content generated.';
+
+    // Try to segment if it's SRT
+    let finalHtml = '';
+    if (defFmt === 'srt' || defFmt === 'vtt') {
+      const segments = parseCaptionsToSegments(content);
+      finalHtml = `
+        <div class="transcript-list">
+          ${segments.map(s => `
+            <div class="caption-segment" onclick="seekVideo('${s.start}')">
+              <span class="segment-time">${s.time}</span>
+              <span class="segment-text">${s.text}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    } else {
+      finalHtml = `<div class="caption-text">${content}</div>`;
+    }
 
     return `
-      <div class="caption-output ${i === 0 ? 'active' : ''}" id="output-${code}">
-        <div class="caption-box">
-          <div class="caption-box-header">
-            <div class="caption-box-lang">${lang.flag} ${lang.name}</div>
-            <div class="caption-box-actions">
-              <div class="format-switcher">
-                ${formats.map(f =>
-                  `<button class="fmt-btn ${f === defFmt ? 'active' : ''}" onclick="switchFormat('${code}','${f}',this)">${f.toUpperCase()}</button>`
-                ).join('')}
-              </div>
-              <button class="caption-action" onclick="copyCaption('${code}')">Copy</button>
-              <button class="caption-action" onclick="downloadCaption('${code}')">Download</button>
-            </div>
-          </div>
-          <div class="caption-text" id="caption-text-${code}">${captions[defFmt] || 'No content.'}</div>
-        </div>
+      <div class="caption-output ${code === defLang ? 'active' : ''}" id="output-${code}">
+        ${finalHtml}
       </div>`;
   }).join('');
 
   document.getElementById('resultsCount').textContent =
-    langs.length + ' language' + (langs.length > 1 ? 's' : '') + ' - ' + formats.join(', ').toUpperCase();
+    langs.length + ' language' + (langs.length > 1 ? 's' : '') + ' · ' + formats.join(', ').toUpperCase();
 
   const results = document.getElementById('results');
-  results.style.display = 'block';
-  results.classList.add('show');
+  results.style.display = 'flex';
   results.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
   window._captionData = data;
   window._captionFormats = formats;
+  window._captionActiveLang = defLang;
 }
 
+/* ---- Parse SRT/VTT ---- */
+function parseCaptionsToSegments(text) {
+  // Simple SRT parser
+  const lines = text.trim().split(/\r?\n/);
+  const segments = [];
+  let current = {};
+
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) continue;
+
+    if (/^\d+$/.test(line)) {
+      if (current.text) segments.push(current);
+      current = {};
+    } else if (line.includes(' --> ')) {
+      current.time = line.split(' --> ')[0].split(',')[0]; // Simple HH:MM:SS
+      current.start = timeToSeconds(current.time);
+    } else {
+      current.text = current.text ? current.text + ' ' + line : line;
+    }
+  }
+  if (current.text) segments.push(current);
+  return segments;
+}
+
+function timeToSeconds(time) {
+  const parts = time.split(':').map(parseFloat);
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
+
+function seekVideo(seconds) {
+  const iframe = document.querySelector('#videoPreview iframe');
+  if (iframe && iframe.src.includes('youtube.com')) {
+    const baseUrl = iframe.src.split('?')[0];
+    iframe.src = `${baseUrl}?start=${Math.floor(seconds)}&autoplay=1`;
+  }
+  const video = document.querySelector('#videoPreview video');
+  if (video) {
+    video.currentTime = seconds;
+    video.play();
+  }
+}
+
+/* ---- Tab Switch ---- */
 function switchCaptionTab(code, btn) {
-  document.querySelectorAll('.caption-tab').forEach(tab => tab.classList.remove('active'));
-  document.querySelectorAll('.caption-output').forEach(output => output.classList.remove('active'));
+  document.querySelectorAll('.caption-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.caption-output').forEach(o => o.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('output-' + code).classList.add('active');
+  document.getElementById('output-' + code)?.classList.add('active');
+  window._captionActiveLang = code;
 }
 
+/* ---- Format Switch ---- */
 function switchFormat(code, fmt, btn) {
-  const parent = btn.closest('.caption-box');
-  parent.querySelectorAll('.fmt-btn').forEach(button => button.classList.remove('active'));
+  btn.closest('.format-switcher').querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
   document.getElementById('caption-text-' + code).textContent =
     window._captionData?.captions?.[code]?.[fmt] || 'No content.';
 }
 
+/* ---- Copy & Download ---- */
 function copyCaption(code) {
   const btn = window.event?.target;
-  navigator.clipboard.writeText(document.getElementById('caption-text-' + code).textContent).catch(() => {});
-
+  navigator.clipboard.writeText(document.getElementById('caption-text-' + code)?.textContent || '').catch(() => { });
   if (!btn) return;
   btn.textContent = 'Copied!';
   setTimeout(() => btn.textContent = 'Copy', 2000);
+}
+
+function copyActiveCaption() {
+  const active = document.querySelector('.caption-output.active .caption-text');
+  if (active) navigator.clipboard.writeText(active.textContent).catch(() => { });
 }
 
 function downloadCaption(code) {
   const textEl = document.getElementById('caption-text-' + code);
   const fmt = document.querySelector(`#output-${code} .fmt-btn.active`)?.textContent?.trim()?.toLowerCase() || 'txt';
   const a = document.createElement('a');
-
-  a.href = URL.createObjectURL(new Blob([textEl.textContent], { type: 'text/plain' }));
+  a.href = URL.createObjectURL(new Blob([textEl?.textContent || ''], { type: 'text/plain' }));
   a.download = `captions_${code}.${fmt}`;
   a.click();
+}
+
+function downloadActiveCaption() {
+  const activeOutput = document.querySelector('.caption-output.active');
+  if (!activeOutput) return;
+  const code = activeOutput.id.replace('output-', '');
+  downloadCaption(code);
+}
+
+function shareCaptions() {
+  alert('Share functionality coming soon to Aurora Pro!');
+}
+
+/* ---- Init ---- */
+function initCaptionStudio() {
+  renderLangPills();
+  updateCharCount();
+
+  const ta = document.getElementById('transcriptInput');
+  if (ta) ta.addEventListener('input', updateCharCount);
+
+  ['videoDropzone', 'audioDropzone'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
+    el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+    el.addEventListener('drop', e => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      const fileInput = el.querySelector('input[type="file"]');
+      if (e.dataTransfer.files.length && fileInput) {
+        fileInput.files = e.dataTransfer.files;
+        handleFile(fileInput, id.replace('Dropzone', ''));
+      }
+    });
+  });
 }
 
 if (document.getElementById('caption-view')) {

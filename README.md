@@ -1,134 +1,73 @@
-# Nexus Creator Studio 🚀
+# Project Name: [Undefined]
 
-**Nexus Creator Studio** is a high-fidelity, AI-powered SaaS dashboard built specifically for content creators. It bridges the gap between raw ideas and ready-to-publish content by providing state-of-the-art script generation and automated, multi-language captioning.
+## 📌 Project Overview
+**[Undefined]** is an AI-powered SaaS workspace designed for modern content creators. It provides an immersive, modular studio environment for generating viral scripts, multi-language captions, and high-CTR thumbnail concepts. The project heavily relies on advanced AI models (Llama via the Groq API) to automate and optimize the creative workflow.
 
----
-
-## 📑 Table of Contents
-1. [Core Features](#-core-features)
-2. [Frontend Architecture (UI)](#-frontend-architecture-ui)
-3. [Backend Architecture](#-backend-architecture)
-4. [API Endpoints](#-api-endpoints)
-5. [Directory Structure](#-directory-structure)
-6. [Setup & Installation](#-setup--installation)
+The project currently features a custom premium design system, characterized by clean glass-morphism, sophisticated typography, and a unified SPA (Single Page Application) workspace architecture.
 
 ---
 
-## 🎯 Core Features
+## 🏗️ Major Architecture (Start to End)
+The repository is structured as a modular, high-performance web application featuring a unified Express backend and a sophisticated vanilla HTML/CSS/JS frontend.
 
-### 1. Tone-Aware Script Generator
-An AI engine designed to craft high-retention video scripts. 
-- **Dynamic Hook Generation**: Automatically creates primary and alternative hooks to capture audience attention instantly.
-- **Structured Storytelling**: Formats scripts with proven frameworks: `[HOOK]`, `[PROBLEM]`, `[SHIFT]`, `[VALUE]`, `[RESULT]`, and `[ENDING]`.
-- **Tone Adjustments**: Tailors the output format (e.g., Conversational, Professional, Energetic) based on the target demographic.
-- **LLM Redundancy**: Falls back across multiple Llama-3/Llama-4 models (e.g., 70b-versatile, 17b-instruct) to ensure high availability and robust output.
+### 1. Frontend Architecture (Client-Side)
+- **Static Assets Delivery**: The Express server delivers the landing page and the SPA shell directly to the browser.
+- **Landing Page (`public/index.html`)**: A high-conversion entry point using Vanilla HTML, CSS, and JS for dynamic scroll animations and feature mockups.
+- **The Workspace SPA (`public/app/`)**: The core application shell. It uses a custom Vanilla JS router (`partials.js`) to dynamically load different tools (Script Studio, Caption Studio, Thumbnail Studio) into the main view without reloading the page.
+- **State & UI Management**: Handled entirely via Vanilla JS (`app.js` and feature-specific controllers) interacting directly with the DOM.
 
-### 2. Multi-Language Caption Generator
-A full-scale transcription and translation pipeline for global reach.
-- **Whisper AI Transcription**: Transcribes audio/video files directly using Whisper-large-v3.
-- **YouTube Integration**: Directly fetches transcripts from YouTube URLs via the `youtube-transcript` library.
-- **Auto-Timestamps**: Intelligently builds or aligns segment timestamps for precise subtitle pacing.
-- **Multi-Format Export**: Generates `.SRT`, `.VTT`, and raw `.TXT` formats simultaneously.
-- **AI Translation**: Seamlessly translates captions into over 30 global languages (Hindi, Spanish, French, Japanese, etc.) using batched AI translation pipelines.
+### 2. Backend Architecture (Server-Side)
+- **Entry Point (`server.js`)**: Initializes the Express application, serves the static frontend files, and listens on a specified port.
+- **API Routing**: Handles internal POST requests from the frontend, formats AI prompts, and securely communicates with external APIs.
+- **AI Processing Layer**: Constructs contextual prompts and streams or fetches responses using the Groq API for near-instant inference.
 
 ---
 
-## 🎨 Frontend Architecture (UI)
+## 💻 Tech Stack
+### Frontend (User Interface)
+- **HTML5**: Semantic structure and modular partials.
+- **CSS3 (Vanilla)**: Custom premium design system utilizing CSS Grid, Flexbox, Glass-morphism, and CSS variables. No external frameworks (like Tailwind or Bootstrap) are used, ensuring a unique visual identity.
+- **JavaScript (Vanilla / ES6+)**: Handles all DOM manipulation, SPA routing, animations, and asynchronous API calls to the backend.
 
-The UI has been upgraded to a modern, production-grade **Single Page Application (SPA)** built with React, TypeScript, and Tailwind CSS v4, delivering a cinematic and premium user experience ("Aurora").
+### Backend (Server & API)
+- **Node.js**: The core runtime environment for the server.
+- **Express.js**: The web framework used for routing API endpoints and serving static frontend files.
+- **Axios / Node Fetch**: Used internally on the backend to make HTTP requests to third-party APIs.
 
-- **Technology Stack**: React, TypeScript, Tailwind CSS v4, React Router, Axios, motion/react.
-- **Design System**: Features a cinematic black theme (`#0a0a0a`), premium motion with `motion/react`, and Apple/Linear-inspired minimal grayscale surfaces.
-- **Authentication State**: Global state managed via `AuthContext.tsx` with persistent JWT-based sessions. Includes protected routing that redirects unauthorized users to login and forces multi-step onboarding for new users.
-- **Location**: Client-side React code resides in the `/src` directory.
-
----
-
-## ⚙️ Backend Architecture
-
-The backend is a robust REST API combining Node.js/Express, MongoDB for data persistence, and the Groq API for LLM inferencing.
-
-- **Technology Stack**: Node.js, Express.js, MongoDB (Mongoose), JSON Web Tokens (JWT).
-- **Authentication System**: Complete production-grade auth flow featuring `bcryptjs` password hashing, secure `httpOnly` cookie persistence, and JWT middleware (`protect`).
-- **File Handling**: Uses `Multer` (in-memory storage) for fast audio/video uploads.
-- **AI Integration (Groq)**: High-speed inference engine for text completion and audio transcription with smart fallback mechanisms.
+### Third-Party APIs & Integrations
+- **Groq API**: Powers the AI features (Scripting, Captions, Thumbnail analysis) using lightning-fast Llama models.
+- **YouTube Transcript API**: Utilized for fetching existing captions and data from YouTube URLs.
 
 ---
 
-## 🔌 API Endpoints
+## 🚀 Features (Present State)
 
-### Authentication Endpoints
-- **`POST /api/auth/signup`**: Validates input, hashes password, creates user, issues JWT cookie, and returns user data.
-- **`POST /api/auth/login`**: Validates credentials against hashed passwords, issues JWT cookie.
-- **`POST /api/auth/logout`**: Clears the secure JWT cookie.
-- **`GET /api/auth/me`**: Returns the current authenticated user's profile (Protected).
-- **`PUT /api/auth/onboarding`**: Updates the user's creator type, preferred tone, and primary language after signup (Protected).
+### ✅ Completed Features
+- **High-Conversion Landing Page**: Fully responsive with scroll-reveals, interactive mockups, and fixed-layout animations.
+- **Script Studio**: An AI-powered script generator focusing on hook engineering, structured framework building ([PROBLEM], [SHIFT], [VALUE]), and distinct tone controls.
+- **Caption Studio**: A multi-language subtitle generation environment supporting multiple localized outputs in a clean grid interface.
+- **Thumbnail Studio**: An analytical tool for visual strategy, featuring visual DNA analysis, psychological trigger breakdown, and attention scoring.
+- **Modular SPA Engine**: Seamless, non-reloading navigation between the different studio tools.
 
-### AI Generation Endpoints
-### `POST /analyze`
-Generates a highly-structured video script based on a prompt and tone.
-- **Payload**: `{ "input": "Video topic...", "tone": "Conversational" }`
-- **Response**: JSON containing the `full_script`, primary `hooks`, `alt_hooks`, and suggested `ideas`.
-
-### `POST /caption`
-Processes media (file upload, raw text, or YouTube URL) and outputs localized captions.
-- **Payload (Multipart Form or JSON)**:
-  - `type`: `"audio"` | `"url"` | `"text"`
-  - `langs`: Array of target languages (e.g., `["en", "es"]`).
-  - `formats`: Array of export formats (e.g., `["srt", "vtt"]`).
+### ❌ Not Completed (Left to Do)
+- **Login & Authentication System**: Currently **NOT COMPLETED**. There is no user authentication, session management, registration, or secure routing in place. Anyone can access the studio shell.
+- **Database Integration**: User data, generated scripts, and past project histories are not being saved. We need to integrate a database (e.g., MongoDB, PostgreSQL, or Firebase).
+- **User Dashboard**: A personalized hub to view past projects, usage statistics, and account settings is missing.
+- **Payment Gateway Integration**: Stripe or similar integration is required to handle Free/Pro/Agency subscription tiers.
+- **State Persistence**: If the user refreshes the page, their current AI-generated work inside the studio is lost.
 
 ---
 
-## 📁 Directory Structure
+## 🔒 Security
 
-```text
-/
-├── server.js              # Express Application Entry Point
-├── package.json           # Node.js dependencies and scripts
-├── tsconfig.json          # TypeScript config for the frontend
-├── .env                   # Environment variables (DB URI, API Keys, JWT_SECRET)
-├── backend/
-│   ├── models/            # MongoDB Mongoose schemas (User.js)
-│   ├── routes/            # Auth and API routing
-│   ├── controllers/       # Business logic (authController.js)
-│   ├── middleware/        # Route protection logic (authMiddleware.js)
-│   └── utils/             # Helpers (generateToken.js)
-├── routes/                # AI routing (caption.js)
-├── prompts/               # AI Prompt Engineering templates
-├── public/                # Legacy Vanilla UI assets
-└── src/                   # React TypeScript Frontend (Aurora)
-    ├── pages/             # Login.tsx, Signup.tsx, Onboarding.tsx
-    ├── components/        # React components
-    ├── context/           # AuthContext.tsx
-    ├── routes/            # ProtectedRoute.tsx
-    └── services/          # API Axios calls (auth.ts)
-```
+### Current State
+- **API Key Protection**: External API keys (like `GROQ_API_KEY`) are kept on the backend in a `.env` file, preventing them from being exposed to the client-side browser.
+
+### What We Should Do Further
+- **Implement Authentication**: Build a secure JWT-based authentication system or OAuth (Google/Discord login) to restrict access to the studio.
+- **Rate Limiting**: Add rate limiting to backend AI routes to prevent API abuse and control Groq API billing costs.
+- **Input Sanitization**: Implement rigorous input validation and sanitization on both frontend and backend to prevent XSS (Cross-Site Scripting) and prompt injection attacks.
+- **Production Readiness**: Setup CORS restrictions, Helmet.js for secure HTTP headers, and ensure HTTPS/SSL is configured for production deployment.
 
 ---
 
-## 🚀 Setup & Installation
-
-### 1. Prerequisites
-- Node.js (v18 or higher)
-- A [Groq](https://groq.com/) API Key for AI inferencing.
-
-### 2. Environment Variables
-Create a `.env` file in the root directory:
-```env
-GROQ_API_KEY=your_groq_api_key_here
-PORT=3000
-```
-
-### 3. Installation
-Clone the repository and install dependencies:
-```bash
-npm install
-```
-
-### 4. Running the Application
-Start the Node.js server:
-```bash
-npm start
-```
-By default, the server runs on `http://localhost:3000`. Open this URL in your browser to access the Nexus Creator Studio dashboard.
-# Project-x

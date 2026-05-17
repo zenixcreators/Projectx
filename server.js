@@ -1,112 +1,50 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const axios = require("axios");
+require('dotenv').config({ override: true });
+const express = require('express');
+const path = require('path');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
-const getPrompt = require("./prompts/contentPrompt");
-const parseResponse = require("./utils/parser");
+// Import authentication services
+const { requireApiAuth, requirePageAuth } = require("./services/auth/session");
+
+// Import routes
+const authRoute = require("./routes/auth");
 const captionRoute = require("./routes/caption");
+const generationRoute = require("./routes/generation");
+const scriptRoute = require("./routes/script");
 
 const app = express();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
-// ── IMPORTANT: routes BEFORE express.static ──
-// If static comes first, Express serves index.html for unknown routes
-// and the frontend gets HTML instead of JSON → "Unexpected token '<'" error
+// 1. Auth routes (Public)
+app.use(authRoute);
+
+// 2. Protected App Static Area
+app.use('/app', requirePageAuth, express.static(path.join(__dirname, 'public/app')));
+
+// 3. Protected API Routes
+// We apply the requireApiAuth middleware to specific paths before loading the routes
+// This protects the endpoints while preserving their original URL structure
+app.use(['/caption', '/analyze', '/api/generate-image', '/api/generated-images'], requireApiAuth);
+
 app.use(captionRoute);
+app.use(scriptRoute);
+app.use(generationRoute);
 
-app.use(express.static("public"));
+// 4. Public Static Files (Landing, Login, Signup)
+app.use(express.static('public'));
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-
-const MODELS = [
-  "llama-3.3-70b-versatile",
-  "meta-llama/llama-4-scout-17b-16e-instruct",
-  "llama-3.1-70b-versatile",
-  "llama-3.1-8b-instant"
-];
-
-const SYSTEM_MSG = `You are a JSON API. Output only raw valid JSON. No markdown. No explanation. Start with { end with }.
-
-CRITICAL RULE: The "full_script" field MUST contain these exact labeled sections in this exact order:
-[HOOK] the hook line.
-
-[PROBLEM] what went wrong. more detail.
-
-[SHIFT] the realization moment.
-
-[VALUE] the one thing that changed.
-
-[RESULT] what happened after.
-
-[ENDING] the final reframe line.
-
-Each label must appear in square brackets exactly as shown above. This is required. No plain paragraphs.`;
-
-app.post("/analyze", async (req, res) => {
-  const { input, tone } = req.body;
-  console.log("INPUT:", input, "TONE:", tone);
-
-  const prompt = getPrompt(input, tone || "Conversational");
-  let lastError;
-
-  for (const model of MODELS) {
-    try {
-      console.log(`Trying model: ${model}`);
-
-      const response = await axios.post(
-        "https://api.groq.com/openai/v1/chat/completions",
-        {
-          model,
-          messages: [
-            { role: "system", content: SYSTEM_MSG },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
-        },
-        {
-          headers: {
-            "Authorization": `Bearer ${GROQ_API_KEY}`,
-            "Content-Type": "application/json"
-          }
-        }
-      );
-
-      const text = response.data.choices[0].message.content;
-      console.log("======= RAW =======\n", text, "\n===================");
-
-      const script = parseResponse(text);
-      console.log("KEYS:", Object.keys(script));
-      console.log("full_script:", (script.full_script || "MISSING").slice(0, 120));
-
-      const hooks = [];
-      if (script.hook) hooks.push({ text: script.hook, style: script.hook_type || "" });
-      (script.alt_hooks || []).forEach(h => hooks.push({ text: typeof h === "string" ? h : h.text || "", style: "" }));
-
-      return res.json({
-        hooks,
-        scripts: [script],
-        ideas: script.hashtags || [],
-        model_used: model
-      });
-
-    } catch (err) {
-      const errMsg = err.response?.data?.error?.message || err.message;
-      console.warn(`Model ${model} failed: ${errMsg}`);
-      lastError = errMsg;
-    }
-  }
-
-  console.error("All models failed:", lastError);
-  res.json({
-    hooks: [],
-    scripts: [{ hook: "All models failed.", full_script: "", alt_hooks: [] }],
-    ideas: [],
-    error: lastError
-  });
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send('Something broke!');
 });
 
-app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

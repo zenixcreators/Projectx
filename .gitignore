@@ -1,5 +1,6 @@
 node_modules
 .env
+data/users.json
 dist
 build
 desktop.ini

@@ -757,9 +757,10 @@ section {
 
 .mockup-content {
     padding: 2.5rem;
-    min-height: 280px;
+    height: 380px;
     background: var(--bg-main);
     position: relative;
+    overflow: hidden;
 }
 
 /* 1. Chat Hooks Mockup Animation */

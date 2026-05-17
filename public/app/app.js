@@ -1,145 +1,132 @@
-async function analyze() {
-  const input = document.getElementById("input").value;
-  if (!input.trim()) return;
-  
-  const toneEl = document.getElementById("tone");
-  const tone = toneEl ? toneEl.value : "Conversational";
+/**
+ * Main App Dashboard Logic
+ * Handles user profile display, view switching, and AI analysis
+ */
 
-  let data;
-  try {
-    const res = await fetch("/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ input, tone })
-    });
-    data = await res.json();
-  } catch (e) {
-    const hooksContent = document.getElementById("hooksContent");
-    if (hooksContent) {
-      hooksContent.innerHTML = `<div class="hooks-empty-state"><p style="color:#ff4d4d;">Network error. Is the server running?</p></div>`;
-    }
-    return;
-  }
+// --- Global State ---
+let currentUser = null;
 
-  console.log("DATA:", data);
+/**
+ * Initializes the dashboard by fetching user data
+ */
+async function loadCurrentUser() {
+    const user = await window.Auth?.check();
+    if (!user) return; // Auth.js handles redirection if missing
 
-  const script = (data.scripts || [])[0] || {};
-
-  // ── HOOKS ──
-  const mainHook = script.hook || "";
-  const altHooks = (script.alt_hooks || []).map(h => typeof h === "string" ? h : (h.text || ""));
-  const allHooks = mainHook ? [mainHook, ...altHooks.filter(h => h !== mainHook)] : altHooks;
-
-  document.getElementById("hooks").innerHTML = allHooks.length
-    ? allHooks.map((text, i) => `
-        <div class="hook-item ${i === 0 ? "best" : ""}">
-          <div style="flex:1;">
-            ${i === 0 ? `<div class="hook-best-tag">⚡ Best Hook</div>` : ""}
-            <div class="hook-text">${text}</div>
-          </div>
-          <button class="hook-copy" onclick="copyText(this)" data-text="${text.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">Copy</button>
-        </div>`).join("")
-    : `<div class="empty-state"><div>No hooks returned</div></div>`;
-
-  // ── SCRIPT ──
-  const fs = script.full_script || "";
-  const hook    = ex(fs, "HOOK")    || script.hook    || "";
-  const problem = ex(fs, "PROBLEM") || script.setup   || "";
-  const shift   = ex(fs, "SHIFT")   || "";
-  const value   = ex(fs, "VALUE")   || script.value   || "";
-  const result  = ex(fs, "RESULT")  || "";
-  const ending  = ex(fs, "ENDING")  || script.cta     || "";
-
-  const sections = [
-    { key: "hook",    label: "Hook",    time: "0–3s",   content: hook,    cls: "hook-content"   },
-    { key: "problem", label: "Problem", time: "3–8s",   content: problem                         },
-    { key: "shift",   label: "Shift",   time: "8–12s",  content: shift                           },
-    { key: "value",   label: "Value",   time: "12–22s", content: value                           },
-    { key: "result",  label: "Result",  time: "22–26s", content: result                          },
-    { key: "ending",  label: "Ending",  time: "",       content: ending,  cls: "ending-content"  },
-  ].filter(s => s.content);
-
-  if (typeof window.renderScriptResult === "function") {
-    window.renderScriptResult({
-      sections: { hook, problem, shift, value, result, ending },
-      hooks: allHooks,
-      wordCount: script.word_count,
-      duration: script.word_count ? Math.ceil(script.word_count / 2.5) + "s" : "",
-      hashtags: script.hashtags || []
-    });
-    return;
-  }
-
-  const copyable = [hook, problem, shift, value, result, ending].filter(Boolean).join("\n\n");
-  const hasLabels = /\[HOOK\]/i.test(fs);
-
-  document.getElementById("right").innerHTML = `
-    <div class="script-card">
-
-      <div class="script-header">
-        <div class="script-header-left">
-          <div class="script-header-icon">🎬</div>
-          <div class="script-header-title">Your Script</div>
-        </div>
-        <div class="script-meta">
-          ${script.word_count ? `<div class="meta-pill">${script.word_count}w</div>` : ""}
-          ${script.virality_score ? `<div class="score-pill">★ ${script.virality_score}/10</div>` : ""}
-        </div>
-      </div>
-
-      <div class="script-body">
-        ${hasLabels && sections.length
-          ? sections.map(s => `
-              <div class="section-block">
-                <div class="section-row">
-                  <div class="section-name">${s.label}</div>
-                  ${s.time ? `<div class="section-time">${s.time}</div>` : ""}
-                </div>
-                <div class="section-content ${s.cls || ""}">${s.content}</div>
-              </div>`).join("")
-          : `<div class="section-content" style="white-space:pre-wrap;">${fs || "Script could not be parsed."}</div>`
+    currentUser = user;
+    
+    // Update UI elements
+    const userNameEl = document.getElementById('userName');
+    const userAvatarEl = document.getElementById('userAvatar');
+    
+    if (userNameEl) userNameEl.textContent = user.name || user.email;
+    if (userAvatarEl) {
+        if (user.avatar) {
+            userAvatarEl.innerHTML = `<img src="${user.avatar}" alt="${user.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+        } else {
+            userAvatarEl.textContent = (user.firstName || user.name || 'U').charAt(0).toUpperCase();
         }
-      </div>
+    }
 
-      <div class="script-footer">
-        ${script.virality_reason ? `
-          <div class="meta-row">
-            <span class="meta-icon">💡</span>
-            <span><strong>Why it works:</strong> ${script.virality_reason}</span>
-          </div>` : ""}
-        ${script.delivery_notes ? `
-          <div class="meta-row">
-            <span class="meta-icon">🎙</span>
-            <span><strong>Delivery:</strong> ${script.delivery_notes}</span>
-          </div>` : ""}
-        ${(script.hashtags || []).length ? `
-          <div class="meta-row" style="flex-direction:column;gap:8px;">
-            <span style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);">Hashtags</span>
-            <div class="hashtags">${script.hashtags.map(h => `<span class="hashtag">${h}</span>`).join("")}</div>
-          </div>` : ""}
-        <button class="copy-btn" onclick="copyText(this)" data-text="${copyable.replace(/"/g,'&quot;').replace(/\n/g,'&#10;')}">
-          📋 Copy Full Script
-        </button>
-      </div>
-
-    </div>`;
+    // Reveal app container
+    const appContainer = document.querySelector('.app-container');
+    if (appContainer) {
+        appContainer.style.opacity = '1';
+        appContainer.style.visibility = 'visible';
+    }
 }
 
-function ex(fs, label) {
-  if (!fs) return "";
-  const m = fs.match(new RegExp(`\\[${label}\\]([\\s\\S]*?)(?=\\[|$)`, "i"));
-  return m ? m[1].replace(/^\s*\.\.\.\s*$/gm, "").trim() : "";
+/**
+ * AI Analysis logic (Script Generation, etc.)
+ */
+async function analyze() {
+    const input = document.getElementById("input")?.value || document.getElementById("mainInput")?.value;
+    if (!input || !input.trim()) return;
+    
+    const toneEl = document.getElementById("tone");
+    const tone = toneEl ? toneEl.value : (window.activeTone || "Conversational");
+
+    let data;
+    try {
+        const res = await fetch("/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ input, tone })
+        });
+        
+        if (!res.ok) {
+            if (res.status === 401) return window.Auth.logout();
+            throw new Error('Analysis failed');
+        }
+        
+        data = await res.json();
+    } catch (e) {
+        console.error("Analysis Error:", e);
+        const hooksContent = document.getElementById("hooksContent");
+        if (hooksContent) {
+            hooksContent.innerHTML = `<div class="hooks-empty-state"><p style="color:#ff4d4d;">Network error. Please try again.</p></div>`;
+        }
+        return;
+    }
+
+    console.log("DATA RECEIVED:", data);
+    
+    const script = (data.scripts || [])[0] || data || {};
+    
+    // ── SCRIPT SECTIONS ──
+    const sections = script.sections || {
+        hook: script.hook || "",
+        problem: script.problem || script.setup || "",
+        shift: script.shift || "",
+        value: script.value || "",
+        result: script.result || "",
+        ending: script.ending || script.cta || ""
+    };
+
+    // ── HOOKS LOGIC ──
+    // Get all hooks and clean them up
+    let rawHooks = script.hooks || script.alt_hooks || [];
+    let allHooks = rawHooks.map(h => typeof h === "string" ? h : (h.text || h.hook || ""));
+
+    // Ensure the "best" hook from the script is in the list
+    const bestHook = sections.hook;
+    if (bestHook && !allHooks.includes(bestHook)) {
+        allHooks.unshift(bestHook); // Add it to the top if missing
+    }
+    
+    // Limit to exactly 5 if needed (user requested exactly 5)
+    allHooks = allHooks.slice(0, 5);
+
+    // Call the global render function
+    if (typeof window.renderScriptResult === "function") {
+        window.renderScriptResult({
+            sections: sections,
+            hooks: allHooks,
+            bestHook: bestHook, // Explicitly pass the best hook
+            wordCount: script.wordCount || script.word_count,
+            duration: script.duration,
+            hashtags: script.hashtags || [],
+            virality_score: script.virality_score,
+            virality_reason: script.virality_reason
+        });
+    }
 }
 
+/**
+ * Utility to copy text to clipboard
+ */
 function copyText(btn) {
-  const text = btn.getAttribute("data-text");
-  navigator.clipboard.writeText(text).catch(() => {
-    const ta = document.createElement("textarea");
-    ta.value = text; document.body.appendChild(ta);
-    ta.select(); document.execCommand("copy");
-    document.body.removeChild(ta);
-  });
-  const orig = btn.textContent;
-  btn.textContent = "Copied!";
-  setTimeout(() => btn.textContent = orig, 2000);
+    const text = btn.getAttribute("data-text");
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = orig, 2000);
+    }).catch(err => {
+        console.error('Copy failed', err);
+    });
 }
+
+// Initialize on load
+document.addEventListener("DOMContentLoaded", () => {
+    loadCurrentUser();
+});

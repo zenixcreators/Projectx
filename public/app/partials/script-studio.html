@@ -38,6 +38,14 @@
                 Hooks
                 <span id="hookCount" style="display:none;">0</span>
               </div>
+              <div class="hook-tester">
+                <textarea id="hookTesterInput" rows="3" placeholder="Paste a hook to test..."></textarea>
+                <button class="hook-test-main-btn" id="hookTesterBtn" onclick="testManualHook()">
+                  <i class="fa-solid fa-gauge-high"></i>
+                  <span>Test Hook</span>
+                </button>
+                <div id="hookTesterResult"></div>
+              </div>
               <div id="hooksContent">
                 <div class="hooks-empty-state">
                   <div class="ei">🎣</div>
@@ -53,7 +61,7 @@
             <div class="input-shell">
               <textarea id="mainInput" rows="1"
                 placeholder="Describe your content topic… e.g. I lost 5kg in 30 days and want to share how"
-                maxlength="300" oninput="autoResize(this)"></textarea>
+                maxlength="2000" oninput="autoResize(this)"></textarea>
               <div class="input-bottom-row">
                 <div class="tone-strip" id="toneStrip"></div>
                 <button class="generate-btn" id="generateBtn" onclick="triggerGenerate()">

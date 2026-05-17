@@ -10,6 +10,7 @@
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../app/app.css">
+  <script src="../auth.js"></script>
 </head>
 
 <body>
@@ -101,9 +102,9 @@
           <button class="upgrade-btn">Upgrade to Pro →</button>
         </div>
         <div class="user-row">
-          <div class="user-avatar">NK</div>
+          <div class="user-avatar" id="userAvatar">--</div>
           <div class="user-meta">
-            <div class="user-name">Nilesh Kumar</div>
+            <div class="user-name" id="userName">Loading...</div>
             <div class="user-plan">Free · 3 scripts left</div>
           </div>
         </div>
@@ -121,6 +122,9 @@
           <span class="topbar-badge">LIVE</span>
         </div>
         <div style="margin-left:auto;">
+          <button class="btn-ghost" id="logoutBtn" title="Log out">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
           <button class="btn-primary" onclick="document.querySelector('.upgrade-btn').click()">
             Upgrade Plan
           </button>
@@ -135,17 +139,17 @@
           <div data-partial="partials/thumbnail-studio.html"></div>
         </div>
 
-    </main>
-  </div>
+      </main>
+    </div>
   </div>
 
   <!-- Scripts -->
-  <script src="js/partials.js"></script>
-  <script src="app.js"></script>
-  <script src="js/shared.js"></script>
-  <script src="js/script-studio.js"></script>
-  <script src="js/caption-studio.js"></script>
-  <script src="js/thumbnail-studio.js"></script>
+  <script src="js/partials.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+  <script src="js/shared.js?v=2"></script>
+  <script src="js/script-studio.js?v=2"></script>
+  <script src="js/caption-studio.js?v=2"></script>
+  <script src="js/thumbnail-studio.js?v=2"></script>
 </body>
 
 </html>

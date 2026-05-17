@@ -1,230 +1,179 @@
 <section id="caption-view" class="view-section">
+  <div class="caption-studio-layout">
 
-          <div class="caption-studio-layout">
+    <!-- Output Canvas (Enhanced for YouTube/Video preview) -->
+    <div class="caption-canvas" id="captionCanvas">
+      <div class="canvas-empty-state" id="canvasEmpty">
+        <div class="empty-icon-wrap">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+        </div>
+        <h3>Ready to Transcribe?</h3>
+        <p>Your AI-generated captions will appear here with a full preview.</p>
+        <div class="empty-steps">
+          <span><i class="fa-solid fa-check"></i> Select Source</span>
+          <span><i class="fa-solid fa-check"></i> Choose Languages</span>
+          <span><i class="fa-solid fa-check"></i> Hit Generate</span>
+        </div>
+      </div>
 
-            <!-- Header -->
-            <header class="caption-header">
-              <h1 class="clash">Multi-Language Captions</h1>
-              <p class="inter subtitle">Generate accurate captions in 30+ languages from video, audio, or text.</p>
-            </header>
-
-            <!-- Top Grid -->
-            <div class="caption-top-grid">
-
-              <!-- Left: Input Source -->
-              <div class="caption-panel input-source-panel">
-                <div class="panel-header">
-                  <div class="step-num-alt">1</div>
-                  <h2>Input Source</h2>
-                </div>
-
-                <div class="input-tabs">
-                  <button class="in-tab active" onclick="switchCapTab('transcript', this)"><i
-                      class="fa-solid fa-pen"></i> Text</button>
-                  <button class="in-tab" onclick="switchCapTab('url', this)"><i class="fa-solid fa-link"></i> YouTube
-                    URL</button>
-                  <button class="in-tab" onclick="switchCapTab('video', this)"><i class="fa-solid fa-file-video"></i>
-                    Video File</button>
-                  <button class="in-tab" onclick="switchCapTab('audio', this)"><i class="fa-solid fa-microphone"></i>
-                    Audio File</button>
-                </div>
-
-                <div class="tab-panel active" id="tab-transcript">
-                  <div class="transcript-box">
-                    <textarea id="transcriptInput"
-                      placeholder="Paste your transcript here...">The right mindset can change everything.&#10;It's not about being perfect.&#10;It's about being better than you were yesterday.&#10;Small daily progress leads to big results over time.&#10;Stay consistent and never stop growing.</textarea>
-                    <div class="textarea-footer">
-                      <span class="char-count" id="charCount">250 / 5000</span>
-                      <button class="clear-btn" onclick="document.getElementById('transcriptInput').value='';">Clear <i
-                          class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="tab-panel" id="tab-url" style="display:none;">
-                  <div class="url-input-wrap">
-                    <input type="text" id="urlInput" placeholder="https://youtube.com/watch?v=…"
-                      style="width:100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border-soft); border-radius: 8px; color: var(--text);" />
-                  </div>
-                </div>
-
-                <div class="tab-panel" id="tab-video" style="display:none;">
-                  <div class="upload-dropzone" id="videoDropzone">
-                    <input type="file" accept="video/*" id="videoFile" onchange="handleFile(this,'video')"
-                      style="display:none" />
-                    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                    <div class="upload-text">
-                      <p>Drag & drop a video file here, or <span class="highlight"
-                          onclick="document.getElementById('videoFile').click()">click to upload</span></p>
-                      <span class="upload-sub">Supports .mp4, .mov, .avi</span>
-                      <div id="videoFileName" style="margin-top:8px; color: var(--accent); font-size:12px;"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="tab-panel" id="tab-audio" style="display:none;">
-                  <div class="upload-dropzone" id="audioDropzone">
-                    <input type="file" accept="audio/*" id="audioFile" onchange="handleFile(this,'audio')"
-                      style="display:none" />
-                    <div class="upload-icon-wrap"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                    <div class="upload-text">
-                      <p>Drag & drop an audio file here, or <span class="highlight"
-                          onclick="document.getElementById('audioFile').click()">click to upload</span></p>
-                      <span class="upload-sub">Supports .mp3, .wav, .m4a</span>
-                      <div id="audioFileName" style="margin-top:8px; color: var(--accent); font-size:12px;"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Right: Preview & Enhancements -->
-              <div class="caption-right-col">
-
-                <div class="caption-panel live-preview-panel">
-                  <div class="panel-topbar">
-                    <h3>Live Preview</h3>
-                  </div>
-                </div>
-              </div>
-
-              <div class="caption-panel ai-enhancements-panel">
-                <div class="panel-header-sm">
-                  <h3><i class="fa-solid fa-wand-magic-sparkles"></i> AI Enhancements</h3>
-                  <span class="badge-beta">Beta</span>
-                </div>
-                <div class="toggles-grid">
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-regular fa-face-smile"></i> Auto Emojis</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-solid fa-bolt"></i> Viral Style</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-brands fa-tiktok"></i> TikTok Timing</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-solid fa-highlighter"></i> Highlight Keywords</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-solid fa-align-left"></i> Auto Line Breaks</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                  <label class="toggle-row">
-                    <span class="toggle-label"><i class="fa-solid fa-music"></i> Karaoke Effect</span>
-                    <input type="checkbox" checked class="custom-toggle">
-                  </label>
-                </div>
-              </div>
-
-            </div>
+      <div class="canvas-results" id="results" style="display:none;">
+        <div class="canvas-header">
+          <div class="canvas-header-left">
+            <div class="status-indicator"></div>
+            <span class="canvas-title">Generated Masterpiece</span>
+            <span class="results-count" id="resultsCount"></span>
           </div>
-
-          <!-- Middle: Output Languages -->
-          <div class="caption-panel output-lang-panel">
-            <div class="panel-header">
-              <div class="step-num-alt">2</div>
-              <h2>Output Languages</h2>
-              <div class="lang-actions-header">
-                <button class="ghost-btn" onclick="selectAllLangs()">Select All</button>
-                <button class="ghost-btn" onclick="clearLangs()">Clear All</button>
-                <button class="action-dd">Popular <i class="fa-solid fa-chevron-down"></i></button>
-              </div>
-            </div>
-
-            <div class="lang-cards-grid" id="langGridContainer">
-              <div class="lang-card active primary" onclick="toggleLangCard('en', this)">
-                <span class="lang-name">English</span>
-                <div class="flag-icon glow-flag">🇺🇸</div>
-                <span class="lang-code">Primary</span>
-                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
-              </div>
-              <div class="lang-card active" onclick="toggleLangCard('hi', this)">
-                <span class="lang-name">Hindi</span>
-                <div class="flag-icon">🇮🇳</div>
-                <span class="lang-code">HIN</span>
-                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
-              </div>
-              <div class="lang-card active" onclick="toggleLangCard('es', this)">
-                <span class="lang-name">Spanish</span>
-                <div class="flag-icon">🇪🇸</div>
-                <span class="lang-code">SPA</span>
-                <div class="check-circle"><i class="fa-solid fa-check"></i></div>
-              </div>
-              <div class="lang-card" onclick="toggleLangCard('fr', this)">
-                <span class="lang-name">French</span>
-                <div class="flag-icon">🇫🇷</div>
-                <span class="lang-code">FRA</span>
-                <div class="check-circle empty"></div>
-              </div>
-              <div class="lang-card" onclick="toggleLangCard('ar', this)">
-                <span class="lang-name">Arabic</span>
-                <div class="flag-icon">🇸🇦</div>
-                <span class="lang-code">ARA</span>
-                <div class="check-circle empty"></div>
-              </div>
-              <div class="lang-card" onclick="toggleLangCard('zh', this)">
-                <span class="lang-name">Chinese</span>
-                <div class="flag-icon">🇨🇳</div>
-                <span class="lang-code">ZHO</span>
-                <div class="check-circle empty"></div>
-              </div>
-              <div class="lang-card" onclick="toggleLangCard('ja', this)">
-                <span class="lang-name">Japanese</span>
-                <div class="flag-icon">🇯🇵</div>
-                <span class="lang-code">JPN</span>
-                <div class="check-circle empty"></div>
-              </div>
-              <div class="lang-card" onclick="toggleLangCard('ko', this)">
-                <span class="lang-name">Korean</span>
-                <div class="flag-icon">🇰🇷</div>
-                <span class="lang-code">KOR</span>
-                <div class="check-circle empty"></div>
-              </div>
-              <div class="lang-card add-more">
-                <div class="add-icon"><i class="fa-solid fa-plus"></i></div>
-                <span>Add More</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom: Format & Generate -->
-          <div class="caption-bottom-grid">
-            <div class="caption-panel output-format-panel">
-              <div class="panel-header">
-                <div class="step-num-alt">3</div>
-                <h2>Output Format</h2>
-              </div>
-              <div class="format-options">
-                <button class="fmt-chip active" data-fmt="srt" onclick="toggleFormatNew(this)"><i
-                    class="fa-solid fa-file-lines"></i> SRT File</button>
-                <button class="fmt-chip" data-fmt="txt" onclick="toggleFormatNew(this)"><i
-                    class="fa-solid fa-align-left"></i> Plain Text</button>
-                <button class="fmt-chip" data-fmt="vtt" onclick="toggleFormatNew(this)"><i
-                    class="fa-solid fa-globe"></i> VTT File</button>
-              </div>
-            </div>
-
-            <div class="caption-generate-panel">
-              <button class="gen-hero-btn" id="genBtn" onclick="generateCaptions()">
-                <span id="genBtnText">Generate Captions</span> <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <div class="canvas-header-right">
+            <button class="canvas-action-btn primary" onclick="copyActiveCaption()">
+              <i class="fa-regular fa-copy"></i> Copy All
+            </button>
+            <div class="btn-group">
+              <button class="canvas-action-btn" onclick="downloadActiveCaption()">
+                <i class="fa-solid fa-download"></i>
               </button>
-              <p class="gen-help-text">AI will generate captions in selected languages.</p>
+              <button class="canvas-action-btn" onclick="shareCaptions()">
+                <i class="fa-solid fa-share-nodes"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="canvas-main-content">
+          <!-- Left Side: Preview -->
+          <div class="canvas-preview-side" id="previewSide">
+            <div class="video-preview-wrapper" id="videoPreview">
+              <div class="preview-placeholder">
+                <i class="fa-brands fa-youtube"></i>
+                <span>Video Preview</span>
+              </div>
             </div>
           </div>
 
-          <!-- Results -->
-          <div class="results" id="results" style="display:none;">
-            <div class="results-header">
-              <div class="results-title">Generated Captions</div>
-              <div class="results-count" id="resultsCount"></div>
+          <!-- Right Side: Transcripts -->
+          <div class="canvas-transcript-side">
+            <div class="caption-tabs-container">
+              <div class="caption-tabs" id="captionTabs"></div>
             </div>
-            <div class="caption-tabs" id="captionTabs"></div>
-            <div id="captionOutputs"></div>
+            <div class="caption-outputs" id="captionOutputs"></div>
           </div>
-
+        </div>
+      </div>
     </div>
-    </section>
+
+    <!-- Composer Bar (Premium Studio Input) -->
+    <div class="composer-bar caption-panel">
+
+      <!-- Top: Mode Selection -->
+      <div class="composer-header">
+        <div class="mode-selector">
+          <button class="mode-btn active" onclick="switchCapTab('transcript', this)">
+            <i class="fa-solid fa-align-left"></i>
+            <span>Text</span>
+          </button>
+          <button class="mode-btn" onclick="switchCapTab('url', this)">
+            <i class="fa-brands fa-youtube"></i>
+            <span>YouTube</span>
+          </button>
+          <button class="mode-btn" onclick="switchCapTab('video', this)">
+            <i class="fa-solid fa-clapperboard"></i>
+            <span>Video</span>
+          </button>
+          <button class="mode-btn" onclick="switchCapTab('audio', this)">
+            <i class="fa-solid fa-waveform-lines"></i>
+            <span>Audio</span>
+          </button>
+        </div>
+        <div class="composer-meta">
+          <span class="status-badge"><i class="fa-solid fa-circle-check"></i> AI Model: Aurora-3</span>
+        </div>
+      </div>
+
+      <!-- Middle: Dynamic Input Area -->
+      <div class="composer-main">
+        <div class="comp-tab-panel active" id="tab-transcript">
+          <div class="editor-wrapper">
+            <textarea id="transcriptInput"
+              placeholder="Paste your transcript or script here to generate captions..."></textarea>
+            <span class="char-count-overlay" id="charCount">0 / 5000</span>
+          </div>
+        </div>
+
+        <div class="comp-tab-panel" id="tab-url" style="display:none;">
+          <div class="url-input-wrap">
+            <div class="url-icon"><i class="fa-brands fa-youtube"></i></div>
+            <input type="text" id="urlInput" placeholder="https://www.youtube.com/watch?v=..." />
+            <button class="url-fetch-btn">Preview</button>
+          </div>
+          <p class="input-hint">Enter any public YouTube video link to extract and translate captions.</p>
+        </div>
+
+        <div class="comp-tab-panel" id="tab-video" style="display:none;">
+          <div class="studio-dropzone" id="videoDropzone" onclick="document.getElementById('videoFile').click()">
+            <input type="file" accept="video/*" id="videoFile" onchange="handleFile(this,'video')"
+              style="display:none" />
+            <div class="dz-content">
+              <div class="dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <h3>Upload Video File</h3>
+              <p>Drag and drop or <span>browse files</span></p>
+              <span class="dz-formats">MP4, MOV, MKV (Up to 500MB)</span>
+            </div>
+            <div id="videoFileName" class="dz-file-name"></div>
+          </div>
+        </div>
+
+        <div class="comp-tab-panel" id="tab-audio" style="display:none;">
+          <div class="studio-dropzone" id="audioDropzone" onclick="document.getElementById('audioFile').click()">
+            <input type="file" accept="audio/*" id="audioFile" onchange="handleFile(this,'audio')"
+              style="display:none" />
+            <div class="dz-content">
+              <div class="dz-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+              <h3>Upload Audio File</h3>
+              <p>Drag and drop or <span>browse files</span></p>
+              <span class="dz-formats">MP3, WAV, M4A (Up to 100MB)</span>
+            </div>
+            <div id="audioFileName" class="dz-file-name"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom: Unified Studio Control Bar -->
+      <div class="composer-footer-unified">
+
+        <!-- Left: Languages Selection -->
+        <div class="footer-section">
+          <label class="studio-label">Languages</label>
+          <div class="lang-selector-studio-v2">
+            <div class="lang-pills" id="langPillsWrap"></div>
+            <div class="add-lang-trigger-small" onclick="toggleLangDropdown()" role="button" title="Add Language">
+              <i class="fa-solid fa-plus"></i>
+            </div>
+            <div class="lang-dropdown" id="langDropdown" style="display:none;">
+              <div class="lang-dropdown-header">Select Target Languages</div>
+              <div class="lang-dropdown-grid" id="langDropdownGrid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="v-divider-studio"></div>
+
+        <!-- Center: Format -->
+        <div class="footer-section" aria-disabled="false">
+          <label class="studio-label">Format</label>
+          <div class="format-pills">
+            <button class="fmt-pill active" data-fmt="srt" onclick="toggleFormatNew(this)">SRT</button>
+            <button class="fmt-pill" data-fmt="vtt" onclick="toggleFormatNew(this)">VTT</button>
+            <button class="fmt-pill" data-fmt="txt" onclick="toggleFormatNew(this)">TXT</button>
+            <button class="fmt-pill" data-fmt="ass" onclick="toggleFormatNew(this)">ASS</button>
+          </div>
+        </div>
+
+        <!-- Right: Action -->
+        <button class="studio-generate-btn-v2" id="genBtn" onclick="generateCaptions()">
+          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <span>Generate</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</section>

@@ -1,130 +1,136 @@
 <section id="thumbnail-view" class="view-section">
 
-      <div class="thumbnail-workspace">
+  <div class="thumbnail-workspace">
+    <div class="thumb-layout">
 
+      <main class="thumb-main-area">
 
-        <div class="thumbnail-layout">
-
-          <!-- Main Creative Preview (Single Image) -->
-          <div class="thumbnail-feed-container">
-            <div class="single-preview-wrap" id="thumbnailGrid">
-              <!-- Single Immersive Thumbnail -->
-              <div class="thumbnail-card hero large-preview" style="animation-delay: 0.1s">
-                <div class="thumb-img-wrap">
-                  <img id="mainThumbImg" src="assets/thumbnails/hero.png" alt="Thumbnail Preview">
-                  <div class="thumb-overlay">
-                    <div class="thumb-actions">
-                      <button class="action-pill"><i class="fa-solid fa-wand-sparkles"></i> Remix</button>
-                      <button class="action-pill"><i class="fa-solid fa-pen"></i> Edit</button>
-                      <button class="action-pill"><i class="fa-solid fa-arrow-up"></i> Upscale</button>
-                      <button class="action-pill"><i class="fa-solid fa-download"></i></button>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <section class="thumb-preview-panel">
+          <div class="thumb-preview-wrap">
+            <div class="canvas-placeholder" id="thumbPlaceholder">
+              <i class="fa-solid fa-image"></i>
+              <span>Preview Canvas</span>
             </div>
+            <img id="mainThumbnail" src="" alt="Generated thumbnail preview" style="display: none;">
           </div>
+        </section>
 
-          <!-- AI Insights & Creative DNA Panel (Right) -->
-          <aside class="insights-panel-alt creative-dna">
-            <div class="insights-header">
-              <h2 class="mono">CREATIVE DNA</h2>
-              <span class="status-dot online"></span>
-            </div>
-
-            <div class="insights-list">
-              <!-- Dynamic CTR Score -->
-              <div class="insight-card highlight">
-                <label class="mono">ATTENTION SCORE</label>
-                <div class="insight-val-wrap">
-                  <span class="insight-val" id="aiScore">9.8/10</span>
-                  <span class="insight-trend up"><i class="fa-solid fa-arrow-up"></i> High Potential</span>
-                </div>
-                <div class="insight-bar">
-                  <div class="bar-fill" id="aiScoreBar" style="width: 98%"></div>
-                </div>
+        <div class="thumb-ai-dock">
+          <div class="dock-top">
+            <textarea id="thumbPrompt" rows="3"
+              placeholder="Describe the thumbnail psychology, emotion, and visual style..."></textarea>
+          </div>
+          <div class="dock-bottom">
+            <div class="dock-left">
+              <div class="model-row">
+                <select id="thumbModel" class="thumb-model-select" aria-label="Image generation model">
+                  <option value="black-forest-labs/FLUX.1-dev" selected>HuggingFace FLUX.1-dev</option>
+                </select>
+                <select id="thumbAspectRatio" class="thumb-aspect-ratio-select" aria-label="Aspect ratio">
+                  <option value="16:9" selected>16:9 (HD)</option>
+                  <option value="9:16">9:16 (Shorts)</option>
+                  <option value="1:1">1:1 (Square)</option>
+                  <option value="4:3">4:3 (Standard)</option>
+                  <option value="3:4">3:4 (Portrait)</option>
+                </select>
               </div>
-
-              <!-- Feeling & Tone -->
-              <div class="insight-card">
-                <label class="mono">FEELING & TONE</label>
-                <div class="insight-val-wrap">
-                  <span class="insight-val-small" id="aiFeeling">Mysterious & Intense</span>
-                </div>
-                <div class="insight-chips" id="aiToneChips">
-                  <span class="chip-sm">Cinematic</span>
-                  <span class="chip-sm">Curiosity</span>
-                  <span class="chip-sm">Solo Journey</span>
-                </div>
-              </div>
-
-              <!-- Color Mood -->
-              <div class="insight-card">
-                <label class="mono">COLOR MOOD</label>
-                <div class="color-mood-swatches" id="aiColorMood">
-                  <div class="swatch" style="background: #0B0D17" title="Deep Midnight"></div>
-                  <div class="swatch" style="background: #1A1C2C" title="Moody Blue"></div>
-                  <div class="swatch" style="background: #7C5CFF" title="Accent Glow"></div>
-                  <div class="swatch" style="background: #FFFFFF" title="High Contrast"></div>
-                </div>
-                <p class="insight-desc" id="aiColorDesc">Deep midnight tones paired with high-contrast highlights to
-                  evoke a sense of isolation.</p>
-              </div>
-
-              <!-- Visual Style -->
-              <div class="insight-card">
-                <label class="mono">VISUAL STYLE</label>
-                <div class="insight-val-wrap">
-                  <span class="insight-val-small" id="aiStyle">Surreal Realism</span>
-                </div>
-                <p class="insight-desc" id="aiStyleDesc">Inspired by high-end concept art and editorial photography
-                  styles.</p>
-              </div>
-
-              <!-- Heatmap / Attention -->
-              <div class="insight-card">
-                <label class="mono">EYE-TRACKING PREDICTION</label>
-                <div class="heatmap-preview">
-                  <div class="heat-point" style="top: 40%; left: 30%"></div>
-                  <div class="heat-point" style="top: 50%; left: 70%"></div>
-                </div>
+              <div class="psychology-chips">
+                <button class="psy-chip active">Mystery</button>
+                <button class="psy-chip">Survival</button>
+                <button class="psy-chip">Authority</button>
+                <button class="psy-chip">Educational</button>
+                <button class="psy-chip">Fear</button>
+                <button class="psy-chip">Luxury</button>
               </div>
             </div>
-          </aside>
-
-        </div>
-
-        <!-- Floating AI Composer -->
-        <div class="thumbnail-composer-wrapper">
-          <div class="composer-shell glass">
-            <div class="composer-top">
-              <textarea id="thumbPrompt" rows="1"
-                placeholder="Generate a cinematic YouTube thumbnail about surviving alone for 30 days..."
-                oninput="autoResize(this)"></textarea>
-            </div>
-            <div class="composer-bottom">
-              <div class="composer-left">
-                <div class="prompt-chips">
-                  <button class="chip">🎯 Viral</button>
-                  <button class="chip">🎬 Cinematic</button>
-                  <button class="chip">⚡ MrBeast</button>
-                  <button class="chip">🧠 Documentary</button>
-                  <button class="chip">🔥 High CTR</button>
-                </div>
+            <div class="dock-right">
+              <div class="dock-tools">
+                <button class="dock-tool-btn"><i class="fa-solid fa-image"></i></button>
+                <button class="dock-tool-btn"><i class="fa-brands fa-youtube"></i></button>
+                <button class="dock-tool-btn"><i class="fa-solid fa-link"></i></button>
               </div>
-              <div class="composer-right">
-                <div class="composer-tools">
-                  <button class="tool-btn"><i class="fa-solid fa-image"></i></button>
-                  <button class="tool-btn"><i class="fa-solid fa-display"></i></button>
-                </div>
-                <button class="gen-btn-alt" onclick="generateThumbnails()">
-                  <span>Generate</span>
-                  <i class="fa-solid fa-sparkles"></i>
-                </button>
-              </div>
+              <button class="generate-btnn">
+                <span>Analyze & Generate</span>
+                <i class="fa-solid fa-sparkles"></i>
+              </button>
             </div>
           </div>
         </div>
 
-      </div>
-    </section>
+      </main>
+
+      <aside class="thumb-dna-panel">
+
+        <div class="dna-header">
+          <div class="dna-header-left">
+            <h2>THUMBNAIL DNA</h2>
+            <span class="status-dot"></span>
+          </div>
+        </div>
+
+        <div class="dna-scroll">
+
+          <div class="dna-card highlight-card">
+            <span class="dna-label">ATTENTION SCORE</span>
+            <div class="dna-score-wrap">
+              <span class="dna-score">--/10</span>
+              <span class="dna-score-status">Awaiting concept</span>
+            </div>
+            <div class="dna-bar">
+              <div class="dna-bar-fill empty"></div>
+            </div>
+            <p class="dna-desc">Generate a thumbnail to calculate attention strength.</p>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">EMOTIONAL TRIGGER</span>
+            <h3 class="dna-title">--</h3>
+            <p class="dna-desc">--</p>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">THUMBNAIL ARCHETYPE</span>
+            <div class="dna-archetype">--</div>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">COLOR PSYCHOLOGY</span>
+            <div class="dna-swatches">
+              <div class="dna-swatch muted"></div>
+              <div class="dna-swatch muted"></div>
+              <div class="dna-swatch muted"></div>
+              <div class="dna-swatch muted"></div>
+            </div>
+            <p class="dna-desc">--</p>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">VIEWER INTENT</span>
+            <h3 class="dna-title">--</h3>
+            <p class="dna-desc">--</p>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">EYE TRACKING FLOW</span>
+            <div class="heatmap-box">
+              <div class="heat-dot dot-1"></div>
+              <div class="heat-dot dot-2"></div>
+            </div>
+            <p class="dna-desc">--</p>
+          </div>
+
+          <div class="dna-card">
+            <span class="dna-label">MOBILE READABILITY</span>
+            <div class="mobile-score">-- / 10</div>
+            <p class="dna-desc">--</p>
+          </div>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+</section>

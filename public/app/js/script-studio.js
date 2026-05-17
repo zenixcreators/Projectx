@@ -112,10 +112,10 @@ window.renderScriptResult = function (data) {
     document.getElementById('scriptMeta').style.display = 'flex';
   }
 
-  renderHooks(data.hooks || data.alternateHooks || []);
+  renderHooks(data.hooks || [], data.bestHook);
 };
 
-function renderHooks(hooks) {
+function renderHooks(hooks, bestHookText) {
   const el = document.getElementById('hooksContent');
   const countEl = document.getElementById('hookCount');
 
@@ -127,14 +127,16 @@ function renderHooks(hooks) {
 
   countEl.textContent = hooks.length;
   countEl.style.display = 'inline-flex';
+  
   el.innerHTML = `<div class="hooks-list">${hooks.map((h, i) => {
     const text = typeof h === 'string' ? h : (h.text || h.hook || JSON.stringify(h));
+    const isBest = bestHookText ? (text === bestHookText) : (i === 0);
     const escaped = text.replace(/`/g, '\\`');
 
     return `
-      <div class="hook-item ${i === 0 ? 'best' : ''}" style="animation-delay:${i * 0.06}s">
+      <div class="hook-item ${isBest ? 'best' : ''}" style="animation-delay:${i * 0.06}s">
         <div style="flex:1">
-          ${i === 0 ? '<div class="hook-best-label">Best</div>' : ''}
+          ${isBest ? '<div class="hook-best-label">Best</div>' : ''}
           <div class="hook-text">${text}</div>
         </div>
         <button class="hook-copy-btn" onclick="copyHook(this, \`${escaped}\`)">
