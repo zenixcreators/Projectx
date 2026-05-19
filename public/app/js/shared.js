@@ -17,7 +17,18 @@ function switchView(btn) {
   document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
 
   const target = document.getElementById(targetId);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    
+    // Smoothly scroll the content viewport to the top for a premium, seamless transition!
+    const scrollContainer = target.querySelector('.analysis-layout') || target.querySelector('[style*="overflow"]') || target;
+    if (scrollContainer) {
+      scrollContainer.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  }
 }
 
 function autoResize(el) {

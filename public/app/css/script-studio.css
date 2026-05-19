@@ -14,7 +14,7 @@
 /* Canvas split */
 .canvas-area {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: minmax(0, 1fr) 320px;
   flex: 1;
   overflow: hidden;
   min-height: 0;
@@ -279,6 +279,203 @@
   letter-spacing: 0;
 }
 
+.hook-tester {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hook-tester textarea {
+  width: 100%;
+  min-height: 76px;
+  resize: vertical;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13.5px;
+  line-height: 1.55;
+  padding: 10px 11px;
+  outline: none;
+  scrollbar-width: none;
+  transition: border-color var(--t), box-shadow var(--t);
+}
+
+.hook-tester textarea:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+.hook-tester textarea::placeholder {
+  color: var(--muted);
+}
+
+.hook-test-main-btn {
+  width: 100%;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--radius);
+  color: #fff;
+  font-family: var(--font);
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background var(--t), opacity var(--t);
+}
+
+.hook-test-main-btn:hover {
+  background: #b89ffd;
+}
+
+.hook-test-main-btn:disabled,
+.hook-test-inline-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+#hookTesterResult {
+  margin-top: 10px;
+}
+
+.hook-test-loading,
+.hook-test-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.hook-test-error {
+  color: #ff4d4d;
+}
+
+.hook-test-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+}
+
+.hook-score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hook-score-ring {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hook-score-grade {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hook-score-verdict {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.hook-test-block {
+  margin-top: 12px;
+}
+
+.hook-test-label {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hook-test-block ul {
+  margin: 0;
+  padding-left: 16px;
+  color: var(--text-sec);
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+.hook-rewrite {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  color: var(--text-sec);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.hook-rewrite:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.hook-rewrite button,
+.hook-test-inline-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all var(--t);
+}
+
+.hook-rewrite button {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+
+.hook-test-inline-btn {
+  margin-top: 8px;
+  padding: 4px 8px;
+  font-size: 11.5px;
+}
+
+.hook-rewrite button:hover,
+.hook-test-inline-btn:hover {
+  border-color: var(--border-soft);
+  color: var(--text-sec);
+  background: var(--hover);
+}
+
 .hooks-empty-state {
   display: flex;
   flex-direction: column;
@@ -375,11 +572,11 @@
   position: absolute;
 
   bottom: 24px;
-  left: calc((100% - 280px) / 2);
+  left: calc((100% - 320px) / 2);
 
   transform: translateX(-50%);
 
-  width: min(840px, calc(100% - 80px));
+  width: min(840px, calc(100% - 320px - 80px));
 
   z-index: 40;
 

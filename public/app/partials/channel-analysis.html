@@ -1,0 +1,346 @@
+<section id="channel-analysis-view" class="view-section">
+  <div class="analysis-layout">
+
+    <!-- Header -->
+    <div class="analysis-header">
+      <h2>Channel & Competitor Analysis</h2>
+      <p>Audit any creator niche, unpack mathematical velocity trends, discover content gaps, and download high-performing strategic formulas.</p>
+    </div>
+
+    <!-- Search/Generate Box -->
+    <div class="analysis-composer">
+      <!-- Platform Pill Selector -->
+      <div class="platform-selector-row">
+        <button class="platform-pill active" id="platform-btn-youtube" onclick="setAnalysisPlatform('youtube')">
+          <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 15px;"></i> YouTube
+        </button>
+        <button class="platform-pill" id="platform-btn-instagram" onclick="setAnalysisPlatform('instagram')">
+          <i class="fa-brands fa-instagram" style="color: #e1306c; font-size: 15px;"></i> Instagram
+        </button>
+      </div>
+
+      <div class="search-input-row">
+        <input type="text" id="channelUrlInput" placeholder="e.g. @MrBeast or https://www.youtube.com/channel/UC...">
+        <button class="btn-primary" id="btnRunAudit" onclick="runChannelAudit()">
+          <i class="fa-solid fa-bolt"></i> Run AI Analysis
+        </button>
+      </div>
+
+      <!-- Live SSE Stepper (Hidden by default) -->
+      <div class="stepper-container" id="analysisStepper" style="display: none;">
+        <div class="stepper-title">Scanning YouTube Pipeline</div>
+        <div class="stepper-grid">
+          <div class="step-pill" id="step-resolving">
+            <span class="step-pill-num">01</span>
+            <span class="step-pill-label">Resolve URL</span>
+          </div>
+          <div class="step-pill" id="step-fetching">
+            <span class="step-pill-num">02</span>
+            <span class="step-pill-label">Crawl Videos</span>
+          </div>
+          <div class="step-pill" id="step-details">
+            <span class="step-pill-num">03</span>
+            <span class="step-pill-label">Get Stats</span>
+          </div>
+          <div class="step-pill" id="step-calculating">
+            <span class="step-pill-num">04</span>
+            <span class="step-pill-label">Crunch Stats</span>
+          </div>
+          <div class="step-pill" id="step-generating">
+            <span class="step-pill-num">05</span>
+            <span class="step-pill-label">AI Audit</span>
+          </div>
+        </div>
+        <div class="stepper-status" id="stepperStatusMsg">Connecting to backend analysis engine...</div>
+      </div>
+
+      <div id="analysisErrorAlert" style="display: none; padding: 12px; border-radius: var(--radius); background: rgba(220, 38, 38, 0.08); border: 1px solid rgba(220, 38, 38, 0.2); color: var(--red); font-size: 13.5px; margin-top: 8px;">
+        ⚠️ <span id="analysisErrorMsg">Error message here</span>
+      </div>
+    </div>
+
+    <!-- ═══ PULSATING SKELETON LOADER (Visible while loading stepper runs) ═══ -->
+    <div class="audit-report-container" id="reportSkeleton" style="display: none;">
+      <!-- Profile Skeleton -->
+      <div class="hero-stats-card">
+        <div class="hero-channel-profile">
+          <div class="skeleton-pulse skeleton-avatar"></div>
+          <div class="hero-meta">
+            <div class="skeleton-pulse skeleton-text-lg"></div>
+            <div class="skeleton-pulse skeleton-text-md" style="margin-top: 8px;"></div>
+          </div>
+        </div>
+        <div class="score-indicator-box">
+          <div class="skeleton-pulse skeleton-ring"></div>
+          <div class="skeleton-pulse skeleton-ring"></div>
+        </div>
+      </div>
+      <!-- Summary Skeleton -->
+      <div class="summary-highlight-panel" style="border-color: var(--border); box-shadow: none;">
+        <div class="skeleton-pulse" style="height: 16px; width: 100%; margin-bottom: 8px;"></div>
+        <div class="skeleton-pulse" style="height: 16px; width: 60%;"></div>
+      </div>
+      <!-- Stats Cards Skeleton -->
+      <div class="stats-grid">
+        <div class="skeleton-pulse skeleton-card"></div>
+        <div class="skeleton-pulse skeleton-card"></div>
+        <div class="skeleton-pulse skeleton-card"></div>
+        <div class="skeleton-pulse skeleton-card"></div>
+      </div>
+    </div>
+
+    <!-- MAIN REPORT CANVAS (Hidden by default, loaded via JS) -->
+    <div class="audit-report-container" id="auditReportResult" style="display: none;">
+      
+      <!-- HERO & PROFILE CARD -->
+      <div class="hero-stats-card">
+        <div class="hero-channel-profile">
+          <img id="rptAvatar" src="" alt="Channel Avatar">
+          <div class="hero-meta">
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+              <h3 id="rptName" style="margin: 0;">Channel Name</h3>
+              <span class="badge badge-growth" id="rptGrowth">Stable</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 8px; width: 220px;">
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">
+                <span id="rptNiche">Niche: Educational Tech</span>
+                <span id="txtSpecificity">High</span>
+              </div>
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-accent" id="barSpecificity" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="score-indicator-box">
+          <div class="score-gauge-ring">
+            <span class="score-num-big" id="rptHealth">85</span>
+            <span class="score-lbl">Health</span>
+          </div>
+          <div class="score-gauge-ring velocity">
+            <span class="score-num-big velocity-val" id="rptVelocity">1.2x</span>
+            <span class="score-lbl">Velocity</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI SUMMARY STATEMENT -->
+      <div class="summary-highlight-panel">
+        💡 <strong>AI Strategic Takeaway:</strong> <span id="rptSummary">Summary content...</span>
+      </div>
+
+      <!-- ═══ PREMIUM TAB SWITCHER PILLS ═══ -->
+      <div class="report-tabs">
+        <button class="report-tab-btn active" onclick="switchReportTab(this, 'tab-performance')">
+          <i class="fa-solid fa-arrow-trend-up" style="color: var(--accent);"></i> Growth Engine
+        </button>
+        <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-dna')">
+          <i class="fa-solid fa-book-open" style="color: var(--accent);"></i> Secret Playbook
+        </button>
+        <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-actions')">
+          <i class="fa-solid fa-map-location-dot" style="color: var(--amber);"></i> Niche Battle Map
+        </button>
+        <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-videos')">
+          <i class="fa-solid fa-clapperboard" style="color: var(--green);"></i> library & formulas
+        </button>
+      </div>
+
+      <!-- 🎴 TAB 1: GROWTH ENGINE -->
+      <div id="tab-performance" class="report-tab-content active">
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblSubs">Subscribers</div>
+            <div class="stat-val" id="statSubs">1.2M</div>
+            <div class="stat-desc">Total channel reach</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblViews">Total Views</div>
+            <div class="stat-val" id="statViews">84.5M</div>
+            <div class="stat-desc">Accumulated video impressions</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblAvgViews">Avg Views / Video</div>
+            <div class="stat-val" id="statAvgViews" style="color: var(--accent);">45.2K</div>
+            <div class="stat-desc">Typical video performance</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label">Engagement Rate</div>
+            <div class="stat-val" id="statER" style="color: var(--green);">5.4%</div>
+            <div class="stat-desc">Likes + Comments relative to views</div>
+          </div>
+        </div>
+
+        <!-- METRICS GRID ROW 2 -->
+        <div class="stats-grid">
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblSchedule">Upload Schedule</div>
+            <div class="stat-val" id="statSchedule">Weekly</div>
+            <div class="stat-desc">Rhythm pattern of uploads</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblFrequency">Uploads Per Week</div>
+            <div class="stat-val" id="statFrequency">1.2 / wk</div>
+            <div class="stat-desc">Scanned upload density</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblDuration">Avg Video Duration</div>
+            <div class="stat-val" id="statDuration">12.5m</div>
+            <div class="stat-desc">Typical catalog runtime</div>
+          </div>
+          <div class="stat-metric-card">
+            <div class="stat-label" id="lblBestLength">Best Video Length</div>
+            <div class="stat-val" id="statBestLength">Mid-form</div>
+            <div class="stat-desc">Duration category with highest views</div>
+          </div>
+        </div>
+
+        <!-- ESTIMATED REVENUE METRIC GRID -->
+        <div class="revenue-highlight-grid">
+          <div class="stat-metric-card" style="border-left: 4px solid var(--green); background: rgba(22, 163, 74, 0.01);">
+            <div class="stat-label" id="lblMonthlyRev" style="color: var(--green);">Est. Monthly Ad Revenue</div>
+            <div class="stat-val" id="statMonthlyRev" style="color: var(--green); font-size: 26px;">$0</div>
+            <div class="stat-desc">Based on upload density & niche CPM views model</div>
+          </div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--accent); background: rgba(124, 92, 255, 0.01);">
+            <div class="stat-label" id="lblYearlyRev" style="color: var(--accent);">Est. Annual Ad Revenue</div>
+            <div class="stat-val" id="statYearlyRev" style="color: var(--accent); font-size: 26px;">$0</div>
+            <div class="stat-desc">Yearly earnings projections at current velocity</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎴 TAB 2: SECRET PLAYBOOK (Actionable checklists & blueprints) -->
+      <div id="tab-dna" class="report-tab-content">
+        <div class="two-column-grid">
+          <!-- Hook Strategy Checklists -->
+          <div class="creator-notebook-card" style="border-top: 3.5px solid var(--accent);">
+            <div class="notebook-header"><i class="fa-solid fa-clipboard-list" style="color: var(--accent);"></i> Title Hook Strategy Checklist</div>
+            <div class="notebook-body" id="rptHookStrategy">
+              <!-- Dynamically populated check items -->
+            </div>
+          </div>
+          <!-- Visual Thumbnail Blueprints -->
+          <div class="creator-notebook-card" style="border-top: 3.5px solid var(--green);">
+            <div class="notebook-header"><i class="fa-solid fa-compass-drafting" style="color: var(--green);"></i> Thumbnail Visual Guidelines</div>
+            <div class="notebook-body" id="rptThumbnailStrategy">
+              <!-- Dynamically populated design indicators -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Content DNA Topic Cloud -->
+        <div class="report-panel">
+          <h4>🧬 Scanned Content DNA & Keywords</h4>
+          <div style="margin-bottom: 16px;">
+            <div class="stat-label" style="margin-bottom: 10px;">Scanned Core Topics</div>
+            <div class="chip-container" id="rptTopics">
+              <!-- Chips -->
+            </div>
+          </div>
+          <div>
+            <div class="stat-label" style="margin-bottom: 8px;">Observed Title Optimization Pattern</div>
+            <p id="rptTitlePatterns" style="font-size: 13px; font-family: var(--font-mono); color: var(--text-sec); background: var(--surface); padding: 14px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin: 0; line-height: 1.5;">
+              Title details...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎴 TAB 3: NICHE BATTLE MAP -->
+      <div id="tab-actions" class="report-tab-content">
+        <div class="two-column-grid">
+          <!-- CONTENT GAPS -->
+          <div class="report-panel" style="border-top: 3.5px solid var(--red);">
+            <h4 style="color: var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> High-Potential Niche Gaps</h4>
+            <p style="font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.45;">These are high-demand search topics where this competitor has zero content. Build video scripts around these to capture their traffic!</p>
+            <ul id="rptGaps" style="margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--text-sec); line-height: 1.9;">
+              <!-- Dynamically populated list -->
+            </ul>
+          </div>
+
+          <!-- MOAT & CONQUEST -->
+          <div class="report-panel" style="border-top: 3.5px solid var(--amber);">
+            <h4 style="color: var(--amber);"><i class="fa-solid fa-shield-halved"></i> Key Moat Analysis</h4>
+            <p id="rptThreatReasoning" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.6; margin-bottom: 16px;">
+              Their primary moat...
+            </p>
+            <div style="background: var(--surface2); border: 1px dashed var(--border-mid); padding: 16px; border-radius: var(--radius);">
+              <h5 style="margin: 0 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px;">
+                <span style="color: var(--green);"><i class="fa-solid fa-bullseye"></i></span> How to Outperform Them
+              </h5>
+              <p id="rptConquestRule" style="font-size: 12.5px; color: var(--text-sec); line-height: 1.5; margin: 0;">
+                Synthesize their tags and title structures but focus on deep-dive production values.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- AUDIENCE INTERACTION METER -->
+        <div class="report-panel">
+          <h4 style="justify-content: space-between; display: flex; align-items: center; margin-bottom: 16px;">
+            <span>🎯 Competitor Threat Assessment</span>
+            <div style="display: flex; align-items: center; gap: 10px; width: 220px; font-weight: normal;">
+              <div class="progress-bar-track">
+                <div class="progress-bar-fill fill-amber" id="barThreat" style="width: 0%;"></div>
+              </div>
+              <span class="badge" id="rptThreatBadge" style="min-width: 65px; text-align: center;">Medium</span>
+            </div>
+          </h4>
+          
+          <div style="background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div class="stat-label">Interaction Index</div>
+                <span id="rptRating" style="font-size: 15px; font-weight: 750; color: var(--green);">Strong</span>
+              </div>
+              <div style="text-align: right;">
+                <div class="stat-label">Niche Benchmark</div>
+                <span id="rptBenchmark" style="font-size: 12px; font-style: italic; color: var(--text-sec);">Benchmark index...</span>
+              </div>
+            </div>
+            <div class="progress-bar-track">
+              <div class="progress-bar-fill fill-green" id="barEngagement" style="width: 0%;"></div>
+            </div>
+          </div>
+          <p id="rptEngagementNotes" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.5; margin: 0;">
+            Engagement details...
+          </p>
+        </div>
+
+        <!-- STRATEGIC RECOMMENDATIONS GRID -->
+        <div class="report-panel" style="margin-top: 24px; border-top: 3.5px solid var(--accent);">
+          <h4><i class="fa-solid fa-list-check" style="color: var(--accent);"></i> Priority Growth Action Items</h4>
+          <div id="rptRecommendations">
+            <!-- Dynamically populated cards -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎴 TAB 4: VIDEOS LIBRARY -->
+      <div id="tab-videos" class="report-tab-content">
+        <div class="report-panel">
+          <h4>🏆 Top 10 Scanned Videos</h4>
+          <div style="overflow-x: auto; width: 100%;">
+            <table class="top-videos-table">
+              <thead>
+                <tr>
+                  <th>Video Info</th>
+                  <th style="text-align: right;">Views</th>
+                  <th style="text-align: right;">Likes</th>
+                  <th style="text-align: right;">Comments</th>
+                  <th style="text-align: center;">Action</th>
+                </tr>
+              </thead>
+              <tbody id="rptTopVideosBody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>

@@ -99,35 +99,62 @@ const Auth = {
 
             if (!googleClientId) return;
 
-            window.google?.accounts.id.initialize({
-                client_id: googleClientId,
-                callback: async (response) => {
-                    const authResp = await fetch('/auth/google', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ credential: response.credential })
-                    });
-
-                    if (authResp.ok) {
-                        window.location.href = '/app/';
-                    } else {
-                        const err = await authResp.json();
-                        alert(err.error || 'Google Login failed');
-                    }
+            const render = () => {
+                if (!window.google || !window.google.accounts || !window.google.accounts.id) {
+                    return false;
                 }
-            });
 
-            const googleBtn = document.getElementById('googleButton');
-            if (googleBtn) {
-                window.google?.accounts.id.renderButton(googleBtn, {
-                    type: 'standard',
-                    theme: 'outline',
-                    size: 'large',
-                    text: 'continue_with',
-                    shape: 'rectangular',
-                    width: '100%'
+                window.google.accounts.id.initialize({
+                    client_id: googleClientId,
+                    callback: async (response) => {
+                        const authResp = await fetch('/auth/google', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ credential: response.credential })
+                        });
+
+                        if (authResp.ok) {
+                            window.location.href = '/app/';
+                        } else {
+                            const err = await authResp.json();
+                            alert(err.error || 'Google Login failed');
+                        }
+                    }
                 });
-            }
+
+                const googleBtn = document.getElementById('googleButton');
+                if (googleBtn) {
+                    // Measure container width, round to integer to prevent fractional pixel validation failures (common on high-DPI screens)
+                    let containerWidth = Math.floor(googleBtn.offsetWidth) || 380;
+                    
+                    // Clamp to Google GSI button limits (200px to 400px)
+                    if (containerWidth < 200) containerWidth = 200;
+                    if (containerWidth > 400) containerWidth = 400;
+                    
+                    window.google.accounts.id.renderButton(googleBtn, {
+                        type: 'standard',
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'continue_with',
+                        shape: 'pill',
+                        width: containerWidth
+                    });
+                }
+                return true;
+            };
+
+            // Try rendering immediately if already loaded
+            if (render()) return;
+
+            // Otherwise, poll every 100ms (up to 5 seconds) to handle slower network loading
+            let attempts = 0;
+            const interval = setInterval(() => {
+                attempts++;
+                if (render() || attempts >= 50) {
+                    clearInterval(interval);
+                }
+            }, 100);
+
         } catch (err) {
             console.error('Google Auth Init failed:', err);
         }

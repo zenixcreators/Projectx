@@ -1,5 +1,5 @@
 const LANGUAGES = [
-  { code: 'Tel', name: 'Telugu', top: true },
+  { code: 'te', name: 'Telugu', top: true },
   { code: 'en', name: 'English', top: true },
   { code: 'hi', name: 'Hindi', top: true },
   { code: 'es', name: 'Spanish', top: true },
@@ -101,9 +101,9 @@ function handleFile(input, type) {
   if (el) el.textContent = file.name;
 }
 
-/* ---- Get Active Input ---- */
 function getActiveInput() {
-  const activePanel = document.querySelector('#caption-view .comp-tab-panel:not([style*="display: none"])');
+  const activePanel = Array.from(document.querySelectorAll('#caption-view .comp-tab-panel'))
+    .find(p => p.style.display !== 'none' && window.getComputedStyle(p).display !== 'none');
   if (!activePanel) return null;
 
   if (activePanel.id === 'tab-transcript') {
@@ -223,10 +223,24 @@ function renderCaptionResults(data, langs, formats) {
   outputsEl.innerHTML = langs.map((code) => {
     const lang = langMap[code] || { name: code };
     const captions = data.captions?.[code] || {};
-    const defFmt = formats.includes('srt') ? 'srt' : (formats[0] || 'txt');
+    const defFmt = formats[0] || 'txt';
     const content = captions[defFmt] || 'No content generated.';
 
-    // Try to segment if it's SRT
+    // Render switcher pills
+    const switcherHtml = `
+      <div class="format-switcher-bar">
+        <div class="format-switcher-title">Format</div>
+        <div class="format-switcher-pills">
+          ${formats.map(fmt => `
+            <button class="fmt-switcher-pill ${fmt === defFmt ? 'active' : ''}" 
+                    onclick="changeOutputFormat('${code}', '${fmt}', this)">
+              ${fmt.toUpperCase()}
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+
+    // Try to segment if it's SRT/VTT
     let finalHtml = '';
     if (defFmt === 'srt' || defFmt === 'vtt') {
       const segments = parseCaptionsToSegments(content);
@@ -240,12 +254,18 @@ function renderCaptionResults(data, langs, formats) {
           `).join('')}
         </div>`;
     } else {
-      finalHtml = `<div class="caption-text">${content}</div>`;
+      finalHtml = `
+        <div class="raw-caption-view">
+          <textarea readonly class="raw-caption-textarea" id="caption-text-${code}">${content}</textarea>
+        </div>`;
     }
 
     return `
       <div class="caption-output ${code === defLang ? 'active' : ''}" id="output-${code}">
-        ${finalHtml}
+        ${switcherHtml}
+        <div class="format-content-container" id="content-${code}">
+          ${finalHtml}
+        </div>
       </div>`;
   }).join('');
 
@@ -259,6 +279,7 @@ function renderCaptionResults(data, langs, formats) {
   window._captionData = data;
   window._captionFormats = formats;
   window._captionActiveLang = defLang;
+  window._captionActiveFormat = formats[0] || 'txt';
 }
 
 /* ---- Parse SRT/VTT ---- */
@@ -311,46 +332,80 @@ function switchCaptionTab(code, btn) {
   document.querySelectorAll('.caption-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.caption-output').forEach(o => o.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('output-' + code)?.classList.add('active');
+  const targetOutput = document.getElementById('output-' + code);
+  if (targetOutput) {
+    targetOutput.classList.add('active');
+    // Read the currently active format pill inside this output container
+    const activeFmtBtn = targetOutput.querySelector('.fmt-switcher-pill.active');
+    if (activeFmtBtn) {
+      window._captionActiveFormat = activeFmtBtn.textContent.trim().toLowerCase();
+    }
+  }
   window._captionActiveLang = code;
 }
 
 /* ---- Format Switch ---- */
-function switchFormat(code, fmt, btn) {
-  btn.closest('.format-switcher').querySelectorAll('.fmt-btn').forEach(b => b.classList.remove('active'));
+function changeOutputFormat(code, fmt, btn) {
+  btn.closest('.format-switcher-pills').querySelectorAll('.fmt-switcher-pill').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('caption-text-' + code).textContent =
-    window._captionData?.captions?.[code]?.[fmt] || 'No content.';
+
+  const container = document.getElementById(`content-${code}`);
+  if (!container) return;
+
+  const content = window._captionData?.captions?.[code]?.[fmt] || '';
+
+  if (fmt === 'srt' || fmt === 'vtt') {
+    const segments = parseCaptionsToSegments(content);
+    container.innerHTML = `
+      <div class="transcript-list">
+        ${segments.map(s => `
+          <div class="caption-segment" onclick="seekVideo('${s.start}')">
+            <span class="segment-time">${s.time}</span>
+            <span class="segment-text">${s.text}</span>
+          </div>
+        `).join('')}
+      </div>`;
+  } else {
+    container.innerHTML = `
+      <div class="raw-caption-view">
+        <textarea readonly class="raw-caption-textarea" id="caption-text-${code}">${content}</textarea>
+      </div>`;
+  }
+
+  window._captionActiveFormat = fmt;
 }
 
 /* ---- Copy & Download ---- */
-function copyCaption(code) {
-  const btn = window.event?.target;
-  navigator.clipboard.writeText(document.getElementById('caption-text-' + code)?.textContent || '').catch(() => { });
-  if (!btn) return;
-  btn.textContent = 'Copied!';
-  setTimeout(() => btn.textContent = 'Copy', 2000);
-}
-
 function copyActiveCaption() {
-  const active = document.querySelector('.caption-output.active .caption-text');
-  if (active) navigator.clipboard.writeText(active.textContent).catch(() => { });
-}
+  const code = window._captionActiveLang;
+  const fmt = window._captionActiveFormat || 'txt';
+  const content = window._captionData?.captions?.[code]?.[fmt] || '';
 
-function downloadCaption(code) {
-  const textEl = document.getElementById('caption-text-' + code);
-  const fmt = document.querySelector(`#output-${code} .fmt-btn.active`)?.textContent?.trim()?.toLowerCase() || 'txt';
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([textEl?.textContent || ''], { type: 'text/plain' }));
-  a.download = `captions_${code}.${fmt}`;
-  a.click();
+  if (!content) return;
+
+  navigator.clipboard.writeText(content).then(() => {
+    const copyBtn = document.querySelector('.canvas-action-btn.primary');
+    if (copyBtn) {
+      const origHtml = copyBtn.innerHTML;
+      copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+      setTimeout(() => copyBtn.innerHTML = origHtml, 2000);
+    }
+  }).catch(err => {
+    console.error('Copy failed:', err);
+  });
 }
 
 function downloadActiveCaption() {
-  const activeOutput = document.querySelector('.caption-output.active');
-  if (!activeOutput) return;
-  const code = activeOutput.id.replace('output-', '');
-  downloadCaption(code);
+  const code = window._captionActiveLang;
+  const fmt = window._captionActiveFormat || 'txt';
+  const content = window._captionData?.captions?.[code]?.[fmt] || '';
+
+  if (!content) return;
+
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
+  a.download = `captions_${code}.${fmt}`;
+  a.click();
 }
 
 function shareCaptions() {

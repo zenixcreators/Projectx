@@ -1,0 +1,57 @@
+<section id="hook-view" class="view-section">
+  <div class="hook-studio-shell">
+
+    <main class="hook-board">
+      <div class="hook-board-topbar">
+        <div>
+          <h2>Generated Hooks</h2>
+          <div class="hook-board-sub" id="hookBoardSub">5 angles</div>
+        </div>
+        <span id="hookCount" class="hook-count-pill" style="display:none;">0</span>
+      </div>
+
+      <div id="hooksContent">
+        <div class="hooks-empty-state hooks-empty-large">
+          <div class="ei"><i class="fa-solid fa-bolt"></i></div>
+          Hook ideas will appear here
+        </div>
+      </div>
+    </main>
+
+    <aside class="analysis-panel hook-analysis-panel">
+      <div class="analysis-panel-title">
+        <span>Hook Tester</span>
+        <span class="analysis-pill" id="hookTesterStatus">Idle</span>
+      </div>
+
+      <div class="hook-tester hook-tester-pro">
+        <textarea id="hookTesterInput" rows="4" placeholder="Paste a hook to test..."></textarea>
+        <button class="analysis-main-btn" id="hookTesterBtn" onclick="testManualHook()">
+          <i class="fa-solid fa-gauge-high"></i>
+          <span>Analyze Hook</span>
+        </button>
+        <div id="hookTesterResult">
+          <div class="analysis-empty-state">
+            <div class="analysis-mini-score">--</div>
+            <span>No hook selected</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div>
+
+  <div class="hook-input-bar-wrapper">
+    <div class="input-shell hook-input-shell">
+      <textarea id="hookGeneratorInput" rows="1"
+        placeholder="Topic, niche, story, or offer..."
+        maxlength="1200" oninput="autoResize(this)"></textarea>
+      <div class="input-bottom-row">
+        <div class="tone-strip" id="hookToneStrip"></div>
+        <button class="generate-btn" id="generateHookBtn" onclick="generateHooks()">
+          <span id="generateHookIcon"><i class="fa-solid fa-arrow-up"></i></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -622,5 +622,115 @@ h6,
     transform: translateY(0);
   }
 }
+
+@media (max-width: 720px) {
+  .sidebar {
+    width: 56px;
+  }
+
+  .sidebar-brand,
+  .nav-section,
+  .nav-item span,
+  .sidebar-upgrade,
+  .user-meta {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+  }
+
+  .sidebar-header {
+    padding: 0 10px;
+  }
+
+  .sidebar-footer {
+    padding: 8px;
+  }
+
+  .topbar {
+    padding: 0 12px;
+  }
+
+  .topbar-title {
+    min-width: 0;
+  }
+
+  .topbar-title span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .btn-primary {
+    display: none;
+  }
 }
+
+/* ─────────────────────────────────────────
+   PREMIUM GLASSMORPHIC SCORE PROGRESS RINGS
+───────────────────────────────────────── */
+
+.analysis-score-ring-wrapper {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--t) var(--spring);
 }
+
+.analysis-score-ring-wrapper:hover {
+  transform: scale(1.06);
+}
+
+.score-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.05));
+}
+
+.score-ring-bg {
+  fill: none;
+  stroke: var(--surface2);
+  stroke-width: 6.5;
+  transition: stroke var(--t) var(--ease);
+}
+
+.score-ring-progress {
+  fill: none;
+  stroke: var(--score-color, var(--accent));
+  stroke-width: 6.5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s var(--spring), stroke var(--t) var(--ease);
+  filter: drop-shadow(0 0 3px rgba(124, 92, 255, 0.15));
+}
+
+.score-ring-text {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.15;
+  pointer-events: none;
+}
+
+.score-number {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.score-label {
+  font-family: var(--mono);
+  font-size: 6.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-weight: 500;
+}
+

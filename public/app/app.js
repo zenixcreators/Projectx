@@ -62,9 +62,9 @@ async function analyze() {
         data = await res.json();
     } catch (e) {
         console.error("Analysis Error:", e);
-        const hooksContent = document.getElementById("hooksContent");
-        if (hooksContent) {
-            hooksContent.innerHTML = `<div class="hooks-empty-state"><p style="color:#ff4d4d;">Network error. Please try again.</p></div>`;
+        const scriptTesterResult = document.getElementById("scriptTesterResult");
+        if (scriptTesterResult) {
+            scriptTesterResult.innerHTML = `<div class="hook-test-error">Could not generate this script. Please try again.</div>`;
         }
         return;
     }

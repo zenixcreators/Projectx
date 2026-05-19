@@ -41,6 +41,11 @@
           <span>Script Studio</span>
         </button>
 
+        <button class="nav-item" data-target="hook-view" data-title="Hook Studio" onclick="switchView(this)">
+          <i class="fa-solid fa-bolt"></i>
+          <span>Hook Studio</span>
+        </button>
+
         <button class="nav-item" data-target="caption-view" data-title="Caption Studio" onclick="switchView(this)">
           <i class="fa-solid fa-closed-captioning"></i>
           <span>Caption Studio</span>
@@ -69,6 +74,11 @@
         </button>
 
         <div class="nav-section">Insights</div>
+
+        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis" onclick="switchView(this)">
+          <i class="fa-brands fa-youtube" style="color: var(--red); opacity: 1;"></i>
+          <span>Channel Analysis</span>
+        </button>
 
         <button class="nav-item" data-tooltip="Analytics">
           <i class="fa-solid fa-chart-line"></i>
@@ -135,8 +145,10 @@
       <main class="workspace">
         <div id="featurePartials">
           <div data-partial="partials/script-studio.html"></div>
+          <div data-partial="partials/hook-studio.html"></div>
           <div data-partial="partials/caption-studio.html"></div>
           <div data-partial="partials/thumbnail-studio.html"></div>
+          <div data-partial="partials/channel-analysis.html"></div>
         </div>
 
       </main>
@@ -148,8 +160,10 @@
   <script src="app.js?v=2"></script>
   <script src="js/shared.js?v=2"></script>
   <script src="js/script-studio.js?v=2"></script>
+  <script src="js/hook-studio.js?v=2"></script>
   <script src="js/caption-studio.js?v=2"></script>
   <script src="js/thumbnail-studio.js?v=2"></script>
+  <script src="js/channel-analysis.js?v=2"></script>
 </body>
 
 </html>
