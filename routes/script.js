@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const parseResponse = require("../utils/parser");
+const { requireApiAuth } = require("../services/auth/session");
+const Script = require("../backend/models/Script");
+const buildLongFormPrompt = require("../prompts/script-longform");
+const buildShortFormPrompt = require("../prompts/script-shortform");
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -585,6 +589,263 @@ Return ONLY valid JSON:
   } catch (error) {
     console.error("Script Tester Error:", error.response?.data || error.message);
     res.json(fallback);
+  }
+});
+
+// ── SCRIPT STUDIO UPGRADE ENDPOINTS ──
+
+function getEstimatedDurationText(words) {
+  const seconds = Math.round(words / 2.35); // Conversational pacing (approx 140 WPM)
+  if (seconds < 60) return `${seconds} sec`;
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return secs > 0 ? `${mins} min ${secs} sec` : `${mins} min`;
+}
+
+/**
+ * POST /api/script/generate
+ * Generates either a long-form or short-form script using Groq models with retries & fallbacks.
+ */
+router.post("/api/script/generate", requireApiAuth, async (req, res) => {
+  const {
+    type,
+    topic,
+    audience,
+    tone,
+    hookStyle,
+    ctaStyle,
+    additionalContext,
+    targetDuration,
+    sectionCount,
+    includeBRoll,
+    includeTimestamps,
+    platform,
+    targetLength,
+    pacingStyle,
+    includeOnScreenText
+  } = req.body || {};
+
+  // Validate required fields
+  if (!type || !["long", "short"].includes(type)) {
+    return res.status(400).json({ error: "Invalid or missing 'type' parameter. Must be 'long' or 'short'." });
+  }
+  if (!topic || typeof topic !== "string" || !topic.trim()) {
+    return res.status(400).json({ error: "Missing or invalid 'topic' parameter." });
+  }
+  if (!tone || typeof tone !== "string" || !tone.trim()) {
+    return res.status(400).json({ error: "Missing or invalid 'tone' parameter." });
+  }
+  if (!hookStyle || typeof hookStyle !== "string" || !hookStyle.trim()) {
+    return res.status(400).json({ error: "Missing or invalid 'hookStyle' parameter." });
+  }
+  if (!ctaStyle || typeof ctaStyle !== "string" || !ctaStyle.trim()) {
+    return res.status(400).json({ error: "Missing or invalid 'ctaStyle' parameter." });
+  }
+
+  if (!GROQ_API_KEY) {
+    console.error("GROQ_API_KEY is missing in environment variables");
+    return res.status(500).json({ error: "Server configuration error: Groq API key is missing." });
+  }
+
+  let systemPrompt = "";
+  let userPrompt = "";
+
+  if (type === "long") {
+    const promptData = {
+      topic,
+      audience,
+      tone,
+      hookStyle,
+      ctaStyle,
+      additionalContext,
+      targetDuration,
+      sectionCount: Number(sectionCount) || 5,
+      includeBRoll: !!includeBRoll,
+      includeTimestamps: !!includeTimestamps
+    };
+    const prompts = buildLongFormPrompt(promptData);
+    systemPrompt = prompts.systemPrompt;
+    userPrompt = prompts.userPrompt;
+  } else {
+    const promptData = {
+      topic,
+      audience,
+      tone,
+      platform,
+      targetLength,
+      hookStyle,
+      pacingStyle,
+      includeOnScreenText: !!includeOnScreenText,
+      ctaStyle,
+      additionalContext
+    };
+    const prompts = buildShortFormPrompt(promptData);
+    systemPrompt = prompts.systemPrompt;
+    userPrompt = prompts.userPrompt;
+  }
+
+  const primaryModel = "llama-3.3-70b-versatile";
+  const fallbackModel = "llama3-8b-8192";
+  
+  const makeRequest = async (model) => {
+    return await axios.post(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        model: model,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.7
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        timeout: 25000 // 25 seconds
+      }
+    );
+  };
+
+  let generatedText = "";
+  let success = false;
+  let errorMsg = "";
+
+  // Try 1: Primary Model (70b)
+  try {
+    console.log(`Generating script type=${type} with primary model ${primaryModel}...`);
+    const response = await makeRequest(primaryModel);
+    generatedText = response.data.choices[0].message.content;
+    success = true;
+  } catch (err) {
+    const isRateLimitOrTimeout = err.response?.status === 429 || err.code === "ECONNABORTED" || err.message?.includes("timeout");
+    console.warn(`Primary model request failed. Is rate-limit/timeout: ${isRateLimitOrTimeout}. Error: ${err.message}`);
+    
+    if (isRateLimitOrTimeout) {
+      // Wait 1 second and retry once
+      console.log("Waiting 1 second before retrying primary model...");
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      try {
+        const response = await makeRequest(primaryModel);
+        generatedText = response.data.choices[0].message.content;
+        success = true;
+      } catch (retryErr) {
+        console.warn(`Primary model retry failed: ${retryErr.message}. Falling back to 8b...`);
+      }
+    }
+  }
+
+  // Fallback: Secondary Model (8b) if primary failed
+  if (!success) {
+    try {
+      console.log(`Calling fallback model ${fallbackModel}...`);
+      const response = await makeRequest(fallbackModel);
+      generatedText = response.data.choices[0].message.content;
+      success = true;
+    } catch (fallbackErr) {
+      console.error(`Fallback model also failed: ${fallbackErr.message}`);
+      errorMsg = "Script generation temporarily unavailable. Please try again.";
+    }
+  }
+
+  if (!success) {
+    return res.status(500).json({ success: false, error: errorMsg });
+  }
+
+  let scriptText = generatedText.trim();
+
+  // Post-generation constraints & validations
+  let wordCount = scriptText.split(/\s+/).filter(Boolean).length;
+  
+  if (type === "short" && wordCount > 450) {
+    console.warn(`Short-form script exceeded 450 words (${wordCount}). Truncating...`);
+    const words = scriptText.split(/\s+/).filter(Boolean);
+    const ctaIndex = scriptText.indexOf("[CTA]");
+    if (ctaIndex !== -1) {
+      const preCta = scriptText.substring(0, ctaIndex);
+      const ctaPart = scriptText.substring(ctaIndex);
+      const preCtaWords = preCta.trim().split(/\s+/).filter(Boolean);
+      if (preCtaWords.length < 450) {
+        const remainingForCta = 450 - preCtaWords.length;
+        const ctaWords = ctaPart.trim().split(/\s+/).filter(Boolean).slice(0, remainingForCta);
+        scriptText = preCta.trim() + "\n\n" + ctaWords.join(" ");
+      } else {
+        scriptText = words.slice(0, 450).join(" ");
+      }
+    } else {
+      scriptText = words.slice(0, 450).join(" ");
+    }
+    wordCount = scriptText.split(/\s+/).filter(Boolean).length;
+  }
+
+  let sectionsMatch = true;
+  if (type === "long") {
+    const reqSections = Number(sectionCount) || 5;
+    const matchedHeaders = scriptText.match(/\[(HOOK|INTRO|SECTION|OUTRO)[^\]]*\]/gi) || [];
+    if (matchedHeaders.length < reqSections) {
+      sectionsMatch = false;
+    }
+  }
+
+  const estimatedDuration = getEstimatedDurationText(wordCount);
+
+  return res.json({
+    success: true,
+    script: scriptText,
+    metadata: {
+      type,
+      wordCount,
+      estimatedDuration,
+      sectionsMatch
+    }
+  });
+});
+
+/**
+ * POST /api/scripts/save
+ * Saves a generated script to the authenticated user's library in MongoDB.
+ */
+router.post("/api/scripts/save", requireApiAuth, async (req, res) => {
+  const { type, topic, tone, platform, targetDuration, scriptContent, wordCount, estimatedDuration, inputs } = req.body || {};
+  
+  if (!type || !topic || !tone || !scriptContent || !wordCount || !estimatedDuration || !inputs) {
+    return res.status(400).json({ error: "Missing required fields to save script." });
+  }
+
+  try {
+    const script = new Script({
+      userId: req.user._id,
+      type,
+      topic,
+      tone,
+      platform: type === "short" ? platform : null,
+      targetDuration: type === "long" ? targetDuration : null,
+      scriptContent,
+      wordCount,
+      estimatedDuration,
+      inputs
+    });
+
+    await script.save();
+    return res.status(201).json({ success: true, message: "Script saved to library successfully!", script });
+  } catch (err) {
+    console.error("Error saving script:", err.message);
+    return res.status(500).json({ error: "Failed to save script to library." });
+  }
+});
+
+/**
+ * GET /api/scripts
+ * Returns all saved scripts for the currently authenticated user.
+ */
+router.get("/api/scripts", requireApiAuth, async (req, res) => {
+  try {
+    const scripts = await Script.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    return res.json(scripts);
+  } catch (err) {
+    console.error("Error fetching scripts:", err.message);
+    return res.status(500).json({ error: "Failed to load saved scripts." });
   }
 });
 

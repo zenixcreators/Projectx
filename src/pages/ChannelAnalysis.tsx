@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Navigation from "../components/Navigation";
+
 
 interface RecentAnalysis {
   channelId: string;
@@ -141,8 +143,10 @@ export default function ChannelAnalysis() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-start px-4 py-12 md:py-16 selection:bg-indigo-500/30 font-sans">
-      <div className="w-full max-w-4xl flex flex-col gap-10">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans pb-24 selection:bg-indigo-500/30">
+      <Navigation />
+      <div className="w-full flex flex-col items-center justify-start px-4 py-12 md:py-16">
+        <div className="w-full max-w-4xl flex flex-col gap-10">
         
         {/* Header Block */}
         <div className="text-center flex flex-col items-center gap-4">
@@ -296,5 +300,6 @@ export default function ChannelAnalysis() {
 
       </div>
     </div>
+  </div>
   );
 }

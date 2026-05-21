@@ -85,7 +85,7 @@ async function transcribeAudio(buffer, mimetype, filename) {
 }
 
 async function fetchYouTubeTranscript(url) {
-  const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const match = url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);
   if (!match) throw new Error("Invalid YouTube URL");
   const videoId = match[1];
 
@@ -283,14 +283,14 @@ router.post("/caption", handleMulterUpload, async (req, res) => {
   };
 
   // ── INPUT VALIDATION BLOCK ──
-  const validTypes = ["audio", "video", "url", "text"];
+  const validTypes = ["audio", "video", "url", "text", "transcript"];
   let type = req.body?.type || (req.file ? "audio" : null);
 
   if (!type || !validTypes.includes(type)) {
-    return res.status(400).json({ error: "Invalid or missing 'type' parameter. Must be 'audio', 'video', 'url', or 'text'." });
+    return res.status(400).json({ error: "Invalid or missing 'type' parameter. Must be 'audio', 'video', 'url', 'text', or 'transcript'." });
   }
 
-  if (!req.file && (type === "url" || type === "text")) {
+  if (!req.file && (type === "url" || type === "text" || type === "transcript")) {
     const value = req.body?.value;
     if (!value || typeof value !== "string" || !value.trim()) {
       return res.status(400).json({ error: `Missing or invalid 'value' parameter for content type '${type}'.` });
