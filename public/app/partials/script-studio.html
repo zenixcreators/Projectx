@@ -59,10 +59,25 @@
   <!-- FLOATING INPUT BAR -->
   <div class="input-bar-wrapper">
     <div class="input-shell">
+      <!-- Mode selector pill toggle -->
+      <div class="mode-selector-pill">
+        <button type="button" id="modeBtnLong" class="mode-btn active" onclick="setStudioMode('long')">Long Form</button>
+        <button type="button" id="modeBtnShort" class="mode-btn" onclick="setStudioMode('short')">Short Form</button>
+      </div>
+
       <textarea id="mainInput" rows="1"
-        placeholder="Describe your content topic... e.g. I lost 5kg in 30 days and want to share how"
-        maxlength="2000" oninput="autoResize(this)"></textarea>
+        placeholder="Describe your content topic... e.g. How I built an AI SaaS in 48 hours as a solo founder" maxlength="2000"
+        oninput="autoResize(this)"></textarea>
+
+      <!-- Advanced Options Drawer -->
+      <div class="options-drawer" id="optionsDrawer">
+        <!-- Injected dynamically in script-studio.js based on active mode -->
+      </div>
+
       <div class="input-bottom-row">
+        <button type="button" class="options-toggle-btn" id="optionsToggleBtn" onclick="toggleOptionsDrawer()" title="Advanced Options">
+          <i class="fa-solid fa-sliders" id="optionsToggleIcon"></i>
+        </button>
         <div class="tone-strip" id="toneStrip"></div>
         <button class="generate-btn" id="generateBtn" onclick="triggerGenerate()">
           <span id="generateIcon"><i class="fa-solid fa-arrow-up"></i></span>

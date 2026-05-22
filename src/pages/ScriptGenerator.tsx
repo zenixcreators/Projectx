@@ -39,8 +39,6 @@ export default function ScriptGenerator() {
   const [longDuration, setLongDuration] = useState("5–10 min");
   const [longSectionCount, setLongSectionCount] = useState(5);
   const [longHookStyle, setLongHookStyle] = useState("Question");
-  const [longIncludeBRoll, setLongIncludeBRoll] = useState(true);
-  const [longIncludeTimestamps, setLongIncludeTimestamps] = useState(true);
   const [longCtaStyle, setLongCtaStyle] = useState("Subscribe CTA");
   const [longContext, setLongContext] = useState("");
 
@@ -49,10 +47,9 @@ export default function ScriptGenerator() {
   const [shortAudience, setShortAudience] = useState("");
   const [shortTone, setShortTone] = useState("Conversational");
   const [shortPlatform, setShortPlatform] = useState("TikTok");
-  const [shortLength, setShortLength] = useState("60 seconds (~150 words)");
+  const [shortLength, setShortLength] = useState("60 seconds");
   const [shortHookStyle, setShortHookStyle] = useState("Bold Claim");
-  const [shortPacingStyle, setShortPacingStyle] = useState("Fast Cut (punchy, fragmented)");
-  const [shortIncludeText, setShortIncludeText] = useState(true);
+  const [shortPacingStyle, setShortPacingStyle] = useState("Fast Cut");
   const [shortCtaStyle, setShortCtaStyle] = useState("Follow for more");
   const [shortContext, setShortContext] = useState("");
 
@@ -120,9 +117,7 @@ export default function ScriptGenerator() {
           ctaStyle: longCtaStyle,
           additionalContext: longContext.trim(),
           targetDuration: longDuration,
-          sectionCount: Number(longSectionCount) || 5,
-          includeBRoll: longIncludeBRoll,
-          includeTimestamps: longIncludeTimestamps
+          sectionCount: Number(longSectionCount) || 5
         }
       : {
           type: "short",
@@ -133,7 +128,6 @@ export default function ScriptGenerator() {
           targetLength: shortLength,
           hookStyle: shortHookStyle,
           pacingStyle: shortPacingStyle,
-          includeOnScreenText: shortIncludeText,
           ctaStyle: shortCtaStyle,
           additionalContext: shortContext.trim()
         };
@@ -172,8 +166,6 @@ export default function ScriptGenerator() {
           longDuration,
           longSectionCount,
           longHookStyle,
-          longIncludeBRoll,
-          longIncludeTimestamps,
           longCtaStyle,
           longContext
         }
@@ -185,7 +177,6 @@ export default function ScriptGenerator() {
           shortLength,
           shortHookStyle,
           shortPacingStyle,
-          shortIncludeText,
           shortCtaStyle,
           shortContext
         };
@@ -252,8 +243,6 @@ export default function ScriptGenerator() {
       setLongDuration(script.targetDuration || "5–10 min");
       setLongSectionCount(script.inputs?.longSectionCount || 5);
       setLongHookStyle(script.inputs?.longHookStyle || "Question");
-      setLongIncludeBRoll(script.inputs?.longIncludeBRoll !== false);
-      setLongIncludeTimestamps(script.inputs?.longIncludeTimestamps !== false);
       setLongCtaStyle(script.inputs?.longCtaStyle || "Subscribe CTA");
       setLongContext(script.inputs?.longContext || "");
       setExpandedSections({ 0: true, 1: true, 2: true });
@@ -262,10 +251,9 @@ export default function ScriptGenerator() {
       setShortAudience(script.inputs?.shortAudience || "");
       setShortTone(script.tone);
       setShortPlatform(script.platform || "TikTok");
-      setShortLength(script.inputs?.shortLength || "60 seconds (~150 words)");
+      setShortLength(script.inputs?.shortLength || "60 seconds");
       setShortHookStyle(script.inputs?.shortHookStyle || "Bold Claim");
-      setShortPacingStyle(script.inputs?.shortPacingStyle || "Fast Cut (punchy, fragmented)");
-      setShortIncludeText(script.inputs?.shortIncludeText !== false);
+      setShortPacingStyle(script.inputs?.shortPacingStyle || "Fast Cut");
       setShortCtaStyle(script.inputs?.shortCtaStyle || "Follow for more");
       setShortContext(script.inputs?.shortContext || "");
     }
@@ -498,41 +486,38 @@ export default function ScriptGenerator() {
             </p>
           </div>
 
-          {/* Mode Selector Pill Toggle */}
-          <div className="flex justify-center w-full">
-            <div className="relative bg-zinc-900 border border-zinc-800 p-1 rounded-2xl flex w-full max-w-xs shadow-inner">
-              <div 
-                className={`absolute top-1 bottom-1 rounded-xl bg-zinc-800 border border-zinc-700/50 shadow-md transition-all duration-300 w-[calc(50%-4px)] ${
-                  mode === "short" ? "left-[calc(50%+2px)]" : "left-1"
-                }`}
-              />
-              <button
-                type="button"
-                onClick={() => setMode("long")}
-                className={`flex-1 text-center py-2.5 text-xs md:text-sm font-bold tracking-wider relative z-10 transition-colors duration-300 ${
-                  mode === "long" ? "text-indigo-400 font-extrabold" : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                📺 Long Form
-              </button>
-              <button
-                type="button"
-                onClick={() => setMode("short")}
-                className={`flex-1 text-center py-2.5 text-xs md:text-sm font-bold tracking-wider relative z-10 transition-colors duration-300 ${
-                  mode === "short" ? "text-indigo-400 font-extrabold" : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                📱 Short Form
-              </button>
-            </div>
-          </div>
-
           {/* Dynamic Inputs Box */}
           <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden transition-all duration-500">
             <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-600/5 rounded-full filter blur-[80px]" />
             
             <form onSubmit={handleGenerate} className="relative flex flex-col gap-6">
               
+              {/* Mode Selector Pill Toggle */}
+              <div className="flex items-center gap-2 mb-2 pb-4 border-b border-zinc-800/60">
+                <button
+                  type="button"
+                  onClick={() => setMode("long")}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 cursor-pointer ${
+                    mode === "long"
+                      ? "bg-[#7C3AED] border-[#7C3AED] text-white shadow-sm"
+                      : "bg-transparent border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                  }`}
+                >
+                  Long Form
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("short")}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 cursor-pointer ${
+                    mode === "short"
+                      ? "bg-[#7C3AED] border-[#7C3AED] text-white shadow-sm"
+                      : "bg-transparent border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                  }`}
+                >
+                  Short Form
+                </button>
+              </div>
+
               {/* Common Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-1">
@@ -597,7 +582,6 @@ export default function ScriptGenerator() {
                         <option>10–20 min</option>
                         <option>20–40 min</option>
                         <option>40–60 min</option>
-                        <option>60+ min</option>
                       </select>
                     </div>
 
@@ -626,58 +610,30 @@ export default function ScriptGenerator() {
                         onChange={(e) => setLongHookStyle(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option value="Question">Question Hook (thought-provoking opener)</option>
-                        <option value="Bold Statement">Bold Statement Hook (counterintuitive claim)</option>
-                        <option value="Shocking Fact">Shocking Fact Hook (unexpected metric/stat)</option>
-                        <option value="Story Open">Story Open Hook (in media res visual hook)</option>
-                        <option value="Contrast Hook">Contrast Hook (success vs failure)</option>
+                        <option>Question</option>
+                        <option>Bold Statement</option>
+                        <option>Shocking Fact</option>
+                        <option>Story Open</option>
+                        <option>Contrast Hook</option>
                       </select>
                     </div>
 
                     <div className="flex flex-col gap-1">
                       <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                        Outro / CTA Style
+                        CTA Style
                       </label>
                       <select
                         value={longCtaStyle}
                         onChange={(e) => setLongCtaStyle(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option value="Subscribe CTA">Subscribe CTA (channel growth focus)</option>
-                        <option value="Link in Bio">Link in Bio (newsletter/link driver)</option>
-                        <option value="Product Plug">Product Plug (direct service sales)</option>
-                        <option value="Community CTA">Community CTA (joining server/forum)</option>
-                        <option value="Soft Close">Soft Close (philosophical reflection)</option>
+                        <option>Subscribe CTA</option>
+                        <option>Link in Bio</option>
+                        <option>Product Plug</option>
+                        <option>Community CTA</option>
+                        <option>Soft Close</option>
                       </select>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-6 p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/60">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={longIncludeBRoll}
-                        onChange={(e) => setLongIncludeBRoll(e.target.checked)}
-                        className="w-4.5 h-4.5 rounded border-zinc-800 bg-zinc-950 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-zinc-200">Include B-Roll Suggestions</span>
-                        <span className="text-[10px] text-zinc-500">Injects cinematic inline visual indicators [B-ROLL: ...]</span>
-                      </div>
-                    </label>
-
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={longIncludeTimestamps}
-                        onChange={(e) => setLongIncludeTimestamps(e.target.checked)}
-                        className="w-4.5 h-4.5 rounded border-zinc-800 bg-zinc-950 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-zinc-200">Include Timestamps</span>
-                        <span className="text-[10px] text-zinc-500">Estimates section start moments automatically</span>
-                      </div>
-                    </label>
                   </div>
                 </div>
               )}
@@ -698,14 +654,13 @@ export default function ScriptGenerator() {
                         <option>Casual</option>
                         <option>Hype/Energetic</option>
                         <option>Educational</option>
-                        <option>Storytelling</option>
                         <option>Conversational</option>
                       </select>
                     </div>
 
                     <div className="flex flex-col gap-1">
                       <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                        Target Platform
+                        Platform
                       </label>
                       <select
                         value={shortPlatform}
@@ -715,7 +670,6 @@ export default function ScriptGenerator() {
                         <option>TikTok</option>
                         <option>Instagram Reels</option>
                         <option>YouTube Shorts</option>
-                        <option>All Platforms</option>
                       </select>
                     </div>
 
@@ -728,10 +682,10 @@ export default function ScriptGenerator() {
                         onChange={(e) => setShortLength(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option>60 seconds (~150 words)</option>
-                        <option>90 seconds (~225 words)</option>
-                        <option>2 minutes (~300 words)</option>
-                        <option>3 minutes (~450 words)</option>
+                        <option>60 seconds</option>
+                        <option>90 seconds</option>
+                        <option>2 minutes</option>
+                        <option>3 minutes</option>
                       </select>
                     </div>
                   </div>
@@ -746,11 +700,11 @@ export default function ScriptGenerator() {
                         onChange={(e) => setShortHookStyle(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option value="Bold Claim">Bold Claim (attention shocker)</option>
-                        <option value="Shocking Stat">Shocking Stat (viral metric)</option>
-                        <option value="Relatable Problem">Relatable Problem (pain point callout)</option>
-                        <option value="Direct Question">Direct Question (cognitive push)</option>
-                        <option value="Curiosity Gap">Curiosity Gap (incomplete story opener)</option>
+                        <option>Bold Claim</option>
+                        <option>Shocking Stat</option>
+                        <option>Relatable Problem</option>
+                        <option>Direct Question</option>
+                        <option>Curiosity Gap</option>
                       </select>
                     </div>
 
@@ -763,9 +717,9 @@ export default function ScriptGenerator() {
                         onChange={(e) => setShortPacingStyle(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option value="Fast Cut (punchy, fragmented)">Fast Cut (fragmented, rapid-fire)</option>
-                        <option value="Smooth Flow (conversational)">Smooth Flow (conversational balance)</option>
-                        <option value="Narrative Arc">Narrative Arc (micro plot structure)</option>
+                        <option>Fast Cut</option>
+                        <option>Smooth Flow</option>
+                        <option>Narrative Arc</option>
                       </select>
                     </div>
 
@@ -778,28 +732,13 @@ export default function ScriptGenerator() {
                         onChange={(e) => setShortCtaStyle(e.target.value)}
                         className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
                       >
-                        <option value="Follow for more">Follow for more</option>
-                        <option value="Link in bio">Link in bio</option>
-                        <option value="Comment below">Comment below</option>
-                        <option value="Share this">Share this</option>
-                        <option value="Save this">Save this</option>
+                        <option>Follow for more</option>
+                        <option>Link in bio</option>
+                        <option>Comment below</option>
+                        <option>Share this</option>
+                        <option>Save this</option>
                       </select>
                     </div>
-                  </div>
-
-                  <div className="flex items-center gap-6 p-4 rounded-xl bg-zinc-950/40 border border-zinc-800/60">
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={shortIncludeText}
-                        onChange={(e) => setShortIncludeText(e.target.checked)}
-                        className="w-4.5 h-4.5 rounded border-zinc-800 bg-zinc-950 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-                      />
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-zinc-200">Include On-Screen Text Suggestions</span>
-                        <span className="text-[10px] text-zinc-500">Injects micro subtitle or graphics overlays [TEXT: "..."]</span>
-                      </div>
-                    </label>
                   </div>
                 </div>
               )}
