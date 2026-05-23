@@ -79,6 +79,17 @@ const settingsState = {
     pacingStyle: 'Fast Cut',
     ctaStyle: 'Follow for more',
     context: ''
+  },
+  storytelling: {
+    creatorName: '',
+    niche: '',
+    personality: 'honest, conversational, self-aware',
+    creatorPhrase: '',
+    audience: 'people who relate to this struggle',
+    tone: 'vulnerable and honest',
+    realDetail: '',
+    duration: '10–20 min',
+    sections: 6
   }
 };
 
@@ -98,7 +109,7 @@ function saveOptionsState() {
     const sectionsEl = document.getElementById('optSections');
     if (durationEl) settingsState.long.duration = durationEl.value;
     if (sectionsEl) settingsState.long.sections = Number(sectionsEl.value) || 5;
-  } else {
+  } else if (studioMode === 'short') {
     if (audienceEl) settingsState.short.audience = audienceEl.value;
     if (contextEl) settingsState.short.context = contextEl.value;
     if (hookStyleEl) settingsState.short.hookStyle = hookStyleEl.value;
@@ -110,6 +121,25 @@ function saveOptionsState() {
     if (platformEl) settingsState.short.platform = platformEl.value;
     if (lengthEl) settingsState.short.length = lengthEl.value;
     if (pacingEl) settingsState.short.pacingStyle = pacingEl.value;
+  } else if (studioMode === 'storytelling') {
+    const creatorNameEl = document.getElementById('optCreatorName');
+    const nicheEl = document.getElementById('optNiche');
+    const personalityEl = document.getElementById('optPersonality');
+    const phraseEl = document.getElementById('optPhrase');
+    const emotionalToneEl = document.getElementById('optEmotionalTone');
+    const realDetailEl = document.getElementById('optRealDetail');
+    const durationEl = document.getElementById('optDuration');
+    const sectionsEl = document.getElementById('optSections');
+
+    if (creatorNameEl) settingsState.storytelling.creatorName = creatorNameEl.value;
+    if (nicheEl) settingsState.storytelling.niche = nicheEl.value;
+    if (personalityEl) settingsState.storytelling.personality = personalityEl.value;
+    if (phraseEl) settingsState.storytelling.creatorPhrase = phraseEl.value;
+    if (audienceEl) settingsState.storytelling.audience = audienceEl.value;
+    if (emotionalToneEl) settingsState.storytelling.tone = emotionalToneEl.value;
+    if (realDetailEl) settingsState.storytelling.realDetail = realDetailEl.value;
+    if (durationEl) settingsState.storytelling.duration = durationEl.value;
+    if (sectionsEl) settingsState.storytelling.sections = Number(sectionsEl.value) || 6;
   }
 }
 
@@ -169,7 +199,7 @@ function renderModeOptions() {
     document.getElementById('optCtaStyle').value = settingsState.long.ctaStyle;
     document.getElementById('optContext').value = settingsState.long.context;
 
-  } else {
+  } else if (studioMode === 'short') {
     drawer.innerHTML = `
       <div class="option-field">
         <label class="option-label">Target Audience</label>
@@ -233,6 +263,59 @@ function renderModeOptions() {
     document.getElementById('optPacingStyle').value = settingsState.short.pacingStyle;
     document.getElementById('optCtaStyle').value = settingsState.short.ctaStyle;
     document.getElementById('optContext').value = settingsState.short.context;
+  } else if (studioMode === 'storytelling') {
+    drawer.innerHTML = `
+      <div class="option-field">
+        <label class="option-label">Creator Name <span style="color:var(--green)">*</span></label>
+        <input type="text" id="optCreatorName" class="option-input" placeholder="Your name or channel name" required>
+      </div>
+      <div class="option-field">
+        <label class="option-label">Your Niche</label>
+        <input type="text" id="optNiche" class="option-input" placeholder="e.g. indie dev, fitness, finance">
+      </div>
+      <div class="option-field">
+        <label class="option-label">Your Personality</label>
+        <input type="text" id="optPersonality" class="option-input" placeholder="e.g. dry humor, brutally honest">
+      </div>
+      <div class="option-field">
+        <label class="option-label">A Phrase You Say (Optional)</label>
+        <input type="text" id="optPhrase" class="option-input" placeholder="e.g. which is insane to me">
+      </div>
+      <div class="option-field">
+        <label class="option-label">Your Audience</label>
+        <input type="text" id="optAudience" class="option-input" placeholder="e.g. burnt out 9-5 workers">
+      </div>
+      <div class="option-field">
+        <label class="option-label">Emotional Tone</label>
+        <input type="text" id="optEmotionalTone" class="option-input" placeholder="e.g. vulnerable, quietly proud">
+      </div>
+      <div class="option-field">
+        <label class="option-label">Target Duration</label>
+        <select id="optDuration" class="option-select">
+          <option>10–20 min</option>
+          <option>20–40 min</option>
+          <option>40–60 min</option>
+        </select>
+      </div>
+      <div class="option-field">
+        <label class="option-label">Number of Sections</label>
+        <input type="number" id="optSections" class="option-input" min="4" max="8" value="6">
+      </div>
+      <div class="option-field full-width">
+        <label class="option-label">One Real Detail / Vulnerable Secret (Optional)</label>
+        <textarea id="optRealDetail" class="option-textarea" rows="2" placeholder="e.g. I launched at 2am and told nobody. The more specific the more human it sounds."></textarea>
+      </div>
+    `;
+
+    document.getElementById('optCreatorName').value = settingsState.storytelling.creatorName;
+    document.getElementById('optNiche').value = settingsState.storytelling.niche;
+    document.getElementById('optPersonality').value = settingsState.storytelling.personality;
+    document.getElementById('optPhrase').value = settingsState.storytelling.creatorPhrase;
+    document.getElementById('optAudience').value = settingsState.storytelling.audience;
+    document.getElementById('optEmotionalTone').value = settingsState.storytelling.tone;
+    document.getElementById('optDuration').value = settingsState.storytelling.duration;
+    document.getElementById('optSections').value = settingsState.storytelling.sections;
+    document.getElementById('optRealDetail').value = settingsState.storytelling.realDetail;
   }
 }
 
@@ -243,17 +326,42 @@ window.setStudioMode = function(mode) {
 
   const btnLong = document.getElementById('modeBtnLong');
   const btnShort = document.getElementById('modeBtnShort');
-  if (btnLong && btnShort) {
-    if (mode === 'long') {
-      btnLong.classList.add('active');
-      btnShort.classList.remove('active');
+  const btnStory = document.getElementById('modeBtnStory');
+  
+  if (btnLong) btnLong.classList.remove('active');
+  if (btnShort) btnShort.classList.remove('active');
+  if (btnStory) btnStory.classList.remove('active');
+
+  if (mode === 'long' && btnLong) {
+    btnLong.classList.add('active');
+  } else if (mode === 'short' && btnShort) {
+    btnShort.classList.add('active');
+  } else if (mode === 'storytelling' && btnStory) {
+    btnStory.classList.add('active');
+  }
+
+  // Adjust placeholder of the main text area
+  const inputEl = document.getElementById('mainInput');
+  if (inputEl) {
+    if (mode === 'storytelling') {
+      inputEl.placeholder = "Describe your story / what is this video about? Explain the main struggle, epiphany, and transformation...";
     } else {
-      btnShort.classList.add('active');
-      btnLong.classList.remove('active');
+      inputEl.placeholder = mode === 'long'
+        ? "Describe your content topic... e.g. How I built an AI SaaS in 48 hours as a solo founder"
+        : "Describe your content topic... e.g. 3 AI tools that feel illegal to know";
     }
   }
 
   renderModeOptions();
+
+  // If transitioning to storytelling, automatically expand the options drawer so they can fill the required Creator Name
+  const drawer = document.getElementById('optionsDrawer');
+  const btn = document.getElementById('optionsToggleBtn');
+  if (mode === 'storytelling' && drawer && !optionsOpen) {
+    optionsOpen = true;
+    drawer.classList.add('open');
+    if (btn) btn.classList.add('active');
+  }
 };
 
 window.toggleOptionsDrawer = function() {
@@ -486,6 +594,34 @@ async function triggerGenerate() {
     return;
   }
 
+  saveOptionsState();
+
+  if (studioMode === 'storytelling') {
+    const creatorName = (settingsState.storytelling.creatorName || '').trim();
+    if (!creatorName) {
+      // Auto-open Advanced Options drawer if closed
+      const drawer = document.getElementById('optionsDrawer');
+      const toggleBtn = document.getElementById('optionsToggleBtn');
+      if (drawer && !optionsOpen) {
+        optionsOpen = true;
+        drawer.classList.add('open');
+        if (toggleBtn) toggleBtn.classList.add('active');
+      }
+      
+      // Focus and flash input
+      const creatorNameEl = document.getElementById('optCreatorName');
+      if (creatorNameEl) {
+        creatorNameEl.focus();
+        creatorNameEl.classList.add('invalid');
+        // Remove class after animation finishes
+        setTimeout(() => {
+          creatorNameEl.classList.remove('invalid');
+        }, 500);
+      }
+      return;
+    }
+  }
+
   const btn = document.getElementById('generateBtn');
   const icon = document.getElementById('generateIcon');
   btn.disabled = true;
@@ -511,8 +647,6 @@ async function triggerGenerate() {
       </div>`;
   }
 
-  saveOptionsState();
-
   const payload = studioMode === 'long' 
     ? {
         type: 'long',
@@ -524,6 +658,20 @@ async function triggerGenerate() {
         additionalContext: settingsState.long.context.trim(),
         targetDuration: settingsState.long.duration,
         sectionCount: Number(settingsState.long.sections) || 5
+      }
+    : studioMode === 'storytelling'
+    ? {
+        type: 'storytelling',
+        topic: topic,
+        creatorName: settingsState.storytelling.creatorName.trim(),
+        niche: settingsState.storytelling.niche.trim(),
+        personality: settingsState.storytelling.personality.trim(),
+        creatorPhrase: settingsState.storytelling.creatorPhrase.trim(),
+        audienceType: settingsState.storytelling.audience.trim(),
+        emotionalTone: settingsState.storytelling.tone.trim(),
+        realDetail: settingsState.storytelling.realDetail.trim(),
+        targetDuration: settingsState.storytelling.duration,
+        sectionCount: Number(settingsState.storytelling.sections) || 6
       }
     : {
         type: 'short',

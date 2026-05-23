@@ -7,6 +7,8 @@ const { requireApiAuth } = require("../services/auth/session");
 const Script = require("../backend/models/Script");
 const buildLongFormPrompt = require("../prompts/script-longform");
 const buildShortFormPrompt = require("../prompts/script-shortform");
+const buildHumanStorytellingEngine = require("../prompts/script-storytelling");
+const callGemini = require("../backend/gemini");
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
@@ -624,20 +626,51 @@ router.post("/api/script/generate", requireApiAuth, async (req, res) => {
   } = req.body || {};
 
   // Validate required fields
-  if (!type || !["long", "short"].includes(type)) {
-    return res.status(400).json({ error: "Invalid or missing 'type' parameter. Must be 'long' or 'short'." });
+  if (!type || !["long", "short", "storytelling"].includes(type)) {
+    return res.status(400).json({ error: "Invalid or missing 'type' parameter. Must be 'long', 'short', or 'storytelling'." });
   }
   if (!topic || typeof topic !== "string" || !topic.trim()) {
     return res.status(400).json({ error: "Missing or invalid 'topic' parameter." });
   }
-  if (!tone || typeof tone !== "string" || !tone.trim()) {
-    return res.status(400).json({ error: "Missing or invalid 'tone' parameter." });
+  if (type !== "storytelling") {
+    if (!tone || typeof tone !== "string" || !tone.trim()) {
+      return res.status(400).json({ error: "Missing or invalid 'tone' parameter." });
+    }
+    if (!hookStyle || typeof hookStyle !== "string" || !hookStyle.trim()) {
+      return res.status(400).json({ error: "Missing or invalid 'hookStyle' parameter." });
+    }
+    if (!ctaStyle || typeof ctaStyle !== "string" || !ctaStyle.trim()) {
+      return res.status(400).json({ error: "Missing or invalid 'ctaStyle' parameter." });
+    }
   }
-  if (!hookStyle || typeof hookStyle !== "string" || !hookStyle.trim()) {
-    return res.status(400).json({ error: "Missing or invalid 'hookStyle' parameter." });
-  }
-  if (!ctaStyle || typeof ctaStyle !== "string" || !ctaStyle.trim()) {
-    return res.status(400).json({ error: "Missing or invalid 'ctaStyle' parameter." });
+
+  // Handle Storytelling mode using Gemini API
+  if (type === "storytelling") {
+    try {
+      const prompts = buildHumanStorytellingEngine(req.body);
+      const script = await callGemini(prompts.systemPrompt, prompts.userPrompt);
+      
+      const wordCount = script.split(/\s+/).filter(Boolean).length;
+      const estimatedDuration = getEstimatedDurationText(wordCount);
+
+      return res.json({
+        success: true,
+        script,
+        metadata: {
+          type,
+          model: "gemini-1.5-flash",
+          wordCount,
+          estimatedDuration,
+          sectionsMatch: true
+        }
+      });
+    } catch (err) {
+      console.error("Story Mode Gemini Generation Error:", err.message);
+      return res.status(500).json({ 
+        success: false, 
+        error: "Story Mode is temporarily unavailable. Please try again." 
+      });
+    }
   }
 
   if (!GROQ_API_KEY) {

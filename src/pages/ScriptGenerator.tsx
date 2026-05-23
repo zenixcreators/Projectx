@@ -4,7 +4,7 @@ import Navigation from "../components/Navigation";
 
 interface SavedScript {
   _id: string;
-  type: "long" | "short";
+  type: "long" | "short" | "storytelling";
   topic: string;
   tone: string;
   platform?: string;
@@ -17,7 +17,7 @@ interface SavedScript {
 }
 
 export default function ScriptGenerator() {
-  const [mode, setMode] = useState<"long" | "short">("long");
+  const [mode, setMode] = useState<"long" | "short" | "storytelling">("long");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -26,11 +26,23 @@ export default function ScriptGenerator() {
   // Generated Output state
   const [generatedScript, setGeneratedScript] = useState<string | null>(null);
   const [metadata, setMetadata] = useState<{
-    type: "long" | "short";
+    type: "long" | "short" | "storytelling";
     wordCount: number;
     estimatedDuration: string;
     sectionsMatch?: boolean;
   } | null>(null);
+
+  // Form Inputs — Story Mode
+  const [storyCreatorName, setStoryCreatorName] = useState("");
+  const [storyNiche, setStoryNiche] = useState("");
+  const [storyPersonality, setStoryPersonality] = useState("honest, conversational, self-aware");
+  const [storyPhrase, setStoryPhrase] = useState("");
+  const [storyAudience, setStoryAudience] = useState("people who relate to this struggle");
+  const [storyTone, setStoryTone] = useState("vulnerable and honest");
+  const [storyRealDetail, setStoryRealDetail] = useState("");
+  const [storyTopic, setStoryTopic] = useState("");
+  const [storyDuration, setStoryDuration] = useState("10–20 min");
+  const [storySectionCount, setStorySectionCount] = useState(6);
 
   // Form Inputs — Long Form
   const [longTopic, setLongTopic] = useState("");
@@ -96,14 +108,14 @@ export default function ScriptGenerator() {
     setError("");
     setSuccessMsg("");
 
-    const currentTopic = mode === "long" ? longTopic : shortTopic;
+    const currentTopic = mode === "long" ? longTopic : (mode === "short" ? shortTopic : storyTopic);
     if (!currentTopic.trim()) {
       setError("Topic / Title is a required field!");
       return;
     }
 
     setLoading(true);
-    setStatusMessage("Activating Llama 3.3 script model...");
+    setStatusMessage(mode === "storytelling" ? "Invoking Gemini Story Engine..." : "Activating Llama 3.3 script model...");
     setGeneratedScript(null);
     setMetadata(null);
 
@@ -119,7 +131,8 @@ export default function ScriptGenerator() {
           targetDuration: longDuration,
           sectionCount: Number(longSectionCount) || 5
         }
-      : {
+      : mode === "short"
+      ? {
           type: "short",
           topic: shortTopic.trim(),
           audience: shortAudience.trim() || "general viewers",
@@ -130,6 +143,19 @@ export default function ScriptGenerator() {
           pacingStyle: shortPacingStyle,
           ctaStyle: shortCtaStyle,
           additionalContext: shortContext.trim()
+        }
+      : {
+          type: "storytelling",
+          creatorName: storyCreatorName.trim(),
+          niche: storyNiche.trim(),
+          personality: storyPersonality.trim(),
+          creatorPhrase: storyPhrase.trim(),
+          audienceType: storyAudience.trim(),
+          emotionalTone: storyTone.trim(),
+          realDetail: storyRealDetail.trim(),
+          topic: storyTopic.trim(),
+          targetDuration: storyDuration,
+          sectionCount: Number(storySectionCount) || 6
         };
 
     try {
@@ -138,8 +164,8 @@ export default function ScriptGenerator() {
         setGeneratedScript(res.data.script);
         setMetadata(res.data.metadata);
         
-        // Auto-expand first few sections for long form
-        if (mode === "long") {
+        // Auto-expand first few sections for long form / storytelling
+        if (mode === "long" || mode === "storytelling") {
           setExpandedSections({ 0: true, 1: true, 2: true });
         }
       } else {
@@ -169,7 +195,8 @@ export default function ScriptGenerator() {
           longCtaStyle,
           longContext
         }
-      : {
+      : mode === "short"
+      ? {
           shortTopic,
           shortAudience,
           shortTone,
@@ -179,14 +206,26 @@ export default function ScriptGenerator() {
           shortPacingStyle,
           shortCtaStyle,
           shortContext
+        }
+      : {
+          storyCreatorName,
+          storyNiche,
+          storyPersonality,
+          storyPhrase,
+          storyAudience,
+          storyTone,
+          storyRealDetail,
+          storyTopic,
+          storyDuration,
+          storySectionCount
         };
 
     const savePayload = {
       type: mode,
-      topic: mode === "long" ? longTopic.trim() : shortTopic.trim(),
-      tone: mode === "long" ? longTone : shortTone,
+      topic: mode === "long" ? longTopic.trim() : (mode === "short" ? shortTopic.trim() : storyTopic.trim()),
+      tone: mode === "long" ? longTone : (mode === "short" ? shortTone : storyTone),
       platform: mode === "short" ? shortPlatform : undefined,
-      targetDuration: mode === "long" ? longDuration : undefined,
+      targetDuration: mode === "long" ? longDuration : (mode === "storytelling" ? storyDuration : undefined),
       scriptContent: generatedScript,
       wordCount: metadata.wordCount,
       estimatedDuration: metadata.estimatedDuration,
@@ -246,7 +285,7 @@ export default function ScriptGenerator() {
       setLongCtaStyle(script.inputs?.longCtaStyle || "Subscribe CTA");
       setLongContext(script.inputs?.longContext || "");
       setExpandedSections({ 0: true, 1: true, 2: true });
-    } else {
+    } else if (script.type === "short") {
       setShortTopic(script.topic);
       setShortAudience(script.inputs?.shortAudience || "");
       setShortTone(script.tone);
@@ -256,6 +295,18 @@ export default function ScriptGenerator() {
       setShortPacingStyle(script.inputs?.shortPacingStyle || "Fast Cut");
       setShortCtaStyle(script.inputs?.shortCtaStyle || "Follow for more");
       setShortContext(script.inputs?.shortContext || "");
+    } else if (script.type === "storytelling") {
+      setStoryCreatorName(script.inputs?.storyCreatorName || "");
+      setStoryNiche(script.inputs?.storyNiche || "");
+      setStoryPersonality(script.inputs?.storyPersonality || "honest, conversational, self-aware");
+      setStoryPhrase(script.inputs?.storyPhrase || "");
+      setStoryAudience(script.inputs?.storyAudience || "people who relate to this struggle");
+      setStoryTone(script.inputs?.storyTone || "vulnerable and honest");
+      setStoryRealDetail(script.inputs?.storyRealDetail || "");
+      setStoryTopic(script.topic);
+      setStoryDuration(script.targetDuration || "10–20 min");
+      setStorySectionCount(script.inputs?.storySectionCount || 6);
+      setExpandedSections({ 0: true, 1: true, 2: true });
     }
 
     // Scroll smoothly to output display
@@ -516,37 +567,50 @@ export default function ScriptGenerator() {
                 >
                   Short Form
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("storytelling")}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full border transition-all duration-200 cursor-pointer ${
+                    mode === "storytelling"
+                      ? "bg-emerald-600 border-emerald-600 text-white shadow-sm"
+                      : "bg-transparent border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+                  }`}
+                >
+                  ✦ Story Mode
+                </button>
               </div>
 
               {/* Common Fields */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                    Video Topic / Title <span className="text-indigo-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={mode === "long" ? longTopic : shortTopic}
-                    onChange={(e) => mode === "long" ? setLongTopic(e.target.value) : setShortTopic(e.target.value)}
-                    placeholder={mode === "long" ? "e.g. How I built an AI SaaS in 48 hours as a solo founder" : "e.g. 3 AI tools that feel illegal to know"}
-                    className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
-                  />
-                </div>
+              {(mode === "long" || mode === "short") && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                      Video Topic / Title <span className="text-indigo-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={mode === "long" ? longTopic : shortTopic}
+                      onChange={(e) => mode === "long" ? setLongTopic(e.target.value) : setShortTopic(e.target.value)}
+                      placeholder={mode === "long" ? "e.g. How I built an AI SaaS in 48 hours as a solo founder" : "e.g. 3 AI tools that feel illegal to know"}
+                      className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                    />
+                  </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                    Target Audience
-                  </label>
-                  <input
-                    type="text"
-                    value={mode === "long" ? longAudience : shortAudience}
-                    onChange={(e) => mode === "long" ? setLongAudience(e.target.value) : setShortAudience(e.target.value)}
-                    placeholder={mode === "long" ? "e.g. beginner developers & tech hobbyists" : "e.g. small business owners looking to automate"}
-                    className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
-                  />
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                      Target Audience
+                    </label>
+                    <input
+                      type="text"
+                      value={mode === "long" ? longAudience : shortAudience}
+                      onChange={(e) => mode === "long" ? setLongAudience(e.target.value) : setShortAudience(e.target.value)}
+                      placeholder={mode === "long" ? "e.g. beginner developers & tech hobbyists" : "e.g. small business owners looking to automate"}
+                      className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Long Form Specific Fields */}
               {mode === "long" && (
@@ -743,19 +807,175 @@ export default function ScriptGenerator() {
                 </div>
               )}
 
+              {/* Storytelling Specific Fields */}
+              {mode === "storytelling" && (
+                <div className="flex flex-col gap-6 animate-fade-in transition-all duration-300">
+                  {/* Grid 1: Creator Name & Your Niche */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Creator Name <span className="text-emerald-400">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={storyCreatorName}
+                        onChange={(e) => setStoryCreatorName(e.target.value)}
+                        placeholder="Your name or channel name"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Your Niche
+                      </label>
+                      <input
+                        type="text"
+                        value={storyNiche}
+                        onChange={(e) => setStoryNiche(e.target.value)}
+                        placeholder="e.g. indie dev, fitness, finance"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Grid 2: Your Personality & A Phrase You Say */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Your Personality
+                      </label>
+                      <input
+                        type="text"
+                        value={storyPersonality}
+                        onChange={(e) => setStoryPersonality(e.target.value)}
+                        placeholder="e.g. dry humor, brutally honest, calm and reflective"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        A Phrase You Say (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={storyPhrase}
+                        onChange={(e) => setStoryPhrase(e.target.value)}
+                        placeholder="e.g. which is insane to me"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Grid 3: Your Audience & Emotional Tone */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Your Audience
+                      </label>
+                      <input
+                        type="text"
+                        value={storyAudience}
+                        onChange={(e) => setStoryAudience(e.target.value)}
+                        placeholder="e.g. burnt out 9-5 workers"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Emotional Tone
+                      </label>
+                      <input
+                        type="text"
+                        value={storyTone}
+                        onChange={(e) => setStoryTone(e.target.value)}
+                        placeholder="e.g. vulnerable, quietly proud, embarrassed but honest"
+                        className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner"
+                      />
+                    </div>
+                  </div>
+
+                  {/* One Real Detail (textarea, optional) */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                      One Real Detail / Vulnerable Secret (Optional)
+                    </label>
+                    <textarea
+                      value={storyRealDetail}
+                      onChange={(e) => setStoryRealDetail(e.target.value)}
+                      rows={2}
+                      placeholder="e.g. I cried in my car before the launch. The more specific the more human it sounds."
+                      className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner resize-y"
+                    />
+                  </div>
+
+                  {/* Story Topic (textarea, required) */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                      Story Topic / What is this video about <span className="text-emerald-400">*</span>
+                    </label>
+                    <textarea
+                      required
+                      value={storyTopic}
+                      onChange={(e) => setStoryTopic(e.target.value)}
+                      rows={3}
+                      placeholder="What is this video about? Explain the main struggle, epiphany, and transformation."
+                      className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner resize-y"
+                    />
+                  </div>
+
+                  {/* Grid 4: Target Duration & Number of Sections */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Target Duration
+                      </label>
+                      <select
+                        value={storyDuration}
+                        onChange={(e) => setStoryDuration(e.target.value)}
+                        className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-300 text-sm shadow-inner cursor-pointer"
+                      >
+                        <option>10–20 min</option>
+                        <option>20–40 min</option>
+                        <option>40–60 min</option>
+                      </select>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                        Number of Sections
+                      </label>
+                      <input
+                        type="number"
+                        min={4}
+                        max={8}
+                        value={storySectionCount}
+                        onChange={(e) => setStorySectionCount(Math.max(4, Math.min(8, Number(e.target.value) || 6)))}
+                        className="px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-zinc-300 text-sm shadow-inner"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Additional Context (Optional) */}
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
-                  Additional Context (Optional)
-                </label>
-                <textarea
-                  value={mode === "long" ? longContext : shortContext}
-                  onChange={(e) => mode === "long" ? setLongContext(e.target.value) : setShortContext(e.target.value)}
-                  rows={3}
-                  placeholder="Insert secondary reference details, keywords, must-include numbers, or stylistic requests here..."
-                  className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner resize-y"
-                />
-              </div>
+              {(mode === "long" || mode === "short") && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-bold uppercase tracking-widest text-zinc-400">
+                    Additional Context (Optional)
+                  </label>
+                  <textarea
+                    value={mode === "long" ? longContext : shortContext}
+                    onChange={(e) => mode === "long" ? setLongContext(e.target.value) : setShortContext(e.target.value)}
+                    rows={3}
+                    placeholder="Insert secondary reference details, keywords, must-include numbers, or stylistic requests here..."
+                    className="px-4 py-3 bg-zinc-950/80 border border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 text-zinc-100 placeholder-zinc-600 transition text-sm shadow-inner resize-y"
+                  />
+                </div>
+              )}
 
               {/* Error Callout */}
               {error && (
@@ -814,7 +1034,7 @@ export default function ScriptGenerator() {
               <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-800 pb-5">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-xl md:text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-                    📄 Generated {metadata?.type === "long" ? "Long-Form" : "Short-Form"} Script
+                    📄 Generated {metadata?.type === "long" ? "Long-Form" : (metadata?.type === "storytelling" ? "Story Mode" : "Short-Form")} Script
                   </h2>
                   <p className="text-zinc-500 text-xs md:text-sm">
                     Review, copy, or save this high-retention composition to your personal library.
@@ -848,8 +1068,8 @@ export default function ScriptGenerator() {
                 </div>
               ) : (
                 <div className="relative">
-                  {/* Long-Form Rendering */}
-                  {metadata?.type === "long" && generatedScript && (() => {
+                  {/* Long-Form / Storytelling Rendering */}
+                  {(metadata?.type === "long" || metadata?.type === "storytelling") && generatedScript && (() => {
                     const parsed = parseLongForm(generatedScript);
                     return (
                       <div className="flex flex-col gap-4">
@@ -1019,9 +1239,11 @@ export default function ScriptGenerator() {
                       <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                         script.type === "long" 
                           ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20" 
+                          : script.type === "storytelling"
+                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 animate-pulse"
                           : "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                       }`}>
-                        {script.type === "long" ? "Long Form" : "Short Form"}
+                        {script.type === "long" ? "Long Form" : (script.type === "storytelling" ? "✦ Story Mode" : "Short Form")}
                       </span>
                     </div>
 
@@ -1032,10 +1254,10 @@ export default function ScriptGenerator() {
                       </div>
                       <div className="flex flex-col gap-0.5 bg-zinc-950/40 p-2 rounded-lg border border-zinc-900">
                         <span className="text-zinc-600 font-bold uppercase tracking-wider text-[8px]">
-                          {script.type === "long" ? "Target" : "Platform"}
+                          {(script.type === "long" || script.type === "storytelling") ? "Target" : "Platform"}
                         </span>
                         <span className="text-zinc-300 font-semibold truncate">
-                          {script.type === "long" ? script.targetDuration : script.platform}
+                          {(script.type === "long" || script.type === "storytelling") ? script.targetDuration : script.platform}
                         </span>
                       </div>
                       <div className="flex flex-col gap-0.5 bg-zinc-950/40 p-2 rounded-lg border border-zinc-900">

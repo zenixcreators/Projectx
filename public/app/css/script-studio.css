@@ -1934,4 +1934,17 @@
   letter-spacing: 0.05em;
 }
 
+.option-input.invalid {
+  border-color: var(--red) !important;
+  background: rgba(239, 68, 68, 0.08) !important;
+  animation: option-shake 0.4s ease-in-out;
+}
+
+@keyframes option-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+
 
