@@ -1,0 +1,90 @@
+<section id="script-view" class="view-section">
+
+  <!-- Canvas split: script canvas | script tester -->
+  <div class="canvas-area">
+
+    <!-- LEFT - Script Canvas -->
+    <div class="script-canvas" id="scriptCanvas">
+
+      <div class="canvas-topbar">
+        <h2>Script Canvas</h2>
+        <button class="copy-full-btn" id="copyFullBtn" onclick="copyFullScript()" style="display:none;">
+          <i class="fa-regular fa-copy"></i> Copy Script
+        </button>
+      </div>
+
+      <!-- Empty state -->
+      <div class="canvas-empty" id="canvasEmpty">
+        <div class="canvas-empty-icon"><i class="fa-solid fa-pen-nib"></i></div>
+        <h3>Start shaping your next viral narrative.</h3>
+        <p>Your AI-generated story workspace begins here. Describe your vision below.</p>
+      </div>
+
+      <!-- Generated sections -->
+      <div class="sections-grid" id="sectionsGrid" style="display:none;"></div>
+
+      <!-- Meta bar -->
+      <div class="script-meta-bar" id="scriptMeta" style="display:none;">
+        <div class="meta-item"><strong id="metaWords">-</strong> words</div>
+        <div class="meta-item"><strong id="metaDuration">-</strong> duration</div>
+        <div class="hashtags" id="metaHashtags"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT - Script Tester -->
+    <aside class="analysis-panel script-tester-panel">
+      <div class="analysis-panel-title">
+        <span>Script Tester</span>
+        <span class="analysis-pill" id="scriptTesterStatus">Idle</span>
+      </div>
+
+      <div class="script-tester">
+        <textarea id="scriptTesterInput" rows="8" placeholder="Paste or generate a script..."></textarea>
+        <button class="analysis-main-btn" id="scriptTesterBtn" onclick="testCurrentScript()">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span>Analyze Script</span>
+        </button>
+        <div id="scriptTesterResult">
+          <div class="analysis-empty-state">
+            <div class="analysis-mini-score">--</div>
+            <span>No script selected</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /canvas-area -->
+
+  <!-- FLOATING INPUT BAR -->
+  <div class="input-bar-wrapper">
+    <div class="input-shell">
+      <!-- Mode selector pill toggle -->
+      <div class="mode-selector-pill">
+        <button type="button" id="modeBtnLong" class="mode-btn active" onclick="setStudioMode('long')">Long Form</button>
+        <button type="button" id="modeBtnShort" class="mode-btn" onclick="setStudioMode('short')">Short Form</button>
+        <button type="button" id="modeBtnStory" class="mode-btn" onclick="setStudioMode('storytelling')">✦ Story Mode</button>
+      </div>
+
+      <textarea id="mainInput" rows="1"
+        placeholder="Describe your content topic... e.g. How I built an AI SaaS in 48 hours as a solo founder" maxlength="2000"
+        oninput="autoResize(this)"></textarea>
+
+      <!-- Advanced Options Drawer -->
+      <div class="options-drawer" id="optionsDrawer">
+        <!-- Injected dynamically in script-studio.js based on active mode -->
+      </div>
+
+      <div class="input-bottom-row">
+        <button type="button" class="options-toggle-btn" id="optionsToggleBtn" onclick="toggleOptionsDrawer()" title="Advanced Options">
+          <i class="fa-solid fa-sliders" id="optionsToggleIcon"></i>
+        </button>
+        <div class="tone-strip" id="toneStrip"></div>
+        <button class="generate-btn" id="generateBtn" onclick="triggerGenerate()">
+          <span id="generateIcon"><i class="fa-solid fa-arrow-up"></i></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>

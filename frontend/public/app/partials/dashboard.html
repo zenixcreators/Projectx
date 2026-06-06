@@ -1,0 +1,82 @@
+<section id="dashboard-view" class="view-section active">
+  <div class="accounts-layout">
+    <div class="accounts-grid">
+      
+      <!-- Welcome Banner -->
+      <div class="grid-full">
+        <div class="welcome-banner">
+          <h1>Welcome back, <span id="dashUserFirstName">Creator</span>!</h1>
+          <p>Analyze competition, test hooks, and engineer high-performing scripts in a unified studio workspace.</p>
+        </div>
+      </div>
+
+      <!-- Metrics Row -->
+      <div class="grid-full">
+        <div class="metrics-row">
+          
+          <!-- Card 1: Plan Tier -->
+          <div class="metric-card">
+            <div class="metric-card-header">
+              <span>Subscription Plan</span>
+              <div class="metric-card-icon"><i class="fa-solid fa-gem"></i></div>
+            </div>
+            <div class="metric-card-val" id="dashPlanName">Trial</div>
+            <div class="metric-card-sub" id="dashPlanSubtext">7-day free trial</div>
+          </div>
+
+          <!-- Card 2: Generations Usage -->
+          <div class="metric-card">
+            <div class="metric-card-header">
+              <span>AI Generations</span>
+              <div class="metric-card-icon"><i class="fa-solid fa-sparkles"></i></div>
+            </div>
+            <div class="metric-card-val"><span id="dashGenerationsUsed">0</span> / <span id="dashGenerationsLimit">20</span></div>
+            <div class="metric-progress-bar">
+              <div class="metric-progress-fill" id="dashGenerationsBar" style="width: 0%"></div>
+            </div>
+            <div class="metric-card-sub" id="dashGenerationsRemaining">20 remaining</div>
+          </div>
+
+          <!-- Card 3: Account Status -->
+          <div class="metric-card">
+            <div class="metric-card-header">
+              <span>Account Status</span>
+              <div class="metric-card-icon"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+            <div class="metric-card-val" style="color: var(--green);" id="dashAccountStatus">Active</div>
+            <div class="metric-card-sub" id="dashRenewalText">Renews --</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Two Column Activity Area -->
+      <!-- Left Column: Recent Scripts -->
+      <div class="grid-left">
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-solid fa-pen-nib"></i>
+            <span>Recent Scripts</span>
+          </div>
+          <div id="dashRecentScripts">
+            <!-- Dynamically populated or empty state -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Recent Audits -->
+      <div class="grid-right">
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-brands fa-youtube"></i>
+            <span>Recent Competitor Audits</span>
+          </div>
+          <div id="dashRecentAudits">
+            <!-- Dynamically populated or empty state -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

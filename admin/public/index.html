@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Nexus Creator Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body>
+  <div id="lockoutOverlay">
+    <div class="spinner"></div>
+    <p>Authorizing admin workspace</p>
+  </div>
+
+  <div class="mobile-shade" id="mobileShade"></div>
+
+  <div class="admin-shell" id="adminShell">
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="brand-lockup">
+        <div class="nexus-mark" aria-hidden="true"></div>
+        <div class="brand-copy">
+          <div class="brand-word">NEXUS</div>
+          <div class="brand-subword">CREATOR STUDIO</div>
+        </div>
+      </div>
+
+      <nav class="side-nav" aria-label="Admin navigation">
+        <button class="side-link active" data-section="dashboard"><i class="fa-solid fa-house"></i><span>Dashboard</span></button>
+        <button class="side-link" data-section="users"><i class="fa-solid fa-table-cells"></i><span>User Grid</span></button>
+        <button class="side-link" data-section="security"><i class="fa-solid fa-shield-halved"></i><span>Security</span></button>
+        <button class="side-link" data-section="analytics"><i class="fa-solid fa-chart-simple"></i><span>Analytics</span></button>
+        <button class="side-link" data-section="billing"><i class="fa-solid fa-wallet"></i><span>Billing</span></button>
+        <button class="side-link" data-section="studio"><i class="fa-solid fa-pen-nib"></i><span>Content Studio</span></button>
+        <button class="side-link" data-section="email"><i class="fa-regular fa-envelope"></i><span>Email Center</span></button>
+        <button class="side-link" data-section="logs"><i class="fa-regular fa-rectangle-list"></i><span>Logs</span></button>
+        <button class="side-link" data-section="settings"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+      </nav>
+
+      <div class="admin-profile">
+        <div class="profile-photo" id="adminAvatarHeader">AD</div>
+        <div class="profile-copy">
+          <div id="adminNameHeader">Admin</div>
+          <span id="adminEmailHeader">admin@nexus.studio</span>
+        </div>
+        <button id="sidebarLogoutBtn" class="profile-menu" title="Sign out"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+      </div>
+    </aside>
+
+    <main class="admin-main">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" id="mobileMenuBtn" title="Open navigation"><i class="fa-solid fa-bars"></i></button>
+        <button class="icon-btn collapse-btn" id="collapseSidebarBtn" title="Collapse sidebar"><i class="fa-solid fa-sidebar"></i></button>
+        <div class="page-title">
+          <h1>Admin Dashboard</h1>
+          <p>Monitor growth, revenue, trials, notifications, and security risk in one command center.</p>
+        </div>
+
+        <label class="global-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="globalSearchInput" type="search" placeholder="Search creators, emails, IPs">
+          <kbd>Ctrl K</kbd>
+        </label>
+
+        <div class="header-actions">
+          <button class="icon-btn notification-btn" id="notificationsBtn" title="Notifications">
+            <i class="fa-regular fa-bell"></i>
+            <span id="notifCount">0</span>
+          </button>
+          <button class="soft-btn" id="exportReportBtn"><i class="fa-solid fa-download"></i><span>Export Report</span></button>
+          <button class="dark-btn" id="addCreatorBtn"><i class="fa-solid fa-plus"></i><span>Add Creator</span></button>
+        </div>
+      </header>
+
+      <section class="notice error hidden" id="errorNotice"></section>
+
+      <section class="kpi-grid" aria-label="Dashboard KPIs">
+        <article class="metric-card" data-kpi="totalCreators">
+          <div class="metric-top"><span><i class="fa-solid fa-users"></i>Total Creators</span><b id="kpiTotalGrowth">0%</b></div>
+          <strong id="kpiTotalCreators" class="skeleton-text">--</strong>
+          <p id="kpiTotalContext">Loading creator growth</p>
+          <div class="sparkline" id="sparkTotal"></div>
+        </article>
+        <article class="metric-card" data-kpi="paidUsers">
+          <div class="metric-top"><span><i class="fa-solid fa-crown"></i>Paid Members</span><b id="kpiPaidGrowth">0%</b></div>
+          <strong id="kpiPaidMembers" class="skeleton-text">--</strong>
+          <p id="kpiPaidContext">Loading paid distribution</p>
+          <div class="sparkline violet" id="sparkPaid"></div>
+        </article>
+        <article class="metric-card" data-kpi="freeUsers">
+          <div class="metric-top"><span><i class="fa-regular fa-user"></i>Free Members</span><b id="kpiFreeShare">0%</b></div>
+          <strong id="kpiFreeMembers" class="skeleton-text">--</strong>
+          <p id="kpiFreeContext">Loading free users</p>
+          <div class="sparkline muted" id="sparkFree"></div>
+        </article>
+        <article class="metric-card" data-kpi="activeTrials">
+          <div class="metric-top"><span><i class="fa-solid fa-hourglass-half"></i>Active Trials</span><b>7 days</b></div>
+          <strong id="kpiActiveTrials" class="skeleton-text">--</strong>
+          <p id="kpiTrialContext">Loading trial health</p>
+          <div class="sparkline amber" id="sparkTrials"></div>
+        </article>
+        <article class="metric-card" data-kpi="revenue">
+          <div class="metric-top"><span><i class="fa-solid fa-chart-line"></i>Revenue</span><b>MTD</b></div>
+          <strong id="kpiRevenue" class="skeleton-text">--</strong>
+          <p id="kpiRevenueContext">Loading revenue contribution</p>
+          <div class="sparkline green" id="sparkRevenue"></div>
+        </article>
+        <article class="metric-card security-card" data-kpi="security">
+          <div class="metric-top"><span><i class="fa-solid fa-shield-halved"></i>Security Alerts</span><b id="kpiSecurityState">Live</b></div>
+          <strong id="kpiSecurityAlerts" class="skeleton-text">--</strong>
+          <p id="kpiSecurityContext">Loading security checks</p>
+          <div class="radar-ghost" aria-hidden="true"></div>
+        </article>
+      </section>
+
+      <section class="overview-grid">
+        <div class="main-stack">
+          <section class="panel analytics-panel" data-section-panel="analytics dashboard">
+            <div class="panel-header">
+              <div>
+                <h2>Analytics</h2>
+                <p>Realtime admin overview powered by connected backend data.</p>
+              </div>
+              <div class="segmented" id="rangeFilters">
+                <button data-days="1">Today</button>
+                <button data-days="7">7 Days</button>
+                <button class="active" data-days="30">30 Days</button>
+                <button data-days="90">90 Days</button>
+                <button data-days="365">Year</button>
+              </div>
+            </div>
+            <div class="chart-grid">
+              <article class="chart-card wide"><div class="chart-title"><span>User Growth</span><b id="growthCaption">--</b></div><canvas id="userGrowthChart"></canvas></article>
+              <article class="chart-card"><div class="chart-title"><span>Free vs Paid</span><b id="distributionCaption">--</b></div><canvas id="distributionChart"></canvas></article>
+              <article class="chart-card"><div class="chart-title"><span>Trial Funnel</span><b id="trialCaption">--</b></div><canvas id="trialFunnelChart"></canvas></article>
+              <article class="chart-card"><div class="chart-title"><span>Revenue Growth</span><b id="revenueCaption">--</b></div><canvas id="revenueGrowthChart"></canvas></article>
+              <article class="chart-card"><div class="chart-title"><span>Daily Signups</span><b id="signupCaption">--</b></div><canvas id="dailySignupsChart"></canvas></article>
+              <article class="chart-card"><div class="chart-title"><span>Subscription Trends</span><b id="subscriptionCaption">--</b></div><canvas id="subscriptionTrendsChart"></canvas></article>
+            </div>
+          </section>
+        </div>
+
+        <aside class="right-stack">
+          <section class="panel compact-panel">
+            <div class="panel-header compact"><h2>Free User Management</h2></div>
+            <div class="stat-list">
+              <div><span>Total Free Users</span><b id="freeTotal">--</b></div>
+              <div><span>New Free Users</span><b id="freeNew">--</b></div>
+              <div><span>Activity Status</span><b id="freeActivity">--</b></div>
+              <div><span>Conversion Opportunity</span><b id="freeOpportunity">--</b></div>
+            </div>
+          </section>
+
+          <section class="panel compact-panel">
+            <div class="panel-header compact"><h2>Paid User Management</h2></div>
+            <div class="stat-list">
+              <div><span>Subscription Plan</span><b>Pro</b></div>
+              <div><span>Renewals Due</span><b id="paidRenewals">--</b></div>
+              <div><span>Revenue Contribution</span><b id="paidRevenue">--</b></div>
+              <div><span>Active Status</span><b id="paidActive">--</b></div>
+            </div>
+          </section>
+
+          <section class="panel compact-panel trial-monitor">
+            <div class="panel-header compact"><h2>7-Day Trial Monitor</h2></div>
+            <div id="trialMonitorList" class="trial-list"></div>
+          </section>
+        </aside>
+      </section>
+
+      <section class="panel directory-panel full-width-panel" data-section-panel="users dashboard billing security">
+        <div class="panel-header">
+          <div>
+            <h2>User Directory</h2>
+            <p>Search, filter, sort, and manage creators at enterprise scale.</p>
+          </div>
+          <div class="table-tools">
+            <label class="inline-control"><i class="fa-solid fa-magnifying-glass"></i><input id="tableSearchInput" type="search" placeholder="Name, email, IP"></label>
+            <select id="planFilterSelect"><option value="all">All Plans</option><option value="pro">Paid</option><option value="free">Free</option></select>
+            <select id="trialFilterSelect"><option value="all">All Trials</option><option value="active">Active</option><option value="expiring_soon">Expiring 3 days</option><option value="expires_today">Expires today</option><option value="expired">Expired</option><option value="none">No trial</option></select>
+            <select id="statusFilterSelect"><option value="all">All Status</option><option value="active">Active</option><option value="suspended">Suspended</option></select>
+          </div>
+        </div>
+
+        <div class="bulkbar" id="bulkBar">
+          <span id="selectedCount">0 selected</span>
+          <button class="soft-btn small" data-bulk="pro"><i class="fa-solid fa-crown"></i>Make Paid</button>
+          <button class="soft-btn small" data-bulk="suspended"><i class="fa-solid fa-ban"></i>Suspend</button>
+          <button class="soft-btn small danger" data-bulk="delete"><i class="fa-solid fa-trash"></i>Delete</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="creator-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="selectAllUsers"></th>
+                <th data-sort="email">Avatar / Name</th>
+                <th data-sort="createdAt">Registration Date</th>
+                <th data-sort="plan">Subscription Plan</th>
+                <th>Trial Status</th>
+                <th data-sort="lastLoginAt">Last Login</th>
+                <th>IP Address</th>
+                <th data-sort="status">Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="creatorsTableBody"></tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap">
+          <span id="tablePaginationInfo">Loading creators</span>
+          <div class="pagination-btns" id="paginationBtns"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <aside class="notification-drawer" id="notificationDrawer" aria-label="Notifications">
+    <header>
+      <div><h2>Notifications</h2><p id="notificationSubtitle">Realtime admin events</p></div>
+      <button class="icon-btn" id="closeNotificationsBtn"><i class="fa-solid fa-xmark"></i></button>
+    </header>
+    <div class="drawer-actions">
+      <button class="soft-btn small" id="markAllReadBtn">Mark all as read</button>
+      <button class="soft-btn small danger" id="clearNotificationsBtn">Clear</button>
+    </div>
+    <div id="notificationList" class="notification-list"></div>
+  </aside>
+
+  <dialog class="modal" id="creatorModal">
+    <form method="dialog" class="modal-card" id="creatorForm">
+      <header><h2 id="creatorModalTitle">Add Creator</h2><button class="icon-btn" value="cancel"><i class="fa-solid fa-xmark"></i></button></header>
+      <div class="form-grid">
+        <label>First Name<input id="creatorFirstName" name="firstName"></label>
+        <label>Last Name<input id="creatorLastName" name="lastName"></label>
+        <label>Email<input id="creatorEmail" name="email" type="email" required></label>
+        <label>Plan<select id="creatorPlan" name="plan"><option value="free">Free</option><option value="pro">Paid</option></select></label>
+        <label>Status<select id="creatorStatus" name="status"><option value="active">Active</option><option value="suspended">Suspended</option></select></label>
+        <label>Password<input id="creatorPassword" name="password" type="password" placeholder="Optional for new users"></label>
+      </div>
+      <footer><button class="soft-btn" value="cancel">Cancel</button><button class="dark-btn" id="saveCreatorBtn" value="default">Save Creator</button></footer>
+    </form>
+  </dialog>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+
+</html>

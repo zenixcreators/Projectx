@@ -1,0 +1,130 @@
+<section id="billing-view" class="view-section">
+  <div class="accounts-layout">
+    <div class="accounts-grid">
+      
+      <!-- Billing Title -->
+      <div class="grid-full">
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-head); font-size: 24px; font-weight: 600; color: var(--text); margin: 0 0 6px 0;">Billing & Usage</h2>
+          <p style="color: var(--text-sec); font-size: 14px; margin: 0;">Monitor your consumption quotas, subscription tier, and manage payment options.</p>
+        </div>
+      </div>
+
+      <!-- Left Column: Usage Metrics Card -->
+      <div class="grid-left">
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-solid fa-chart-pie"></i>
+            <span>Usage Quota</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+            <span style="font-size: 13px; color: var(--text-sec);">AI Generations used this billing cycle:</span>
+            <span style="font-family: var(--font-head); font-size: 20px; font-weight: 600; color: var(--text);">
+              <span id="billUsed">0</span> / <span id="billLimit">20</span>
+            </span>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="billing-progress-container">
+            <div class="metric-progress-bar" style="height: 8px;">
+              <div class="metric-progress-fill" id="billProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Usage stats boxes -->
+          <div class="billing-stats-grid">
+            <div class="billing-stat-box">
+              <div class="billing-stat-lbl">Remaining</div>
+              <div class="billing-stat-val" id="billRemaining">20</div>
+            </div>
+            <div class="billing-stat-box">
+              <div class="billing-stat-lbl">Usage %</div>
+              <div class="billing-stat-val" id="billPercent">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Current Plan Summary Card -->
+      <div class="grid-right">
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-solid fa-gem"></i>
+            <span>Current Subscription</span>
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <span style="font-size: 12.5px; color: var(--muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.04em;">Active Plan</span>
+            <h3 id="billPlanName" style="font-family: var(--font-head); font-size: 22px; font-weight: 600; color: var(--text); margin: 4px 0;">Trial Tier</h3>
+            <p id="billPlanStatusSub" style="font-size: 13.5px; color: var(--text-sec); margin: 0; line-height: 1.4;">Your 7-day trial ends on --</p>
+          </div>
+
+          <hr style="border: 0; border-top: 1px solid var(--border-soft); margin: 20px 0;">
+
+          <button class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="window.showUpgradeModal()">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            <span>Upgrade Subscription</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Plans & Pricing grid inside the Billing view -->
+      <div class="grid-full" style="margin-top: 16px;">
+        <h3 style="font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); margin: 0 0 16px 0; display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-tags" style="color:var(--accent); font-size:15px;"></i>
+          <span>Available Subscriptions</span>
+        </h3>
+        
+        <div class="plans-selection-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+          
+          <!-- Plan: Pro -->
+          <div class="section-card" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0; transition: border-color var(--t); cursor: pointer;" onclick="selectBillingPlan('pro')" id="planCardPro">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); margin: 0;">Pro Studio</h4>
+                <span class="plan-badge">Pro</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-sec); line-height: 1.5; margin: 0 0 16px 0;">Designed for growing creators aiming to build high-retention scripts and audits regularly.</p>
+              <div style="font-family: var(--font-head); font-size: 28px; font-weight: 600; color: var(--text); margin-bottom: 20px;">$29<span style="font-family: var(--font); font-size: 13px; color: var(--muted); font-weight: 400;">/month</span></div>
+              
+              <ul style="padding:0; margin:0; list-style:none; font-size:13px; color:var(--text-sec); display:flex; flex-direction:column; gap:10px;">
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> 250 AI Generations / mo</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Script Studio Access</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Hook testing & scoring</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Competitor audits history</li>
+              </ul>
+            </div>
+            <div style="margin-top: 24px;">
+              <button class="btn-primary" style="width:100%;" onclick="event.stopPropagation(); triggerUpgradePlan('pro')">Upgrade to Pro</button>
+            </div>
+          </div>
+
+          <!-- Plan: Creator -->
+          <div class="section-card" style="display:flex; flex-direction:column; justify-content:space-between; margin-bottom:0; border-color: var(--accent-border); background: linear-gradient(180deg, var(--card) 0%, rgba(124,92,255,0.01) 100%); transition: border-color var(--t); cursor: pointer;" onclick="selectBillingPlan('creator')" id="planCardCreator">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                <h4 style="font-family: var(--font-head); font-size: 18px; font-weight: 600; color: var(--text); margin: 0;">Creator Pro</h4>
+                <span class="plan-badge plan-badge-popular">Creator</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-sec); line-height: 1.5; margin: 0 0 16px 0;">For full-time producers, networks, and brands requiring continuous high-volume AI generations.</p>
+              <div style="font-family: var(--font-head); font-size: 28px; font-weight: 600; color: var(--text); margin-bottom: 20px;">$89<span style="font-family: var(--font); font-size: 13px; color: var(--muted); font-weight: 400;">/month</span></div>
+              
+              <ul style="padding:0; margin:0; list-style:none; font-size:13px; color:var(--text-sec); display:flex; flex-direction:column; gap:10px;">
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Unlimited AI Generations / mo</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Priority generation queue</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Unlimited competitor audits history</li>
+                <li><i class="fa-solid fa-check" style="color:var(--green); margin-right:8px;"></i> Extended output limits</li>
+              </ul>
+            </div>
+            <div style="margin-top: 24px;">
+              <button class="btn-primary" style="width:100%; background:var(--accent); border-color:var(--accent); color:#fff;" onclick="event.stopPropagation(); triggerUpgradePlan('creator')">Upgrade to Creator</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>

@@ -1,3 +1,11 @@
 ◇ injected env (6) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
 Server running on http://localhost:3000
+Connected to MongoDB Atlas for Nexus Creator Studio successfully.
 Master administrator credential match authenticated.
+Generating script type=long with primary model llama-3.3-70b-versatile...
+Master administrator credential match authenticated.
+[Orchestrator] Starting generation for concept: "a car. Psychological mode: Mystery."
+[Orchestrator] Analyzing psychology...
+[Orchestrator] Routing to provider: black-forest-labs/FLUX.1-dev
+[HuggingFaceProvider] Initiating generation with SDXL via nScale...
+Processing caption request: type=url

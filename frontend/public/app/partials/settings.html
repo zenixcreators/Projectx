@@ -1,0 +1,119 @@
+<section id="settings-view" class="view-section">
+  <div class="accounts-layout">
+    <div class="accounts-grid">
+      
+      <!-- Settings Title -->
+      <div class="grid-full">
+        <div style="margin-bottom: 24px;">
+          <h2 style="font-family: var(--font-head); font-size: 24px; font-weight: 600; color: var(--text); margin: 0 0 6px 0;">Account Settings</h2>
+          <p style="color: var(--text-sec); font-size: 14px; margin: 0;">Configure your account settings, notifications preferences, and security credentials.</p>
+        </div>
+      </div>
+
+      <!-- Left Column: Profile Info & Notifications -->
+      <div class="grid-left">
+        
+        <!-- Profile Form Card -->
+        <div class="section-card" style="margin-bottom: 24px;">
+          <div class="section-card-title">
+            <i class="fa-solid fa-user-gear"></i>
+            <span>Profile Information</span>
+          </div>
+          
+          <form id="settingsProfileForm" onsubmit="saveProfileSettings(event)">
+            <div class="settings-form-group">
+              <label for="setFirstName">First Name</label>
+              <input type="text" id="setFirstName" class="settings-input" required placeholder="e.g. Alex">
+            </div>
+            <div class="settings-form-group">
+              <label for="setLastName">Last Name</label>
+              <input type="text" id="setLastName" class="settings-input" placeholder="e.g. Mercer">
+            </div>
+            <button type="submit" class="btn-primary" id="btnSaveProfile">Save Information</button>
+            <span id="profileSettingsMsg" style="margin-left: 12px; font-size: 13px; font-weight: 500;"></span>
+          </form>
+        </div>
+
+        <!-- Notifications Card -->
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-solid fa-bell"></i>
+            <span>Notifications Preferences</span>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Email Alerts</span>
+              <span class="toggle-desc">Receive notifications when your script generation limits reset or change.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggleEmailAlerts" onchange="updateNotificationToggles()">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <span class="toggle-title">Weekly Creator Digest</span>
+              <span class="toggle-desc">A weekly curated summary of channel intelligence analysis on your competitor list.</span>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="toggleWeeklyDigest" onchange="updateNotificationToggles()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div style="margin-top: 12px;">
+            <span id="notificationSettingsMsg" style="font-size: 13px; font-weight: 500;"></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Security & Sessions -->
+      <div class="grid-right">
+        
+        <!-- Password Change Card -->
+        <div class="section-card" style="margin-bottom: 24px;">
+          <div class="section-card-title">
+            <i class="fa-solid fa-shield-halved"></i>
+            <span>Change Password</span>
+          </div>
+
+          <form id="settingsPasswordForm" onsubmit="savePasswordSettings(event)">
+            <div class="settings-form-group">
+              <label for="setOldPassword">Current Password</label>
+              <input type="password" id="setOldPassword" class="settings-input" required>
+            </div>
+            <div class="settings-form-group">
+              <label for="setNewPassword">New Password</label>
+              <input type="password" id="setNewPassword" class="settings-input" required placeholder="10+ chars, upper, lower, num, symbol">
+            </div>
+            <button type="submit" class="btn-primary" id="btnSavePassword">Update Password</button>
+            <div style="margin-top: 10px;">
+              <span id="passwordSettingsMsg" style="font-size: 13px; font-weight: 500;"></span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Session Management Card -->
+        <div class="section-card">
+          <div class="section-card-title">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Session Management</span>
+          </div>
+          <p style="font-size: 13px; color: var(--text-sec); line-height: 1.4; margin: 0 0 16px 0;">
+            Log out from all other active browser sessions and devices. This resets your security tokens globally.
+          </p>
+          <button class="btn-primary" style="background: var(--surface2); border-color: var(--border); color: var(--text);" onclick="triggerLogoutAllDevices()" id="btnLogoutAll">
+            Logout All Other Sessions
+          </button>
+          <div style="margin-top: 10px;">
+            <span id="logoutAllMsg" style="font-size: 13px; font-weight: 500;"></span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</section>

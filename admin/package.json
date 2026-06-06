@@ -1,0 +1,8 @@
+{
+  "name": "admin",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "echo \"Admin static files are served directly via the backend server.\""
+  }
+}
