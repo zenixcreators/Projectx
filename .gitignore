@@ -4,3 +4,8 @@ data/users.json
 dist
 build
 desktop.ini
+err.log
+out.log
+*.log
+scripts/
+docs/

@@ -12,6 +12,8 @@ const path = require('path');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
+const helmet = require('helmet');
+const morgan = require('morgan');
 
 mongoose.set('bufferCommands', false);
 
@@ -19,6 +21,10 @@ mongoose.set('bufferCommands', false);
 const connectDB = async () => {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error("Error: MONGODB_URI is missing in production.");
+      process.exit(1);
+    }
     try {
       await mongoose.connect("mongodb://127.0.0.1:27017/nexus");
       console.log("Connected to local MongoDB for Nexus Creator Studio successfully.");
@@ -33,6 +39,10 @@ const connectDB = async () => {
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
     console.log("Connected to MongoDB Atlas for Nexus Creator Studio successfully.");
   } catch (err) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error("MongoDB Atlas connection failed in production:", err.message);
+      process.exit(1);
+    }
     console.error("MongoDB Atlas connection failed. Trying local fallback...", err.message);
     try {
       await mongoose.disconnect();
@@ -85,9 +95,11 @@ const channelLimiter = rateLimit({
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(helmet());
+app.use(morgan('combined'));
 
 app.post('/api/client-error', (req, res) => {
   console.error('*** CLIENT EXCEPTION DETECTED ***', req.body);
