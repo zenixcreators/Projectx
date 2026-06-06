@@ -89,13 +89,66 @@ async function fetchYouTubeTranscript(url) {
   if (!match) throw new Error("Invalid YouTube URL");
   const videoId = match[1];
 
-  const items = await YoutubeTranscript.fetchTranscript(videoId);
-  if (!items || items.length === 0) throw new Error("No transcript found. The video may not have captions.");
+  let items;
+  let lastError;
+
+  // 1. Try direct fetch first (fastest, works perfectly in local environments)
+  try {
+    console.log(`[YouTube Transcript] Attempting direct fetch for: ${videoId}`);
+    items = await YoutubeTranscript.fetchTranscript(videoId);
+  } catch (directErr) {
+    console.warn(`[YouTube Transcript] Direct fetch failed: ${directErr.message}. Retrying with proxies...`);
+    lastError = directErr;
+  }
+
+  // 2. If direct fetch failed, try proxies sequentially
+  if (!items) {
+    const proxies = [];
+    if (process.env.TRANSCRIPT_PROXY_PREFIX) {
+      // Allow custom proxy prefix via environment variable (e.g. your own Cloudflare Worker proxy)
+      proxies.push(targetUrl => `${process.env.TRANSCRIPT_PROXY_PREFIX}${encodeURIComponent(targetUrl)}`);
+      proxies.push(targetUrl => `${process.env.TRANSCRIPT_PROXY_PREFIX}${targetUrl}`);
+    }
+    // Public free proxies as automatic fallbacks
+    proxies.push(targetUrl => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
+    proxies.push(targetUrl => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`);
+
+    for (let i = 0; i < proxies.length; i++) {
+      const getProxyUrl = proxies[i];
+      try {
+        console.log(`[YouTube Transcript] Attempting proxy fetch option ${i + 1}...`);
+        const proxyFetch = async (targetUrl, options = {}) => {
+          const method = options.method || 'GET';
+          if (method.toUpperCase() === 'GET') {
+            const proxyUrl = getProxyUrl(targetUrl);
+            return fetch(proxyUrl, options);
+          }
+          return fetch(targetUrl, options);
+        };
+        items = await YoutubeTranscript.fetchTranscript(videoId, { fetch: proxyFetch });
+        if (items && items.length > 0) {
+          console.log(`[YouTube Transcript] Proxy option ${i + 1} succeeded!`);
+          break;
+        }
+      } catch (proxyErr) {
+        console.warn(`[YouTube Transcript] Proxy option ${i + 1} failed: ${proxyErr.message}`);
+        lastError = proxyErr;
+      }
+    }
+  }
+
+  if (!items || items.length === 0) {
+    throw new Error(`Failed to retrieve YouTube transcript. YouTube blocked the request or captions are disabled. (Details: ${lastError ? lastError.message : 'Unknown error'})`);
+  }
+
+  // 3. Auto-detect and scale timestamps (seconds vs milliseconds)
+  const isMs = items.some(item => item.offset > 5000 || item.duration > 1000);
+  const scale = isMs ? 1000 : 1;
 
   // Build segments with real timestamps
   const segments = items.map(item => ({
-    start: item.offset / 1000,
-    end: (item.offset + item.duration) / 1000,
+    start: item.offset / scale,
+    end: (item.offset + item.duration) / scale,
     text: item.text.replace(/\n/g, " ").trim()
   }));
 
