@@ -182,9 +182,48 @@ function toASS(segments) {
   return lines.join("\n");
 }
 
+function isEnglishText(text) {
+  // Check if it's mostly ASCII/Latin characters
+  const clean = text.toLowerCase().replace(/[^a-z\s]/g, "");
+  const words = clean.split(/\s+/).filter(Boolean);
+  if (words.length === 0) return false;
+  
+  // Common English stop words
+  const englishStopWords = new Set([
+    "the", "and", "of", "to", "is", "you", "that", "it", "he", "was",
+    "for", "on", "are", "as", "with", "his", "they", "i", "at", "be",
+    "this", "have", "from", "or", "one", "had", "by", "word", "but",
+    "not", "what", "all", "were", "we", "when", "your", "can", "said",
+    "there", "use", "an", "each", "which", "she", "do", "how", "their",
+    "if", "will", "up", "other", "about", "out", "many", "then", "them",
+    "these", "so", "some", "her", "would", "make", "like", "him", "into",
+    "has", "look", "two", "more", "write", "go", "see", "number", "no",
+    "way", "could", "people", "my", "than", "first", "water", "been",
+    "call", "who", "oil", "its", "now", "find"
+  ]);
+  
+  let matchCount = 0;
+  for (const word of words) {
+    if (englishStopWords.has(word)) {
+      matchCount++;
+    }
+  }
+  
+  // If more than 8% of words are common English words (or at least 2 words if text is short), we classify it as English.
+  const ratio = matchCount / words.length;
+  return ratio > 0.08 || (words.length < 10 && matchCount >= 1);
+}
+
 async function translateSegments(segments, targetLang) {
   const langName = LANG_NAMES[targetLang] || targetLang;
-  if (targetLang === "en") return segments;
+  if (targetLang === "en") {
+    const sampleText = segments.map(s => s.text).join(" ");
+    if (isEnglishText(sampleText)) {
+      console.log("Detected English input text. Skipping English translation.");
+      return segments;
+    }
+    console.log("Detected non-English input text. Proceeding with English translation...");
+  }
 
   const result = [...segments];
 
@@ -201,7 +240,7 @@ async function translateSegments(segments, targetLang) {
     const sourceText = segments.map((s, idx) => `[${idx}] ${s.text}`).join("\n");
     const prompt = `Translate EVERY line below into ${langName}. 
 Keep the [number] prefix on each line exactly as given.
-Return ONLY the translated lines with their numbers. No explanation. No English.
+Return ONLY the translated lines with their numbers. No explanation.${targetLang === 'en' ? '' : ' No English.'}
 
 ${sourceText}`;
 
@@ -242,7 +281,7 @@ ${toneInstruction}` },
     const sourceText = batch.map((s, j) => `[${i + j}] ${s.text}`).join("\n");
     const prompt = `Translate EVERY line below into ${langName}. 
 Keep the [number] prefix on each line exactly as given.
-Return ONLY the translated lines with their numbers. No explanation. No English.
+Return ONLY the translated lines with their numbers. No explanation.${targetLang === 'en' ? '' : ' No English.'}
 
 ${sourceText}`;
 
