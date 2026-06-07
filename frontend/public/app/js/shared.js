@@ -1,9 +1,30 @@
 const sidebar = document.getElementById('sidebar');
+const sidebarLogoImg = document.getElementById('sidebarLogoImg');
+
+function spinLogo() {
+  if (!sidebarLogoImg) return;
+  sidebarLogoImg.classList.remove('spinning');
+  // Force reflow so re-adding the class restarts the animation
+  void sidebarLogoImg.offsetWidth;
+  sidebarLogoImg.classList.add('spinning');
+  sidebarLogoImg.addEventListener('animationend', () => {
+    sidebarLogoImg.classList.remove('spinning');
+  }, { once: true });
+}
 
 if (sidebar) {
   document.getElementById('sidebarToggleBtn')?.addEventListener('click', () => {
     sidebar.classList.toggle('collapsed');
+    spinLogo();
   });
+
+  // Spin logo on nav scroll
+  const sidebarNav = sidebar.querySelector('.sidebar-nav');
+  let scrollSpinTimer;
+  sidebarNav?.addEventListener('scroll', () => {
+    clearTimeout(scrollSpinTimer);
+    scrollSpinTimer = setTimeout(spinLogo, 120);
+  }, { passive: true });
 }
 
 function switchView(btn) {

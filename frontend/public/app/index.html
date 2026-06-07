@@ -5,11 +5,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Creo — Creator Studio</title>
+  <link rel="icon" type="image/png" href="/logo.png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link
     href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="../app/app.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false
+      }
+    }
+  </script>
   <script src="../auth.js"></script>
 </head>
 
@@ -21,36 +30,20 @@
     <aside class="sidebar" id="sidebar">
 
       <div class="sidebar-header">
-        <button class="sidebar-toggle-btn" id="sidebarToggleBtn" title="Toggle sidebar">
-          <i class="fa-solid fa-bars-staggered"></i>
+        <button class="sidebar-logo-toggle" id="sidebarToggleBtn" title="Toggle sidebar">
+          <img src="/logo.png" alt="Creo" class="sidebar-logo-img" id="sidebarLogoImg">
         </button>
-        <div class="sidebar-brand">
-          <div class="sidebar-brand-icon">
-            <i class="fa-solid fa-bezier-curve" style="font-size:11px;color:#fff;"></i>
-          </div>
-          <span class="sidebar-brand-text"><a href="../index.html" style="text-decoration: none;">Creo</a></span>
-        </div>
+        <span class="sidebar-brand-text">
+          <a href="../index.html" style="text-decoration:none;color:inherit;">Creo</a>
+        </span>
       </div>
 
       <nav class="sidebar-nav">
 
-        <div class="nav-section">Insights</div>
-
-        <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard" onclick="switchView(this)">
-          <i class="fa-solid fa-house"></i>
-          <span>Dashboard</span>
-        </button>
-
-        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
-          onclick="switchView(this)">
-          <i class="fa-brands fa-youtube" style="color: var(--red); opacity: 1;"></i>
-          <span>Channel Analysis</span>
-        </button>
-
         <div class="nav-section">Create</div>
 
         <button class="nav-item" data-target="script-view" data-title="Script Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-signature"></i>
+          <i class="fa-solid fa-file-lines"></i>
           <span>Script Studio</span>
         </button>
 
@@ -65,20 +58,33 @@
         </button>
 
         <button class="nav-item" data-target="thumbnail-view" data-title="Thumbnail Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-palette"></i>
+          <i class="fa-solid fa-image"></i>
           <span>Thumbnail Studio</span>
+        </button>
+
+        <div class="nav-section">Insights</div>
+
+        <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard" onclick="switchView(this)">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
+          onclick="switchView(this)">
+          <i class="fa-solid fa-magnifying-glass-chart"></i>
+          <span>Channel Analysis</span>
         </button>
 
         <div class="nav-section">Account</div>
 
         <button class="nav-item" data-target="profile-view" data-title="User Profile" onclick="switchView(this)">
-          <i class="fa-regular fa-user"></i>
+          <i class="fa-solid fa-user"></i>
           <span>Profile</span>
         </button>
 
-        <button class="nav-item" data-target="billing-view" data-title="Billing & Usage" onclick="switchView(this)">
+        <button class="nav-item" data-target="billing-view" data-title="Billing &amp; Usage" onclick="switchView(this)">
           <i class="fa-solid fa-wallet"></i>
-          <span>Billing & Usage</span>
+          <span>Billing &amp; Usage</span>
         </button>
 
         <button class="nav-item" data-target="settings-view" data-title="Account Settings" onclick="switchView(this)">
@@ -88,18 +94,13 @@
 
       </nav>
 
-      <!-- Footer -->
+      <!-- Footer / User Row -->
       <div class="sidebar-footer">
-        <div class="sidebar-upgrade">
-          <div class="upgrade-label">You're on Free</div>
-          <div class="upgrade-title">Unlock Pro features</div>
-          <button class="upgrade-btn" onclick="window.showUpgradeModal()">Upgrade to Pro →</button>
-        </div>
         <div class="user-row">
-          <div class="user-avatar" id="userAvatar">--</div>
+          <div class="user-avatar" id="userAvatar">SH</div>
           <div class="user-meta">
             <div class="user-name" id="userName">Loading...</div>
-            <div class="user-plan">Free · 3 scripts left</div>
+            <div class="user-plan-badge" id="userPlanBadge">Free</div>
           </div>
         </div>
       </div>
@@ -148,7 +149,8 @@
     <div class="modal-window">
       <button class="modal-close-btn" onclick="window.hideUpgradeModal()"><i class="fa-solid fa-xmark"></i></button>
       <div class="modal-header">
-        <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px;">
+        <div
+          style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px;">
           <i class="fa-solid fa-crown"></i>
         </div>
         <h2>Upgrade Your Creator Studio</h2>
@@ -163,10 +165,10 @@
               <span>Pro Studio</span>
               <span class="plan-badge">Popular</span>
             </div>
-            <span class="plan-select-desc">250 generations/mo, full testing access</span>
+            <span class="plan-select-desc">250 generations/mo, full studio access</span>
           </div>
           <div class="plan-select-price">
-            $29<span>/mo</span>
+            $9<span>/mo</span>
           </div>
         </div>
 
@@ -180,14 +182,15 @@
             <span class="plan-select-desc">Unlimited generations/mo, priority queue</span>
           </div>
           <div class="plan-select-price">
-            $89<span>/mo</span>
+            $29<span>/mo</span>
           </div>
         </div>
       </div>
 
       <div style="display: flex; gap: 12px; margin-top: 24px;">
         <button class="btn-secondary" style="flex: 1;" onclick="window.hideUpgradeModal()">Cancel</button>
-        <button class="btn-primary" style="flex: 1;" id="modalUpgradeConfirmBtn" onclick="submitModalPlanUpgrade()" disabled>Confirm Upgrade</button>
+        <button class="btn-primary" style="flex: 1;" id="modalUpgradeConfirmBtn" onclick="submitModalPlanUpgrade()"
+          disabled>Confirm Upgrade</button>
       </div>
     </div>
   </div>

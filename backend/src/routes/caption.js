@@ -138,89 +138,194 @@ async function fetchYouTubeTranscript(url) {
   if (!match) throw new Error("Invalid YouTube URL");
   const videoId = match[1];
 
-  let items;
   let lastError;
 
-  // 1. Try direct fetch first (fastest, works perfectly in local environments)
+  // ── METHOD 1: YouTube Timedtext XML API (most reliable, no package needed) ──
   try {
-    console.log(`[YouTube Transcript] Attempting direct fetch for: ${videoId}`);
-    items = await YoutubeTranscript.fetchTranscript(videoId);
-  } catch (directErr) {
-    console.warn(`[YouTube Transcript] Direct fetch failed: ${directErr.message}. Retrying with proxies...`);
-    lastError = directErr;
+    console.log(`[YouTube Transcript] Attempting timedtext API for: ${videoId}`);
+    const result = await fetchViaTimedtextAPI(videoId);
+    if (result && result.segments && result.segments.length > 0) {
+      console.log(`[YouTube Transcript] Timedtext API succeeded: ${result.segments.length} segments`);
+      return result;
+    }
+  } catch (err) {
+    console.warn(`[YouTube Transcript] Timedtext API failed: ${err.message}`);
+    lastError = err;
   }
 
-  // 2. If direct fetch failed, try proxies sequentially
-  if (!items) {
-    const proxies = [];
-    if (process.env.TRANSCRIPT_PROXY_PREFIX) {
-      // Allow custom proxy prefix via environment variable (e.g. your own Cloudflare Worker proxy)
-      proxies.push(targetUrl => `${process.env.TRANSCRIPT_PROXY_PREFIX}${encodeURIComponent(targetUrl)}`);
-      proxies.push(targetUrl => `${process.env.TRANSCRIPT_PROXY_PREFIX}${targetUrl}`);
+  // ── METHOD 2: youtubei.js InnerTube API (very reliable, emulates YouTube client) ──
+  try {
+    console.log(`[YouTube Transcript] Attempting youtubei.js InnerTube for: ${videoId}`);
+    const result = await fetchViaYoutubeiJS(videoId);
+    if (result && result.segments && result.segments.length > 0) {
+      console.log(`[YouTube Transcript] youtubei.js succeeded: ${result.segments.length} segments`);
+      return result;
     }
-    // Public free proxies as automatic fallbacks
-    proxies.push(targetUrl => `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`);
-    proxies.push(targetUrl => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`);
-
-    for (let i = 0; i < proxies.length; i++) {
-      const getProxyUrl = proxies[i];
-      try {
-        console.log(`[YouTube Transcript] Attempting proxy fetch option ${i + 1}...`);
-        const proxyFetch = async (targetUrl, options = {}) => {
-          const method = options.method || 'GET';
-          if (method.toUpperCase() === 'GET') {
-            const proxyUrl = getProxyUrl(targetUrl);
-            return fetch(proxyUrl, options);
-          }
-          return fetch(targetUrl, options);
-        };
-        items = await YoutubeTranscript.fetchTranscript(videoId, { fetch: proxyFetch });
-        if (items && items.length > 0) {
-          console.log(`[YouTube Transcript] Proxy option ${i + 1} succeeded!`);
-          break;
-        }
-      } catch (proxyErr) {
-        console.warn(`[YouTube Transcript] Proxy option ${i + 1} failed: ${proxyErr.message}`);
-        lastError = proxyErr;
-      }
-    }
+  } catch (err) {
+    console.warn(`[YouTube Transcript] youtubei.js failed: ${err.message}`);
+    lastError = err;
   }
 
-  // 3. Fallback to youtube-transcript.ai API
-  if (!items || items.length === 0) {
+  // ── METHOD 3: youtube-transcript npm package + proxy fallbacks ──
+  try {
+    console.log(`[YouTube Transcript] Attempting youtube-transcript npm for: ${videoId}`);
+    let items;
     try {
-      console.log(`[YouTube Transcript] Attempting youtube-transcript.ai fallback for: ${videoId}`);
-      const fallbackRes = await axios.get(`https://youtube-transcript.ai/transcript/${videoId}.txt`, { timeout: 10000 });
-      if (fallbackRes.data && typeof fallbackRes.data === 'string' && fallbackRes.data.includes('## Transcript')) {
-        const parsed = parseYoutubeTranscriptAi(fallbackRes.data);
-        if (parsed.segments && parsed.segments.length > 0) {
-          console.log(`[YouTube Transcript] youtube-transcript.ai fallback succeeded! Parsed ${parsed.segments.length} segments.`);
-          return parsed;
+      items = await YoutubeTranscript.fetchTranscript(videoId);
+    } catch (directErr) {
+      console.warn(`[YouTube Transcript] Direct fetch failed: ${directErr.message}. Trying proxies...`);
+      lastError = directErr;
+      // Try public proxies
+      const proxies = [
+        (t) => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}`,
+        (t) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(t)}`,
+      ];
+      if (process.env.TRANSCRIPT_PROXY_PREFIX) {
+        proxies.unshift((t) => `${process.env.TRANSCRIPT_PROXY_PREFIX}${encodeURIComponent(t)}`);
+      }
+      for (let i = 0; i < proxies.length; i++) {
+        const getProxyUrl = proxies[i];
+        try {
+          const proxyFetch = async (targetUrl, options = {}) => {
+            if ((options.method || 'GET').toUpperCase() === 'GET') {
+              return fetch(getProxyUrl(targetUrl), options);
+            }
+            return fetch(targetUrl, options);
+          };
+          items = await YoutubeTranscript.fetchTranscript(videoId, { fetch: proxyFetch });
+          if (items && items.length > 0) {
+            console.log(`[YouTube Transcript] Proxy ${i + 1} succeeded!`);
+            break;
+          }
+        } catch (proxyErr) {
+          console.warn(`[YouTube Transcript] Proxy ${i + 1} failed: ${proxyErr.message}`);
+          lastError = proxyErr;
         }
       }
-    } catch (fallbackErr) {
-      console.warn(`[YouTube Transcript] youtube-transcript.ai fallback failed: ${fallbackErr.message}`);
-      lastError = fallbackErr;
     }
+
+    if (items && items.length > 0) {
+      const isMs = items.some(item => item.offset > 5000 || item.duration > 1000);
+      const scale = isMs ? 1000 : 1;
+      const segments = items.map(item => ({
+        start: item.offset / scale,
+        end: (item.offset + item.duration) / scale,
+        text: item.text.replace(/\n/g, " ").trim()
+      }));
+      return { text: segments.map(s => s.text).join(" "), segments };
+    }
+  } catch (err) {
+    console.warn(`[YouTube Transcript] youtube-transcript npm failed: ${err.message}`);
+    lastError = err;
   }
 
-  if (!items || items.length === 0) {
-    throw new Error(`Failed to retrieve YouTube transcript. YouTube blocked the request or captions are disabled. (Details: ${lastError ? lastError.message : 'Unknown error'})`);
+  // ── METHOD 4: youtube-transcript.ai fallback ──
+  try {
+    console.log(`[YouTube Transcript] Attempting youtube-transcript.ai for: ${videoId}`);
+    const fallbackRes = await axios.get(`https://youtube-transcript.ai/transcript/${videoId}.txt`, { timeout: 10000 });
+    if (fallbackRes.data && typeof fallbackRes.data === 'string' && fallbackRes.data.includes('## Transcript')) {
+      const parsed = parseYoutubeTranscriptAi(fallbackRes.data);
+      if (parsed.segments && parsed.segments.length > 0) {
+        console.log(`[YouTube Transcript] youtube-transcript.ai succeeded: ${parsed.segments.length} segments.`);
+        return parsed;
+      }
+    }
+  } catch (err) {
+    console.warn(`[YouTube Transcript] youtube-transcript.ai failed: ${err.message}`);
+    lastError = err;
   }
 
-  // 4. Auto-detect and scale timestamps (seconds vs milliseconds)
-  const isMs = items.some(item => item.offset > 5000 || item.duration > 1000);
-  const scale = isMs ? 1000 : 1;
+  throw new Error(
+    `Could not retrieve captions for this video. This usually happens because: ` +
+    `(1) The video has captions disabled, ` +
+    `(2) The video is private or age-restricted, ` +
+    `(3) YouTube is temporarily blocking automated requests. ` +
+    `Try a different video or paste the transcript manually using the "Text" tab.`
+  );
+}
 
-  // Build segments with real timestamps
-  const segments = items.map(item => ({
-    start: item.offset / scale,
-    end: (item.offset + item.duration) / scale,
-    text: item.text.replace(/\n/g, " ").trim()
-  }));
+// ── Timedtext API: fetches YouTube caption XML directly ──────────────────────
+async function fetchViaTimedtextAPI(videoId) {
+  // First, fetch the video page to get the caption track list from ytInitialPlayerResponse
+  const pageRes = await axios.get(`https://www.youtube.com/watch?v=${videoId}`, {
+    timeout: 12000,
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    }
+  });
 
-  const text = segments.map(s => s.text).join(" ");
-  return { text, segments };
+  const html = pageRes.data;
+
+  // Extract ytInitialPlayerResponse JSON from the page
+  const playerResponseMatch = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});\s*(?:var\s|window\[|<\/script>)/s);
+  if (!playerResponseMatch) {
+    throw new Error("Could not extract player data from YouTube page");
+  }
+
+  let playerResponse;
+  try {
+    playerResponse = JSON.parse(playerResponseMatch[1]);
+  } catch (e) {
+    throw new Error("Failed to parse YouTube player response JSON");
+  }
+
+  // Get captions from player response
+  const captionTracks = playerResponse?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+  if (!captionTracks || captionTracks.length === 0) {
+    throw new Error("No caption tracks found for this video");
+  }
+
+  // Prefer English, fall back to first available
+  const engTrack = captionTracks.find(t => t.languageCode === 'en' || t.languageCode === 'en-US' || t.languageCode === 'en-GB');
+  const track = engTrack || captionTracks[0];
+
+  if (!track.baseUrl) throw new Error("Caption track has no baseUrl");
+
+  // Fetch the caption XML (fmt=json3 gives JSON format)
+  const captionUrl = track.baseUrl + '&fmt=json3';
+  const captionRes = await axios.get(captionUrl, { timeout: 10000 });
+  const data = captionRes.data;
+
+  if (!data || !data.events) throw new Error("Invalid caption data format");
+
+  const segments = data.events
+    .filter(ev => ev.segs && ev.segs.length > 0)
+    .map(ev => {
+      const text = ev.segs.map(s => s.utf8 || '').join('').replace(/\n/g, ' ').trim();
+      const start = (ev.tStartMs || 0) / 1000;
+      const end = start + (ev.dDurationMs || 3000) / 1000;
+      return { start, end, text };
+    })
+    .filter(s => s.text.length > 0);
+
+  if (segments.length === 0) throw new Error("No caption segments extracted");
+
+  return { text: segments.map(s => s.text).join(' '), segments };
+}
+
+// ── youtubei.js: uses YouTube InnerTube API (ESM, loaded via dynamic import) ─
+async function fetchViaYoutubeiJS(videoId) {
+  // Use dynamic import since youtubei.js is an ESM module
+  const { Innertube } = await import('youtubei.js');
+  const youtube = await Innertube.create({ retrieve_player: false });
+  const info = await youtube.getInfo(videoId);
+  const transcriptData = await info.getTranscript();
+
+  const body = transcriptData?.transcript?.content?.body;
+  if (!body) throw new Error("No transcript body returned by youtubei.js");
+
+  const rawSegments = body.initial_segments || [];
+  if (rawSegments.length === 0) throw new Error("Empty transcript from youtubei.js");
+
+  const segments = rawSegments.map(seg => ({
+    start: (seg.start_ms || 0) / 1000,
+    end: ((seg.start_ms || 0) + (seg.end_ms ? seg.end_ms - seg.start_ms : 3000)) / 1000,
+    text: (seg.snippet?.text || '').replace(/\n/g, ' ').trim()
+  })).filter(s => s.text.length > 0);
+
+  return { text: segments.map(s => s.text).join(' '), segments };
 }
 
 // ── CAPTION GENERATOR ────────────────────────────────────────

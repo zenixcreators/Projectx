@@ -18,13 +18,30 @@ async function loadCurrentUser() {
     // Update UI elements
     const userNameEl = document.getElementById('userName');
     const userAvatarEl = document.getElementById('userAvatar');
+    const userPlanBadgeEl = document.getElementById('userPlanBadge');
     
     if (userNameEl) userNameEl.textContent = user.name || user.email;
     if (userAvatarEl) {
         if (user.avatar) {
             userAvatarEl.innerHTML = `<img src="${user.avatar}" alt="${user.name}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
         } else {
-            userAvatarEl.textContent = (user.firstName || user.name || 'U').charAt(0).toUpperCase();
+            // Build 2-letter initials from name
+            const parts = (user.name || user.email || 'U').trim().split(' ');
+            const initials = parts.length >= 2
+                ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+                : parts[0].substring(0, 2).toUpperCase();
+            userAvatarEl.textContent = initials;
+        }
+    }
+
+    // Plan badge: show plan name + remaining credits
+    if (userPlanBadgeEl) {
+        const planName = user.plan ? (user.plan.charAt(0).toUpperCase() + user.plan.slice(1)) : 'Free';
+        const remaining = typeof user.generationsLeft === 'number' ? user.generationsLeft : null;
+        if (remaining !== null && planName !== 'Free') {
+            userPlanBadgeEl.textContent = `${planName} · ${remaining} left`;
+        } else {
+            userPlanBadgeEl.textContent = planName;
         }
     }
 

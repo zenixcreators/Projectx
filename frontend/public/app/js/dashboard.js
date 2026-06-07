@@ -164,35 +164,49 @@ async function loadDashboardData() {
     if (dashRecentScripts) {
       if (scripts.length === 0) {
         dashRecentScripts.innerHTML = `
-          <div class="premium-empty-state">
-            <div class="premium-empty-icon"><i class="fa-solid fa-pen-nib"></i></div>
-            <h4>No scripts generated yet</h4>
-            <p>Generate your first video script with our high-retention AI model in the studio.</p>
-            <button class="btn-primary btn-sm" onclick="navigateToScriptStudio()">Go to Script Studio</button>
+          <div class="relative overflow-hidden rounded-xl p-8 flex flex-col items-center justify-center text-center bg-gradient-to-b from-transparent to-purple-50/10">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(124,92,255,0.03)_0%,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="w-16 h-16 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 text-2xl mb-4 relative z-10 shadow-inner">
+              <i class="fa-solid fa-signature"></i>
+            </div>
+            
+            <h4 class="text-base font-semibold text-gray-900 mb-1 relative z-10">Your first script is one click away</h4>
+            <p class="text-xs text-gray-500 max-w-sm mb-5 relative z-10">Generate a high-retention video script with our advanced creator AI.</p>
+            
+            <button class="relative z-10 px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-xs font-semibold flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-pointer border-none" onclick="navigateToScriptStudio()">
+              <span>Go to Script Studio</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
         `;
       } else {
         const recentScripts = scripts.slice(0, 5);
         dashRecentScripts.innerHTML = `
-          <div class="recent-list">
+          <div class="flex flex-col gap-2.5">
             ${recentScripts.map(script => {
               const scriptId = script._id || '';
               const safeTopic = escapeHtml(script.topic || 'Untitled Script');
               const typeLabel = script.type === 'long' ? 'Long-form' : (script.type === 'storytelling' ? 'Story' : 'Short-form');
               const platformLabel = script.platform ? ` · ${escapeHtml(script.platform)}` : '';
               return `
-                <div class="recent-item">
-                  <div class="recent-item-info">
-                    <span class="recent-item-title" title="${safeTopic}">${safeTopic}</span>
-                    <div class="recent-item-meta">
-                      <span><i class="fa-regular fa-clock" style="margin-right:3px;"></i>${escapeHtml(script.estimatedDuration || '--')}</span>
+                <div class="flex items-center justify-between p-3.5 hover:bg-gray-50/80 rounded-xl border border-transparent hover:border-gray-100 hover:shadow-sm transition-all duration-200 hover:-translate-y-[1px]">
+                  <div class="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <span class="text-sm font-semibold text-gray-900 truncate" title="${safeTopic}">${safeTopic}</span>
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-400">
+                      <span class="flex items-center gap-1 text-gray-400 font-medium">
+                        <i class="fa-regular fa-clock text-[11px]"></i>
+                        ${escapeHtml(script.estimatedDuration || '--')}
+                      </span>
+                      <span class="text-gray-300">•</span>
                       <span>${typeLabel}${platformLabel}</span>
+                      <span class="text-gray-300">•</span>
                       <span>${formatDate(script.createdAt)}</span>
                     </div>
                   </div>
-                  <div class="recent-item-action">
-                    <button class="btn-ghost btn-sm" onclick="loadScriptToStudio('${scriptId}')" title="Open in Studio">
-                      <i class="fa-solid fa-folder-open" style="font-size:13px;"></i>
+                  <div class="flex-shrink-0 ml-3">
+                    <button class="w-8 h-8 rounded-lg border border-gray-150 text-gray-400 hover:text-gray-900 bg-white hover:bg-gray-50 flex items-center justify-center transition-all duration-200 shadow-sm cursor-pointer" onclick="loadScriptToStudio('${scriptId}')" title="Open in Studio">
+                      <i class="fa-solid fa-folder-open text-xs"></i>
                     </button>
                   </div>
                 </div>
@@ -216,17 +230,26 @@ async function loadDashboardData() {
     if (dashRecentAudits) {
       if (audits.length === 0) {
         dashRecentAudits.innerHTML = `
-          <div class="premium-empty-state">
-            <div class="premium-empty-icon"><i class="fa-brands fa-youtube"></i></div>
-            <h4>No audited channels yet</h4>
-            <p>Analyze any competitor YouTube handle or link to view their niches and velocity metrics.</p>
-            <button class="btn-primary btn-sm" onclick="navigateToChannelAnalysis()">Start Audit</button>
+          <div class="relative overflow-hidden rounded-xl p-8 flex flex-col items-center justify-center text-center bg-gradient-to-b from-transparent to-rose-50/10">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(244,63,94,0.03)_0%,transparent_70%)] pointer-events-none"></div>
+            
+            <div class="w-16 h-16 rounded-full bg-rose-50 flex items-center justify-center text-rose-500 text-2xl mb-4 relative z-10 shadow-inner">
+              <i class="fa-brands fa-youtube"></i>
+            </div>
+            
+            <h4 class="text-base font-semibold text-gray-900 mb-1 relative z-10">Audit your first competitor channel</h4>
+            <p class="text-xs text-gray-500 max-w-sm mb-5 relative z-10 font-normal">Analyze any creator channel to unlock their niches and velocity metrics.</p>
+            
+            <button class="relative z-10 px-5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-full text-xs font-semibold flex items-center gap-2 shadow-sm transition-all duration-200 hover:scale-[1.02] cursor-pointer border-none" onclick="navigateToChannelAnalysis()">
+              <span>Start Channel Audit</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
           </div>
         `;
       } else {
         const recentAudits = audits.slice(0, 5);
         dashRecentAudits.innerHTML = `
-          <div class="recent-list">
+          <div class="flex flex-col gap-2.5">
             ${recentAudits.map(audit => {
               const channelId = audit.channelId || '';
               const safeName = escapeHtml(audit.channelName || 'YouTube Channel');
@@ -234,21 +257,37 @@ async function loadDashboardData() {
               const score = audit.healthScore || '--';
               const avatar = audit.thumbnailUrl || '../assets/default-channel.png';
               
+              const numScore = Number(score) || 0;
+              let scoreBadgeClass = 'bg-gray-50 text-gray-600 border-gray-100';
+              if (score !== '--') {
+                if (numScore >= 80) {
+                  scoreBadgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-100/50';
+                } else if (numScore >= 60) {
+                  scoreBadgeClass = 'bg-amber-50 text-amber-700 border-amber-100/50';
+                } else {
+                  scoreBadgeClass = 'bg-rose-50 text-rose-700 border-rose-100/50';
+                }
+              }
+              
               return `
-                <div class="recent-item">
-                  <div style="display:flex;align-items:center;gap:12px;min-width:0;flex:1;">
-                    <img src="${avatar}" alt="${safeName}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;border:1px solid var(--border-soft);flex-shrink:0;">
-                    <div class="recent-item-info">
-                      <span class="recent-item-title" title="${safeName}">${safeName}</span>
-                      <div class="recent-item-meta">
-                        <span>Niche: ${niche}</span>
-                        <span>Health: ${score}</span>
+                <div class="flex items-center justify-between p-3.5 hover:bg-gray-50/80 rounded-xl border border-transparent hover:border-gray-100 hover:shadow-sm transition-all duration-200 hover:-translate-y-[1px]">
+                  <div class="flex items-center gap-3.5 min-width-0 flex-1">
+                    <img src="${avatar}" alt="${safeName}" class="w-9 h-9 rounded-full object-cover border border-gray-100 flex-shrink-0">
+                    <div class="flex flex-col gap-0.5 min-w-0">
+                      <span class="text-sm font-semibold text-gray-900 truncate" title="${safeName}">${safeName}</span>
+                      <div class="flex items-center gap-2 text-xs text-gray-400">
+                        <span>${niche}</span>
+                        <span class="text-gray-300">•</span>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${scoreBadgeClass}">
+                          <i class="fa-solid fa-heart-pulse text-[8.5px]"></i>
+                          Score: ${score}
+                        </span>
                       </div>
                     </div>
                   </div>
-                  <div class="recent-item-action">
-                    <button class="btn-ghost btn-sm" onclick="loadAuditToReport('${channelId}')" title="View Audit Report">
-                      <i class="fa-solid fa-chart-line" style="font-size:13px;"></i>
+                  <div class="flex-shrink-0 ml-3">
+                    <button class="w-8 h-8 rounded-lg border border-gray-150 text-gray-400 hover:text-gray-900 bg-white hover:bg-gray-50 flex items-center justify-center transition-all duration-200 shadow-sm cursor-pointer" onclick="loadAuditToReport('${channelId}')" title="View Audit Report">
+                      <i class="fa-solid fa-chart-line text-xs"></i>
                     </button>
                   </div>
                 </div>
@@ -274,6 +313,13 @@ function navigateToScriptStudio() {
 
 function navigateToChannelAnalysis() {
   const btn = document.querySelector('[data-target="channel-analysis-view"]');
+  if (btn) {
+    switchView(btn);
+  }
+}
+
+function navigateToHookStudio() {
+  const btn = document.querySelector('[data-target="hook-view"]');
   if (btn) {
     switchView(btn);
   }

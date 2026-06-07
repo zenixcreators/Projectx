@@ -171,8 +171,30 @@ async function generateCaptions() {
 
     renderCaptionResults(data, langs, formats);
   } catch (err) {
-    window.showToast('Caption Processing Failed', err.message, 'error');
-    if (canvasEmpty) canvasEmpty.style.display = 'flex';
+    const isUrlError = input.type === 'url';
+    if (canvasEmpty) {
+      canvasEmpty.style.display = 'flex';
+      canvasEmpty.innerHTML = `
+        <div class="empty-icon-wrap" style="background:rgba(220,38,38,0.08);border-color:rgba(220,38,38,0.15);">
+          <i class="fa-solid fa-triangle-exclamation" style="color:#dc2626;"></i>
+        </div>
+        <h3 style="color:#dc2626;">Caption Generation Failed</h3>
+        <p style="max-width:360px;text-align:center;font-size:13px;line-height:1.6;">${err.message}</p>
+        ${isUrlError ? `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:12px;">
+          <button onclick="switchToTextTab()" style="padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:13px;cursor:pointer;font-family:var(--font);font-weight:500;display:flex;align-items:center;gap:7px;">
+            <i class="fa-solid fa-paragraph"></i> Switch to Text Tab
+          </button>
+          <span style="font-size:11px;color:var(--muted);">Or try a different public YouTube video</span>
+        </div>` : `
+        <div style="margin-top:12px;">
+          <button onclick="resetCaptionCanvas()" style="padding:8px 18px;background:var(--hover);color:var(--text);border:1px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;font-family:var(--font);">
+            <i class="fa-solid fa-rotate-left"></i> Try Again
+          </button>
+        </div>`}
+      `;
+    }
+    window.showToast('Caption Failed', err.message.length > 80 ? err.message.substring(0, 80) + '...' : err.message, 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<span>Generate Captions</span><i class="fa-solid fa-wand-magic-sparkles"></i>';
@@ -408,6 +430,35 @@ function downloadActiveCaption() {
   a.click();
 }
 
+/* ---- Error Recovery Helpers ---- */
+function switchToTextTab() {
+  const textBtn = document.querySelector('#caption-view .mode-btn');
+  if (textBtn) {
+    switchCapTab('transcript', textBtn);
+    textBtn.classList.add('active');
+    document.querySelectorAll('#caption-view .mode-btn').forEach(b => { if (b !== textBtn) b.classList.remove('active'); });
+  }
+  resetCaptionCanvas();
+}
+
+function resetCaptionCanvas() {
+  const canvasEmpty = document.getElementById('canvasEmpty');
+  if (canvasEmpty) {
+    canvasEmpty.style.display = 'flex';
+    canvasEmpty.innerHTML = `
+      <div class="empty-icon-wrap">
+        <i class="fa-solid fa-quote-left"></i>
+      </div>
+      <h3>Ready to Transcribe?</h3>
+      <p>Your AI-generated captions will appear here with a full preview.</p>
+      <div class="empty-steps">
+        <span><i class="fa-solid fa-check"></i> Select Source</span>
+        <span><i class="fa-solid fa-check"></i> Choose Languages</span>
+        <span><i class="fa-solid fa-check"></i> Hit Generate</span>
+      </div>
+    `;
+  }
+}
 
 /* ---- Init ---- */
 function initCaptionStudio() {
