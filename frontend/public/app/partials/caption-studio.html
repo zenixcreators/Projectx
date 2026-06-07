@@ -5,7 +5,7 @@
     <div class="caption-canvas" id="captionCanvas">
       <div class="canvas-empty-state" id="canvasEmpty">
         <div class="empty-icon-wrap">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <i class="fa-solid fa-quote-left"></i>
         </div>
         <h3>Ready to Transcribe?</h3>
         <p>Your AI-generated captions will appear here with a full preview.</p>
@@ -62,7 +62,7 @@
       <div class="composer-header">
         <div class="mode-selector">
           <button class="mode-btn active" onclick="switchCapTab('transcript', this)">
-            <i class="fa-solid fa-align-left"></i>
+            <i class="fa-solid fa-paragraph"></i>
             <span>Text</span>
           </button>
           <button class="mode-btn" onclick="switchCapTab('url', this)">
@@ -74,7 +74,7 @@
             <span>Video</span>
           </button>
           <button class="mode-btn" onclick="switchCapTab('audio', this)">
-            <i class="fa-solid fa-waveform-lines"></i>
+            <i class="fa-solid fa-file-audio"></i>
             <span>Audio</span>
           </button>
         </div>
@@ -121,7 +121,7 @@
             <input type="file" accept="audio/*" id="audioFile" onchange="handleFile(this,'audio')"
               style="display:none" />
             <div class="dz-content">
-              <div class="dz-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+              <div class="dz-icon"><i class="fa-solid fa-microphone"></i></div>
               <h3>Upload Audio File</h3>
               <p>Drag and drop or <span>browse files</span></p>
               <span class="dz-formats">MP3, WAV, M4A (Up to 100MB)</span>
@@ -164,7 +164,7 @@
 
         <!-- Right: Action -->
         <button class="studio-generate-btn-v2" id="genBtn" onclick="generateCaptions()">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
+          <i class="fa-solid fa-paper-plane"></i>
           <span>Generate</span>
         </button>
       </div>
