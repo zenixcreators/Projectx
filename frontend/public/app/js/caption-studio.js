@@ -198,7 +198,7 @@ function renderCaptionResults(data, langs, formats) {
   if (input.type === 'url' && input.value) {
     const vidId = getYouTubeId(input.value);
     if (vidId) {
-      previewEl.innerHTML = `<iframe src="https://www.youtube.com/embed/${vidId}" allowfullscreen></iframe>`;
+      previewEl.innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${vidId}" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
     }
   } else if (input.type === 'video' && input.file) {
     const url = URL.createObjectURL(input.file);
@@ -316,7 +316,7 @@ function timeToSeconds(time) {
 
 function seekVideo(seconds) {
   const iframe = document.querySelector('#videoPreview iframe');
-  if (iframe && iframe.src.includes('youtube.com')) {
+  if (iframe && (iframe.src.includes('youtube.com') || iframe.src.includes('youtube-nocookie.com'))) {
     const baseUrl = iframe.src.split('?')[0];
     iframe.src = `${baseUrl}?start=${Math.floor(seconds)}&autoplay=1`;
   }

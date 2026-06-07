@@ -102,6 +102,7 @@ app.use(cookieParser());
 app.use(helmet({
   crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
   crossOriginEmbedderPolicy: false,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
