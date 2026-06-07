@@ -14,7 +14,7 @@ const createTransporter = () => nodemailer.createTransport({
 });
 
 const sendVerificationOtp = async ({ email, firstName, otp }) => {
-  const appName = process.env.APP_NAME || "Aurora";
+  const appName = process.env.APP_NAME || "Creo";
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
 
   if (!hasSmtpConfig()) {
@@ -26,11 +26,11 @@ const sendVerificationOtp = async ({ email, firstName, otp }) => {
   await transporter.sendMail({
     from,
     to: email,
-    subject: `Verify Your Aurora Account`,
+    subject: `Verify Your Creo Account`,
     text: `
 Hi ${firstName || "there"},
 
-Welcome to Aurora.
+Welcome to Creo.
 
 Your verification code is:
 
@@ -40,13 +40,13 @@ This code will expire in 10 minutes.
 
 For your security, never share this code with anyone.
 
-If you did not create an Aurora account, you can safely ignore this email.
+If you did not create a Creo account, you can safely ignore this email.
 
-— Team Aurora
+— Team Creo
 `,
     html: `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:auto;padding:20px;color:#111827">
-      <h2 style="margin-bottom:10px;">Welcome to Aurora 🚀</h2>
+      <h2 style="margin-bottom:10px;">Welcome to Creo 🚀</h2>
 
       <p>Hi ${firstName || "there"},</p>
 
@@ -73,11 +73,11 @@ If you did not create an Aurora account, you can safely ignore this email.
 
       <p>For your security, do not share this code with anyone.</p>
 
-      <p>If you did not create an Aurora account, you can safely ignore this email.</p>
+      <p>If you did not create a Creo account, you can safely ignore this email.</p>
 
       <br>
 
-      <p>— Team Aurora</p>
+      <p>— Team Creo</p>
     </div>
   `
   });
@@ -86,7 +86,7 @@ If you did not create an Aurora account, you can safely ignore this email.
 };
 
 const sendPasswordResetOtp = async ({ email, firstName, otp }) => {
-  const appName = process.env.APP_NAME || "Aurora";
+  const appName = process.env.APP_NAME || "Creo";
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
 
   if (!hasSmtpConfig()) {

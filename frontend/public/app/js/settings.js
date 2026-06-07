@@ -230,7 +230,7 @@ function initSettings() {
 if (document.getElementById('settings-view')) {
   initSettings();
 } else {
-  document.addEventListener('aurora:partials-loaded', initSettings, { once: true });
+  document.addEventListener('creo:partials-loaded', initSettings, { once: true });
 }
 
 // Expose handlers globally

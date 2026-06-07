@@ -188,7 +188,7 @@ function initProfile() {
 if (document.getElementById('profile-view')) {
   initProfile();
 } else {
-  document.addEventListener('aurora:partials-loaded', initProfile, { once: true });
+  document.addEventListener('creo:partials-loaded', initProfile, { once: true });
 }
 
 // Expose handlers globally

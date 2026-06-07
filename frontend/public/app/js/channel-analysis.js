@@ -409,6 +409,6 @@ function displayReport(report) {
 }
 
 // Attach listener to wait for partial dynamic load E2E
-document.addEventListener("aurora:partials-loaded", () => {
+document.addEventListener("creo:partials-loaded", () => {
   // Creator command center ready
 });

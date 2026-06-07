@@ -22,7 +22,7 @@ document.addEventListener('click', (event) => {
   }
 });
 
-document.addEventListener('aurora:partials-loaded', resetThumbnailDna);
+document.addEventListener('creo:partials-loaded', resetThumbnailDna);
 
 function handleGenerateClick(btn) {
   const thumbPrompt = document.getElementById("thumbPrompt");

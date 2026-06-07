@@ -437,5 +437,5 @@ function initCaptionStudio() {
 if (document.getElementById('caption-view')) {
   initCaptionStudio();
 } else {
-  document.addEventListener('aurora:partials-loaded', initCaptionStudio, { once: true });
+  document.addEventListener('creo:partials-loaded', initCaptionStudio, { once: true });
 }

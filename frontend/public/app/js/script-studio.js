@@ -1111,7 +1111,7 @@ function initScriptStudio() {
 if (document.getElementById('script-view')) {
   initScriptStudio();
 } else {
-  document.addEventListener('aurora:partials-loaded', initScriptStudio, { once: true });
+  document.addEventListener('creo:partials-loaded', initScriptStudio, { once: true });
 }
 
 // Expose handlers globally for dynamic HTML event bindings

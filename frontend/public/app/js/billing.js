@@ -191,7 +191,7 @@ function initBilling() {
 if (document.getElementById('billing-view')) {
   initBilling();
 } else {
-  document.addEventListener('aurora:partials-loaded', initBilling, { once: true });
+  document.addEventListener('creo:partials-loaded', initBilling, { once: true });
 }
 
 // Expose handlers globally

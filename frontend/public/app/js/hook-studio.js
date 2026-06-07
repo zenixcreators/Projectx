@@ -104,5 +104,5 @@ function initHookStudio() {
 if (document.getElementById('hook-view')) {
   initHookStudio();
 } else {
-  document.addEventListener('aurora:partials-loaded', initHookStudio, { once: true });
+  document.addEventListener('creo:partials-loaded', initHookStudio, { once: true });
 }

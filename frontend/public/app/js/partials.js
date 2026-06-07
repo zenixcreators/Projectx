@@ -12,7 +12,7 @@ async function loadFeaturePartials() {
     slot.outerHTML = await response.text();
   }));
 
-  document.dispatchEvent(new CustomEvent('aurora:partials-loaded'));
+  document.dispatchEvent(new CustomEvent('creo:partials-loaded'));
 }
 
 loadFeaturePartials().catch(error => {

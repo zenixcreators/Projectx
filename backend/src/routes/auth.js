@@ -59,7 +59,7 @@ const cleanName = (value) => String(value || "")
   .slice(0, 60);
 
 const OTP_TTL_MS = 10 * 60 * 1000;
-const OTP_PEPPER = process.env.SESSION_SECRET || "aurora-dev-otp-pepper";
+const OTP_PEPPER = process.env.SESSION_SECRET || "creo-dev-otp-pepper";
 
 const createOtp = () => String(crypto.randomInt(100000, 1000000));
 
@@ -248,7 +248,7 @@ router.post("/auth/verify-email", async (req, res) => {
     await user.save();
 
     generateToken(user._id, res);
-    res.json({ user: publicUser(user), message: "Email verified. Welcome to Aurora." });
+    res.json({ user: publicUser(user), message: "Email verified. Welcome to Creo." });
   } catch (err) {
     console.error("Email verification error:", err.message);
     res.status(500).json({ error: "Email verification failed" });

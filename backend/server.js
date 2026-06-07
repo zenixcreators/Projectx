@@ -26,8 +26,8 @@ const connectDB = async () => {
       process.exit(1);
     }
     try {
-      await mongoose.connect("mongodb://127.0.0.1:27017/nexus");
-      console.log("Connected to local MongoDB for Nexus Creator Studio successfully.");
+      await mongoose.connect("mongodb://127.0.0.1:27017/creo");
+      console.log("Connected to local MongoDB for Creo Creator Studio successfully.");
     } catch (err) {
       console.error("Local MongoDB connection failed:", err.message);
     }
@@ -37,7 +37,7 @@ const connectDB = async () => {
   try {
     // Try Atlas with a shorter timeout (5s) to avoid long hangs
     await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
-    console.log("Connected to MongoDB Atlas for Nexus Creator Studio successfully.");
+    console.log("Connected to MongoDB Atlas for Creo Creator Studio successfully.");
   } catch (err) {
     if (process.env.NODE_ENV === 'production') {
       console.error("MongoDB Atlas connection failed in production:", err.message);
@@ -46,7 +46,7 @@ const connectDB = async () => {
     console.error("MongoDB Atlas connection failed. Trying local fallback...", err.message);
     try {
       await mongoose.disconnect();
-      await mongoose.connect("mongodb://127.0.0.1:27017/nexus", { serverSelectionTimeoutMS: 5000 });
+      await mongoose.connect("mongodb://127.0.0.1:27017/creo", { serverSelectionTimeoutMS: 5000 });
       console.log("Connected to local fallback MongoDB successfully.");
     } catch (localErr) {
       console.error("Local fallback MongoDB connection also failed:", localErr.message);
@@ -71,6 +71,7 @@ const scriptRoute = require("./src/routes/script");
 const channelRoutes = require("./src/routes/channelAnalysis");
 const userRoute = require("./src/routes/user");
 const contactRoute = require("./src/routes/contact");
+const feedbackRoute = require("./src/routes/feedback");
 
 const app = express();
 const rateLimit = require('express-rate-limit');
@@ -152,6 +153,7 @@ app.use(captionRoute);
 app.use(scriptRoute);
 app.use(generationRoute);
 app.use(contactRoute);
+app.use(feedbackRoute);
 app.use("/api/channel", channelRoutes);
 
 // 4. Public Static Files (Landing, Login, Signup)

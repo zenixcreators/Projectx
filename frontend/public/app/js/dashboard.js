@@ -337,7 +337,7 @@ function initDashboard() {
 if (document.getElementById('dashboard-view')) {
   initDashboard();
 } else {
-  document.addEventListener('aurora:partials-loaded', initDashboard, { once: true });
+  document.addEventListener('creo:partials-loaded', initDashboard, { once: true });
 }
 
 // Expose handlers globally

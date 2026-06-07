@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../../models/User");
 
 const SESSION_SECRET = process.env.SESSION_SECRET;
-const COOKIE_NAME = "aurora_token";
+const COOKIE_NAME = "creo_token";
 
 if (!SESSION_SECRET || SESSION_SECRET.length < 32) {
   throw new Error("SESSION_SECRET must be set to a strong random value of at least 32 characters.");
