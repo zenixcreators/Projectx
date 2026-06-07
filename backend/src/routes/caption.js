@@ -84,6 +84,55 @@ async function transcribeAudio(buffer, mimetype, filename) {
   return res.data;
 }
 
+function parseYoutubeTranscriptAi(responseText) {
+  let duration = 0;
+  const durationMatch = responseText.match(/Duration:\s*(?:(\d+):)?(\d+):(\d+)/i);
+  if (durationMatch) {
+    const hours = parseInt(durationMatch[1] || "0", 10);
+    const minutes = parseInt(durationMatch[2], 10);
+    const seconds = parseInt(durationMatch[3], 10);
+    duration = hours * 3600 + minutes * 60 + seconds;
+  }
+
+  const lines = responseText.split("\n");
+  const transcriptStartIndex = lines.findIndex(line => line.trim().startsWith("## Transcript"));
+  const transcriptLines = transcriptStartIndex !== -1 ? lines.slice(transcriptStartIndex + 1) : lines;
+
+  const segments = [];
+  const timestampRegex = /^\[(?:(\d+):)?(\d+):(\d+)\]\s*(.*)$/;
+
+  for (const line of transcriptLines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+
+    const match = trimmed.match(timestampRegex);
+    if (match) {
+      const hours = parseInt(match[1] || "0", 10);
+      const minutes = parseInt(match[2], 10);
+      const seconds = parseInt(match[3], 10);
+      const start = hours * 3600 + minutes * 60 + seconds;
+      const text = match[4].trim();
+
+      segments.push({
+        start,
+        end: 0,
+        text
+      });
+    }
+  }
+
+  for (let i = 0; i < segments.length; i++) {
+    if (i < segments.length - 1) {
+      segments[i].end = segments[i + 1].start;
+    } else {
+      segments[i].end = duration > 0 ? duration : segments[i].start + 30;
+    }
+  }
+
+  const text = segments.map(s => s.text).join(" ");
+  return { text, segments };
+}
+
 async function fetchYouTubeTranscript(url) {
   const match = url.match(/(?:v=|youtu\.be\/|shorts\/|embed\/)([a-zA-Z0-9_-]{11})/);
   if (!match) throw new Error("Invalid YouTube URL");
@@ -137,11 +186,29 @@ async function fetchYouTubeTranscript(url) {
     }
   }
 
+  // 3. Fallback to youtube-transcript.ai API
+  if (!items || items.length === 0) {
+    try {
+      console.log(`[YouTube Transcript] Attempting youtube-transcript.ai fallback for: ${videoId}`);
+      const fallbackRes = await axios.get(`https://youtube-transcript.ai/transcript/${videoId}.txt`, { timeout: 10000 });
+      if (fallbackRes.data && typeof fallbackRes.data === 'string' && fallbackRes.data.includes('## Transcript')) {
+        const parsed = parseYoutubeTranscriptAi(fallbackRes.data);
+        if (parsed.segments && parsed.segments.length > 0) {
+          console.log(`[YouTube Transcript] youtube-transcript.ai fallback succeeded! Parsed ${parsed.segments.length} segments.`);
+          return parsed;
+        }
+      }
+    } catch (fallbackErr) {
+      console.warn(`[YouTube Transcript] youtube-transcript.ai fallback failed: ${fallbackErr.message}`);
+      lastError = fallbackErr;
+    }
+  }
+
   if (!items || items.length === 0) {
     throw new Error(`Failed to retrieve YouTube transcript. YouTube blocked the request or captions are disabled. (Details: ${lastError ? lastError.message : 'Unknown error'})`);
   }
 
-  // 3. Auto-detect and scale timestamps (seconds vs milliseconds)
+  // 4. Auto-detect and scale timestamps (seconds vs milliseconds)
   const isMs = items.some(item => item.offset > 5000 || item.duration > 1000);
   const scale = isMs ? 1000 : 1;
 
