@@ -110,8 +110,8 @@ app.use(helmet({
       scriptSrcAttr: ["'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://api.fontshare.com", "https://accounts.google.com"],
       fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "https://cdn.fontshare.com"],
-      frameSrc: ["'self'", "https://accounts.google.com"],
-      imgSrc: ["'self'", "data:", "https://lh3.googleusercontent.com", "https://i.pravatar.cc"],
+      frameSrc: ["'self'", "https://accounts.google.com", "https://www.youtube.com", "https://youtube.com", "https://*.youtube.com", "https://www.youtube-nocookie.com"],
+      imgSrc: ["'self'", "data:", "https://lh3.googleusercontent.com", "https://*.googleusercontent.com", "https://i.pravatar.cc", "https://*.ytimg.com", "https://*.ggpht.com", "https://*.youtube.com"],
       mediaSrc: ["'self'", "data:", "blob:"]
     }
   }
