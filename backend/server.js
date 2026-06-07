@@ -99,7 +99,19 @@ const channelLimiter = rateLimit({
 app.use(cors({ origin: process.env.ALLOWED_ORIGIN || '*' }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://accounts.google.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com", "https://api.fontshare.com"],
+      fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com", "https://cdn.fontshare.com"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
+      imgSrc: ["'self'", "data:", "https://lh3.googleusercontent.com", "https://i.pravatar.cc"],
+      mediaSrc: ["'self'", "data:", "blob:"]
+    }
+  }
+}));
 app.use(morgan('combined'));
 
 app.post('/api/client-error', (req, res) => {

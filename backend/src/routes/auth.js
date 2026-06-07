@@ -7,6 +7,7 @@ const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const { sendPasswordResetOtp, sendVerificationOtp } = require("../services/auth/email");
 const { COOKIE_NAME, generateToken, publicUser, requireApiAuth } = require("../services/auth/session");
+const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -583,10 +584,24 @@ router.post("/auth/google", async (req, res) => {
 
 /**
  * GET /auth/me
- * Returns sanitized current authenticated user info
+ * Returns sanitized current authenticated user info (returns null instead of 401 if unauthenticated)
  */
-router.get("/auth/me", requireApiAuth, async (req, res) => {
-  res.json({ user: publicUser(req.user) });
+router.get("/auth/me", async (req, res) => {
+  try {
+    const token = req.cookies && req.cookies[COOKIE_NAME];
+    if (token && process.env.SESSION_SECRET) {
+      const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+      if (mongoose.connection.readyState === 1) {
+        const user = await User.findById(decoded.id);
+        if (user && user.status === "active" && user.tokenVersion === decoded.version) {
+          return res.json({ user: publicUser(user) });
+        }
+      }
+    }
+  } catch (err) {
+    // Ignore verification errors
+  }
+  res.json({ user: null });
 });
 
 /**
