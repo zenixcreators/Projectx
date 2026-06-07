@@ -93,7 +93,7 @@
         <div class="sidebar-upgrade">
           <div class="upgrade-label">You're on Free</div>
           <div class="upgrade-title">Unlock Pro features</div>
-          <button class="upgrade-btn">Upgrade to Pro →</button>
+          <button class="upgrade-btn" onclick="window.showUpgradeModal()">Upgrade to Pro →</button>
         </div>
         <div class="user-row">
           <div class="user-avatar" id="userAvatar">--</div>
@@ -119,7 +119,7 @@
           <button class="btn-ghost" id="logoutBtn" title="Log out">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
-          <button class="btn-primary" onclick="document.querySelector('.upgrade-btn').click()">
+          <button class="btn-primary" id="topbarUpgradeBtn" onclick="window.showUpgradeModal()">
             Upgrade Plan
           </button>
         </div>

@@ -131,6 +131,22 @@ async function loadDashboardData() {
     if (sidebarPlanDetails) {
       sidebarPlanDetails.textContent = planName === 'trial' ? 'Unlock premium studio features' : 'Your studio is unlocked';
     }
+    const sidebarUpgradeBtn = document.querySelector('.sidebar-upgrade .upgrade-btn');
+    if (sidebarUpgradeBtn) {
+      if (planName === 'trial') {
+        sidebarUpgradeBtn.style.display = '';
+      } else {
+        sidebarUpgradeBtn.style.display = 'none';
+      }
+    }
+    const topbarUpgradeBtn = document.getElementById('topbarUpgradeBtn');
+    if (topbarUpgradeBtn) {
+      if (planName === 'creator') {
+        topbarUpgradeBtn.style.display = 'none';
+      } else {
+        topbarUpgradeBtn.style.display = '';
+      }
+    }
     const sidebarUserPlan = document.querySelector('.user-plan');
     if (sidebarUserPlan) {
       sidebarUserPlan.textContent = isCreator 
