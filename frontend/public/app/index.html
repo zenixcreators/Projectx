@@ -34,6 +34,19 @@
 
       <nav class="sidebar-nav">
 
+        <div class="nav-section">Insights</div>
+
+        <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard" onclick="switchView(this)">
+          <i class="fa-solid fa-house"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
+          onclick="switchView(this)">
+          <i class="fa-brands fa-youtube" style="color: var(--red); opacity: 1;"></i>
+          <span>Channel Analysis</span>
+        </button>
+
         <div class="nav-section">Create</div>
 
         <button class="nav-item" data-target="script-view" data-title="Script Studio" onclick="switchView(this)">
@@ -56,20 +69,12 @@
           <span>Thumbnail Studio</span>
         </button>
 
-        <div class="nav-section">Insights</div>
-
-        <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard" onclick="switchView(this)">
-          <i class="fa-solid fa-house"></i>
-          <span>Dashboard</span>
-        </button>
-
-        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
-          onclick="switchView(this)">
-          <i class="fa-brands fa-youtube" style="color: var(--red); opacity: 1;"></i>
-          <span>Channel Analysis</span>
-        </button>
-
         <div class="nav-section">Account</div>
+
+        <button class="nav-item" data-target="profile-view" data-title="User Profile" onclick="switchView(this)">
+          <i class="fa-regular fa-user"></i>
+          <span>Profile</span>
+        </button>
 
         <button class="nav-item" data-target="billing-view" data-title="Billing & Usage" onclick="switchView(this)">
           <i class="fa-solid fa-wallet"></i>
@@ -79,11 +84,6 @@
         <button class="nav-item" data-target="settings-view" data-title="Account Settings" onclick="switchView(this)">
           <i class="fa-solid fa-gear"></i>
           <span>Settings</span>
-        </button>
-
-        <button class="nav-item" data-target="profile-view" data-title="User Profile" onclick="switchView(this)">
-          <i class="fa-regular fa-user"></i>
-          <span>Profile</span>
         </button>
 
       </nav>
