@@ -72,6 +72,7 @@ const channelRoutes = require("./src/routes/channelAnalysis");
 const userRoute = require("./src/routes/user");
 const contactRoute = require("./src/routes/contact");
 const feedbackRoute = require("./src/routes/feedback");
+const thumbnailAnalysisRoute = require("./src/routes/thumbnailAnalysis");
 
 const app = express();
 const rateLimit = require('express-rate-limit');
@@ -150,7 +151,9 @@ app.use([
   '/api/generate-image',
   '/api/generated-images',
   '/api/channel',
-  '/api/script/generate'
+  '/api/script/generate',
+  '/api/analyze-thumbnail',
+  '/api/analyze-thumbnail-url'
 ], requireApiAuth);
 
 // Apply limit checking & tracking to AI generation routes
@@ -162,7 +165,9 @@ app.post([
   '/api/test-script',
   '/api/generate-image',
   '/api/script/generate',
-  '/api/channel/analyze'
+  '/api/channel/analyze',
+  '/api/analyze-thumbnail',
+  '/api/analyze-thumbnail-url'
 ], checkLimit, incrementOnSuccess);
 
 app.use(userRoute);
@@ -171,6 +176,7 @@ app.use(scriptRoute);
 app.use(generationRoute);
 app.use(contactRoute);
 app.use(feedbackRoute);
+app.use(thumbnailAnalysisRoute);
 app.use("/api/channel", channelRoutes);
 
 // 4. Public Static Files (Landing, Login, Signup)

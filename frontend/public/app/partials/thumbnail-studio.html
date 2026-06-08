@@ -1,59 +1,263 @@
 <section id="thumbnail-view" class="view-section">
-
   <div class="thumbnail-workspace">
+    
+    <!-- Top Workspace Header -->
+    <div class="thumb-header">
+      <div class="thumb-header-left">
+        <h1>Vision Studio</h1>
+        <span class="live-badge">Audit Suite</span>
+      </div>
+      <div class="thumb-header-model">
+        Model: llama-4-scout-17b-16e-instruct
+      </div>
+    </div>
+
     <div class="thumb-layout">
 
-      <main class="thumb-main-area">
+      <!-- Main Audit Workflow Workspace -->
+      <main class="thumb-main-area" style="scrollbar-width: none;">
+        
+        <!-- URL / Media Source Toggle Controls -->
+        <div class="media-tabs" style="display: flex; gap: 4px; margin-bottom: 18px; width: 100%; max-width: 1080px;">
+          <button class="analysis-tab-btn active" id="tabSourceUpload" onclick="switchMediaSource('upload')" style="flex: 1;">
+            <i class="fa-solid fa-file-arrow-up" style="margin-right: 6px;"></i> Upload File (Image/Video)
+          </button>
+          <button class="analysis-tab-btn" id="tabSourceUrl" onclick="switchMediaSource('url')" style="flex: 1;">
+            <i class="fa-solid fa-link" style="margin-right: 6px;"></i> YouTube URL Video Link
+          </button>
+        </div>
 
-        <section class="thumb-preview-panel">
+        <!-- Panel 1: Interactive File Upload Area -->
+        <section class="thumb-preview-panel" id="uploadDropzone">
           <div class="thumb-preview-wrap">
             <div class="canvas-placeholder" id="thumbPlaceholder">
-              <i class="fa-solid fa-image"></i>
-              <span>Preview Canvas</span>
+              <i class="fa-solid fa-photo-film"></i>
+              <span>CHOOSE IMAGE OR VIDEO</span>
+              <span>Drag & drop visual file here or click to browse</span>
             </div>
-            <img id="mainThumbnail" src="" alt="Generated thumbnail preview" style="display: none;">
+            
+            <img id="mainThumbnail" src="" alt="Thumbnail preview for analysis">
+            <input type="file" id="thumbUploadInput" accept="image/*,video/*" style="display: none;">
           </div>
         </section>
 
-        <div class="thumb-ai-dock">
-          <div class="dock-top">
-            <textarea id="thumbPrompt" rows="3"
-              placeholder="Describe the thumbnail psychology, emotion, and visual style..."></textarea>
+        <!-- Panel 2: YouTube URL Input Form Container -->
+        <section class="thumb-preview-panel" id="urlInputContainer" style="display: none;">
+          <div class="thumb-preview-wrap">
+            
+            <!-- YouTube Preview Frame if Loaded -->
+            <img id="urlThumbnailPreview" src="" alt="YouTube frame extraction preview">
+            
+            <!-- Initial Input View Form -->
+            <div id="urlInputForm">
+              <i class="fa-brands fa-youtube"></i>
+              <div>
+                <h3>Extract & Analyze from YouTube</h3>
+                <p>Input video link to grab the high-resolution thumbnail frame directly</p>
+              </div>
+              <div class="yt-input-wrapper">
+                <i class="fa-solid fa-link"></i>
+                <input type="url" id="ytVideoUrl" placeholder="Paste YouTube video link..." aria-label="YouTube video link">
+                <button class="generate-btnn" onclick="loadYoutubeThumbnail()">
+                  <span>Load</span>
+                </button>
+              </div>
+            </div>
+            
           </div>
+        </section>
+
+        <!-- Vision Analysis Actions Dock -->
+        <div class="thumb-ai-dock">
           <div class="dock-bottom">
             <div class="dock-left">
-              <div class="model-row">
-                <select id="thumbModel" class="thumb-model-select" aria-label="Image generation model">
-                  <option value="black-forest-labs/FLUX.1-dev" selected>HuggingFace FLUX.1-dev</option>
-                </select>
-                <select id="thumbAspectRatio" class="thumb-aspect-ratio-select" aria-label="Aspect ratio">
-                  <option value="16:9" selected>16:9 (HD)</option>
-                  <option value="9:16">9:16 (Shorts)</option>
-                  <option value="1:1">1:1 (Square)</option>
-                  <option value="4:3">4:3 (Standard)</option>
-                  <option value="3:4">3:4 (Portrait)</option>
-                </select>
-              </div>
-              <div class="psychology-chips">
-                <button class="psy-chip active">Mystery</button>
-                <button class="psy-chip">Survival</button>
-                <button class="psy-chip">Authority</button>
-                <button class="psy-chip">Educational</button>
-                <button class="psy-chip">Fear</button>
-                <button class="psy-chip">Luxury</button>
+              <i class="fa-solid fa-brain"></i>
+              <div>
+                <div>Strategic Audit Engine</div>
+                <div>Vision mapping calculates attention retention triggers</div>
               </div>
             </div>
             <div class="dock-right">
-              <button class="generate-btnn">
-                <span>Analyze & Generate</span>
-                <i class="fa-solid fa-paper-plane"></i>
+              <button class="generate-btnn btn-clear" id="resetBtn" style="display: none;">
+                <span>Clear</span>
+              </button>
+              <button class="generate-btnn btn-analyze" id="analyzeBtn" disabled>
+                <span>Analyze Design</span>
+                <i class="fa-solid fa-eye-low-vision"></i>
               </button>
             </div>
           </div>
         </div>
 
+        <!-- Vision Audit Results Section (Plain English Output & Recreation Prompts) -->
+        <div class="analysis-results-container" id="analysisResults" style="display: none;">
+          
+          <!-- Tab Navigation -->
+          <div class="analysis-tabs">
+            <button class="analysis-tab-btn active" id="btnTabVisual" onclick="switchAnalysisTab('visual-audit')">Visual Audit</button>
+            <button class="analysis-tab-btn" id="btnTabRecreation" onclick="switchAnalysisTab('recreation')">Recreation Prompts</button>
+            <button class="analysis-tab-btn" id="btnTabVariants" onclick="switchAnalysisTab('variants')">Style Variations</button>
+          </div>
+
+          <!-- Tab Content: Visual Audit -->
+          <div class="analysis-tab-content active" id="tab-visual-audit">
+            <div class="audit-grid">
+              
+              <!-- Card: Composition -->
+              <div class="dna-card premium-audit-card">
+                <div class="card-header-with-icon">
+                  <i class="fa-solid fa-shapes"></i>
+                  <span class="dna-label">Composition & Layout</span>
+                </div>
+                <h3 class="dna-title" id="valCompositionPattern">--</h3>
+                <div class="details-list">
+                  <div class="detail-row">
+                    <strong>Framing Type:</strong> <span id="valCompositionFraming">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Rule of Thirds:</strong> <span id="valCompositionThirds">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Hierarchy Flow:</strong> <span id="valCompositionHierarchy" style="max-width: 170px;">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card: Subject Details -->
+              <div class="dna-card premium-audit-card">
+                <div class="card-header-with-icon">
+                  <i class="fa-solid fa-bullseye"></i>
+                  <span class="dna-label">Subject & Focus</span>
+                </div>
+                <h3 class="dna-title" id="valSubjectDesc" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
+                <div class="details-list">
+                  <div class="detail-row">
+                    <strong>Expression:</strong> <span id="valSubjectExpression">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Body Language:</strong> <span id="valSubjectGestures">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Clothing Style:</strong> <span id="valSubjectClothing">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card: Typography -->
+              <div class="dna-card premium-audit-card">
+                <div class="card-header-with-icon">
+                  <i class="fa-solid fa-signature"></i>
+                  <span class="dna-label">Typography & Overlay</span>
+                </div>
+                <h3 class="dna-title" id="valTextContent" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
+                <div class="details-list">
+                  <div class="detail-row">
+                    <strong>Font Style:</strong> <span id="valFontStyle">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Relative Size:</strong> <span id="valFontSize">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Placement:</strong> <span id="valTextPosition">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card: Lighting -->
+              <div class="dna-card premium-audit-card">
+                <div class="card-header-with-icon">
+                  <i class="fa-solid fa-moon"></i>
+                  <span class="dna-label">Lighting & Shadows</span>
+                </div>
+                <h3 class="dna-title" id="valLightingStyle">--</h3>
+                <div class="details-list">
+                  <div class="detail-row">
+                    <strong>Light Source:</strong> <span id="valLightingDirection">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Shadow Depth:</strong> <span id="valLightingShadows">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Depth of Field:</strong> <span id="valLightingDof">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Card: Mood & Psychology -->
+              <div class="dna-card premium-audit-card">
+                <div class="card-header-with-icon">
+                  <i class="fa-solid fa-brain"></i>
+                  <span class="dna-label">Psychological Trigger</span>
+                </div>
+                <h3 class="dna-title" id="valTriggerType">--</h3>
+                <div class="details-list">
+                  <div class="detail-row">
+                    <strong>Click Driver:</strong> <span id="valViewerIntent" style="max-width: 170px;">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Color Temp:</strong> <span id="valColorTemp">--</span>
+                  </div>
+                  <div class="detail-row">
+                    <strong>Contrast Style:</strong> <span id="valContrastLevel">--</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Tab Content: Reconstruction Prompts -->
+          <div class="analysis-tab-content" id="tab-recreation">
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+              
+              <!-- Plain Text Prompt -->
+              <div class="dna-card prompt-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dna-label">Plain Text Reconstruction Prompt</span>
+                  <button class="copy-prompt-btn" onclick="copyText('promptPlainText')">
+                    <i class="fa-regular fa-copy"></i> Copy
+                  </button>
+                </div>
+                <p id="promptPlainText" class="prompt-text-block">--</p>
+              </div>
+
+              <!-- Ready-to-Paste Generator Prompt -->
+              <div class="dna-card prompt-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dna-label">Model Specific Image Generation Prompt</span>
+                  <button class="copy-prompt-btn" onclick="copyText('promptImageGenText')">
+                    <i class="fa-regular fa-copy"></i> Copy
+                  </button>
+                </div>
+                <p id="promptImageGenText" class="prompt-text-block" style="font-weight: 600;">--</p>
+              </div>
+
+              <!-- Structured JSON Prompt -->
+              <div class="dna-card prompt-card" style="border-left: 1px solid var(--border-soft) !important;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="dna-label" style="color: var(--text-sec) !important;">Structured prompt (JSON Format)</span>
+                  <button class="copy-prompt-btn" onclick="copyText('promptJsonText')">
+                    <i class="fa-regular fa-copy"></i> Copy
+                  </button>
+                </div>
+                <pre id="promptJsonText" class="prompt-text-block" style="font-family: var(--mono); font-size: 12px; overflow-x: auto; max-height: 250px;">--</pre>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Tab Content: Style Variations -->
+          <div class="analysis-tab-content" id="tab-variants">
+            <div style="display: flex; flex-direction: column; gap: 16px;" id="variationsContainer">
+              <!-- Variants will be dynamically injected here -->
+            </div>
+          </div>
+
+        </div>
+
       </main>
 
+      <!-- Sidebar DNA panel (Matte Light) -->
       <aside class="thumb-dna-panel">
 
         <div class="dna-header">
@@ -66,58 +270,54 @@
         <div class="dna-scroll">
 
           <div class="dna-card highlight-card">
-            <span class="dna-label">ATTENTION SCORE</span>
+            <span class="dna-label">ATTENTION STRENGTH</span>
             <div class="dna-score-wrap">
-              <span class="dna-score">--/10</span>
-              <span class="dna-score-status">Awaiting concept</span>
+              <span class="dna-score" id="dnaScore">--/10</span>
+              <span class="dna-score-status" id="dnaScoreStatus">Awaiting upload</span>
             </div>
             <div class="dna-bar">
-              <div class="dna-bar-fill empty"></div>
+              <div class="dna-bar-fill empty" id="dnaScoreBar"></div>
             </div>
-            <p class="dna-desc">Generate a thumbnail to calculate attention strength.</p>
+            <p class="dna-desc" id="dnaAttentionDesc">Upload design files or input YouTube link to perform vision AI audit analysis.</p>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">EMOTIONAL TRIGGER</span>
-            <h3 class="dna-title">--</h3>
-            <p class="dna-desc">--</p>
+            <h3 class="dna-title" id="dnaTrigger">--</h3>
+            <p class="dna-desc" id="dnaTriggerDesc">--</p>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">THUMBNAIL ARCHETYPE</span>
-            <div class="dna-archetype">--</div>
+            <div class="dna-archetype" id="dnaArchetype">--</div>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">COLOR PSYCHOLOGY</span>
-            <div class="dna-swatches">
+            <div class="dna-swatches" id="dnaSwatches">
               <div class="dna-swatch muted"></div>
               <div class="dna-swatch muted"></div>
               <div class="dna-swatch muted"></div>
               <div class="dna-swatch muted"></div>
             </div>
-            <p class="dna-desc">--</p>
+            <p class="dna-desc" id="dnaColorDesc" style="margin-top: 6px;">--</p>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">VIEWER INTENT</span>
-            <h3 class="dna-title">--</h3>
-            <p class="dna-desc">--</p>
+            <h3 class="dna-title" id="dnaIntent">--</h3>
+            <p class="dna-desc" id="dnaIntentDesc">--</p>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">EYE TRACKING FLOW</span>
-            <div class="heatmap-box">
-              <div class="heat-dot dot-1"></div>
-              <div class="heat-dot dot-2"></div>
-            </div>
-            <p class="dna-desc">--</p>
+            <p class="dna-desc" id="dnaEyeFlow">--</p>
           </div>
 
           <div class="dna-card">
             <span class="dna-label">MOBILE READABILITY</span>
-            <div class="mobile-score">-- / 10</div>
-            <p class="dna-desc">--</p>
+            <div class="mobile-score" id="dnaMobileScore">-- / 10</div>
+            <p class="dna-desc" id="dnaMobileDesc" style="margin-top: 6px;">--</p>
           </div>
 
         </div>
@@ -125,7 +325,5 @@
       </aside>
 
     </div>
-
   </div>
-
 </section>

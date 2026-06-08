@@ -1,214 +1,664 @@
 /* =========================================
-  THUMBNAIL STUDIO
+  THUMBNAIL STUDIO — VISION AUDIT LOGIC
 ========================================= */
 
-// Scope the click listener to the thumbnail view to prevent conflicts with other sections
-document.addEventListener('click', (event) => {
-  const thumbnailView = document.getElementById('thumbnail-view');
-  if (!thumbnailView) return;
+let selectedImageFile = null;
+let selectedYoutubeUrl = null;
+let currentSourceMode = 'upload'; // 'upload' or 'url'
 
-  // Only handle clicks that occur within the thumbnail view
-  if (!thumbnailView.contains(event.target)) return;
+// Initialize listeners on load & dynamic reload
+document.addEventListener('creo:partials-loaded', initThumbnailStudio);
 
-  const generateBtn = event.target.closest('.generate-btnn') || event.target.closest('.generate-btn');
-  if (generateBtn) {
-    handleGenerateClick(generateBtn);
+// Fallback init
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  setTimeout(initThumbnailStudio, 100);
+} else {
+  document.addEventListener('DOMContentLoaded', initThumbnailStudio);
+}
+
+function initThumbnailStudio() {
+  resetAll();
+  initUploadListeners();
+  
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  if (analyzeBtn) {
+    const newBtn = analyzeBtn.cloneNode(true);
+    analyzeBtn.parentNode.replaceChild(newBtn, analyzeBtn);
+    newBtn.addEventListener('click', () => handleAnalyzeClick(newBtn));
+  }
+}
+
+function initUploadListeners() {
+  const dropzone = document.getElementById('uploadDropzone');
+  const fileInput = document.getElementById('thumbUploadInput');
+  const resetBtn = document.getElementById('resetBtn');
+
+  if (!dropzone || !fileInput) return;
+
+  // Clicking the dropzone opens file picker
+  dropzone.addEventListener('click', (e) => {
+    if (e.target !== fileInput) {
+      fileInput.click();
+    }
+  });
+
+  // Drag & drop visual effects
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = '#7c5cff';
+    dropzone.style.background = 'rgba(124, 92, 255, 0.05)';
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+    dropzone.style.background = '';
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+    dropzone.style.background = '';
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileSelected(e.dataTransfer.files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files[0]) {
+      handleFileSelected(fileInput.files[0]);
+    }
+  });
+
+  if (resetBtn) {
+    const newResetBtn = resetBtn.cloneNode(true);
+    resetBtn.parentNode.replaceChild(newResetBtn, resetBtn);
+    newResetBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetAll();
+    });
+  }
+}
+
+window.switchMediaSource = function(mode) {
+  if (mode === currentSourceMode) return;
+  currentSourceMode = mode;
+
+  const btnUpload = document.getElementById('tabSourceUpload');
+  const btnUrl = document.getElementById('tabSourceUrl');
+  const uploadPanel = document.getElementById('uploadDropzone');
+  const urlPanel = document.getElementById('urlInputContainer');
+
+  if (mode === 'upload') {
+    btnUpload.classList.add('active');
+    btnUpload.style.color = '#ffffff';
+    btnUrl.classList.remove('active');
+    btnUrl.style.color = '#a7a4ae';
+    
+    uploadPanel.style.display = 'block';
+    urlPanel.style.display = 'none';
+  } else {
+    btnUrl.classList.add('active');
+    btnUrl.style.color = '#ffffff';
+    btnUpload.classList.remove('active');
+    btnUpload.style.color = '#a7a4ae';
+    
+    urlPanel.style.display = 'block';
+    uploadPanel.style.display = 'none';
+  }
+  
+  resetAll();
+};
+
+window.loadYoutubeThumbnail = function() {
+  const urlInput = document.getElementById('ytVideoUrl');
+  const preview = document.getElementById('urlThumbnailPreview');
+  const form = document.getElementById('urlInputForm');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  if (!urlInput) return;
+
+  const url = urlInput.value.trim();
+  if (!url) {
+    window.showToast("URL Required", "Please enter a valid YouTube video link.", "warning");
     return;
   }
 
-  const chip = event.target.closest('.psy-chip');
-  if (chip) {
-    handleChipClick(chip);
+  const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i);
+  if (!match) {
+    window.showToast("Invalid URL", "Could not extract YouTube video ID from URL.", "warning");
+    return;
   }
-});
+  const videoId = match[1];
 
-document.addEventListener('creo:partials-loaded', resetThumbnailDna);
+  selectedYoutubeUrl = url;
 
-function handleGenerateClick(btn) {
-  const thumbPrompt = document.getElementById("thumbPrompt");
-  const previewImage = document.getElementById("mainThumbnail");
+  // Use maxresdefault for clean, high-fidelity UI preview
+  const imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+  
+  if (preview && form) {
+    preview.onload = () => {
+      form.style.display = 'none';
+      preview.style.display = 'block';
+      if (analyzeBtn) analyzeBtn.disabled = false;
+      if (resetBtn) resetBtn.style.display = 'block';
+    };
+    
+    preview.onerror = () => {
+      // Fallback to hqdefault
+      preview.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      preview.onerror = () => {
+        window.showToast("Load Failed", "Could not download YouTube preview. Check video link.", "error");
+        resetAll();
+      };
+    };
 
-  if (!thumbPrompt) return;
+    preview.src = imageUrl;
+  }
+};
 
+function handleFileSelected(file) {
+  const preview = document.getElementById('mainThumbnail');
+  const placeholder = document.getElementById('thumbPlaceholder');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  if (file.type.startsWith('video/')) {
+    window.showToast("Extracting Frame", "Reading video file to capture a thumbnail frame...", "info");
+    
+    if (placeholder) {
+      const textSpan = placeholder.querySelector('span:first-of-type');
+      const subtextSpan = placeholder.querySelector('span:last-of-type');
+      const icon = placeholder.querySelector('i');
+      if (textSpan) textSpan.textContent = "EXTRACTING VIDEO FRAME...";
+      if (subtextSpan) subtextSpan.textContent = "Please wait a moment while we capture a screenshot...";
+      if (icon) {
+        icon.className = "fa-solid fa-spinner fa-spin";
+        icon.style.color = "#7c5cff";
+      }
+    }
+
+    const video = document.createElement('video');
+    video.src = URL.createObjectURL(file);
+    video.muted = true;
+    video.playsInline = true;
+    
+    video.onloadeddata = () => {
+      video.currentTime = Math.min(1.0, video.duration / 2);
+    };
+    
+    video.onseeked = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const imageFile = new File([blob], "extracted_frame.jpg", { type: "image/jpeg" });
+            selectedImageFile = imageFile;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (preview) {
+                preview.src = e.target.result;
+                preview.style.display = 'block';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (analyzeBtn) analyzeBtn.disabled = false;
+              if (resetBtn) resetBtn.style.display = 'block';
+            };
+            reader.readAsDataURL(imageFile);
+            
+            window.showToast("Video Frame Loaded", "Successfully captured video frame for vision audit!", "success");
+          }
+        }, 'image/jpeg');
+      } catch (err) {
+        console.error('[VideoFrameExtract] Error:', err);
+        window.showToast("Frame Capture Failed", "Could not extract video frame. Please upload an image directly.", "error");
+        resetAll();
+      } finally {
+        URL.revokeObjectURL(video.src);
+      }
+    };
+
+    video.onerror = () => {
+      window.showToast("Video Error", "Could not read video file. Please try another video or an image.", "error");
+      resetAll();
+    };
+
+    return;
+  }
+
+  if (!file.type.startsWith('image/')) {
+    window.showToast("Invalid File Type", "Please upload an image (PNG, JPG) or video file (MP4, WEBM).", "warning");
+    return;
+  }
+
+  selectedImageFile = file;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (preview) {
+      preview.src = e.target.result;
+      preview.style.display = 'block';
+    }
+    if (placeholder) placeholder.style.display = 'none';
+    if (analyzeBtn) analyzeBtn.disabled = false;
+    if (resetBtn) resetBtn.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetAll() {
+  selectedImageFile = null;
+  selectedYoutubeUrl = null;
+
+  const fileInput = document.getElementById('thumbUploadInput');
+  if (fileInput) fileInput.value = '';
+
+  const ytInput = document.getElementById('ytVideoUrl');
+  if (ytInput) ytInput.value = '';
+
+  const preview = document.getElementById('mainThumbnail');
+  const urlPreview = document.getElementById('urlThumbnailPreview');
+  const placeholder = document.getElementById('thumbPlaceholder');
+  const urlForm = document.getElementById('urlInputForm');
+  
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const resultsContainer = document.getElementById('analysisResults');
+
+  if (preview) {
+    preview.src = '';
+    preview.style.display = 'none';
+  }
+  if (urlPreview) {
+    urlPreview.src = '';
+    urlPreview.style.display = 'none';
+  }
+  if (placeholder) {
+    placeholder.style.display = 'flex';
+    const textSpan = placeholder.querySelector('span:first-of-type');
+    const subtextSpan = placeholder.querySelector('span:last-of-type');
+    const icon = placeholder.querySelector('i');
+    if (textSpan) textSpan.textContent = "CHOOSE IMAGE OR VIDEO";
+    if (subtextSpan) subtextSpan.textContent = "Drag & drop visual file here or click to browse";
+    if (icon) {
+      icon.className = "fa-solid fa-photo-film";
+      icon.style.color = "";
+    }
+  }
+  if (urlForm) {
+    urlForm.style.display = 'flex';
+  }
+
+  if (analyzeBtn) analyzeBtn.disabled = true;
+  if (resetBtn) resetBtn.style.display = 'none';
+  if (resultsContainer) resultsContainer.style.display = 'none';
+
+  resetThumbnailDna();
+}
+
+function handleAnalyzeClick(btn) {
   const originalHTML = btn.innerHTML;
   btn.innerHTML = `
     <div class="spinner"></div>
-    <span>Generating...</span>
+    <span>Analyzing...</span>
   `;
   btn.disabled = true;
 
-  const promptValue = thumbPrompt.value.trim();
-  if (!promptValue) {
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
-    window.showToast("Description Required", "Please describe the thumbnail you want to generate.", "warning");
-    return;
-  }
-  const { provider } = getSelectedModel();
-  
-  if (!provider) {
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
-    window.showToast("Model Selection Required", "Please select an AI Generation Model before continuing.", "warning");
-    return;
-  }
-
   setGeneratingState();
 
-  const styleModifier = getActivePsychologyMode();
-
-  fetch('/api/generate-image', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      prompt: `${promptValue}. Psychological mode: ${styleModifier}.`,
-      provider,
-      aspectRatio: getSelectedAspectRatio()
-    })
-  })
-  .then(response => response.json().then(data => ({ ok: response.ok, data })))
-  .then(({ ok, data }) => {
-    if (!ok || !data.success || !data.imageUrl) {
-      throw new Error(data.error || "Generation failed.");
-    }
-
-    if (data.dna) updateDnaPanel(data.dna);
-    return showGeneratedThumbnail(previewImage, data.imageUrl);
-  })
-  .then(() => {
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
-  })
-  .catch(error => {
-    btn.innerHTML = originalHTML;
-    btn.disabled = false;
-    window.showToast("Image Generation Failed", error.message, "error");
-  });
-}
-
-function getSelectedModel() {
-  const select = document.getElementById("thumbModel");
-  const provider = select?.value || "";
-  return { provider };
-}
-
-function getSelectedAspectRatio() {
-  const select = document.getElementById("thumbAspectRatio");
-  return select?.value || "16:9";
-}
-
-function getActivePsychologyMode() {
-  const activeChip = document.querySelector('.psy-chip.active');
-  return activeChip ? activeChip.textContent.trim() : "Mystery";
-}
-
-function showGeneratedThumbnail(previewImage, imageUrl) {
-  return new Promise((resolve, reject) => {
-    if (!previewImage) {
-      reject(new Error("Preview image element is missing."));
+  if (currentSourceMode === 'url') {
+    if (!selectedYoutubeUrl) {
+      window.showToast("No URL Loaded", "Please load a valid YouTube URL first.", "warning");
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
       return;
     }
 
-    const placeholder = document.getElementById("thumbPlaceholder");
+    fetch('/api/analyze-thumbnail-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoUrl: selectedYoutubeUrl })
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.success || !data.data) {
+        throw new Error(data.error || "Vision analysis failed.");
+      }
 
-    previewImage.onload = () => {
-      if (placeholder) placeholder.style.display = "none";
-      previewImage.style.display = "block";
-      previewImage.onload = null;
-      previewImage.onerror = null;
-      resolve();
-    };
+      // Show the extracted base64 image on the URL preview node
+      const urlPreview = document.getElementById('urlThumbnailPreview');
+      if (urlPreview && data.extractedThumbnailUrl) {
+        urlPreview.src = data.extractedThumbnailUrl;
+      }
 
-    previewImage.onerror = () => {
-      previewImage.style.display = "none";
-      if (placeholder) placeholder.style.display = "flex";
-      previewImage.onload = null;
-      previewImage.onerror = null;
-      reject(new Error("The generated image did not load."));
-    };
+      const payload = data.data;
+      updateDnaPanel(payload);
+      showDetailedReport(payload);
+      
+      window.showToast("Audit Complete", "URL design audit report is ready!", "success");
+    })
+    .catch(error => {
+      console.error('[ThumbnailStudio] URL Analysis failed:', error);
+      window.showToast("Analysis Failed", error.message || "An error occurred during vision processing.", "error");
+      resetSidebarOnFail();
+    })
+    .finally(() => {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    });
 
-    previewImage.src = imageUrl;
-  });
-}
+  } else {
+    if (!selectedImageFile) {
+      window.showToast("No File Selected", "Please upload a thumbnail image or video.", "warning");
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+      return;
+    }
 
-function handleChipClick(chip) {
-  const chips = document.querySelectorAll(".psy-chip");
-  chips.forEach(c => c.classList.remove("active"));
-  chip.classList.add("active");
+    const formData = new FormData();
+    formData.append('thumbnailImage', selectedImageFile);
+
+    fetch('/api/analyze-thumbnail', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => response.json().then(data => ({ ok: response.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.success || !data.data) {
+        throw new Error(data.error || "Vision analysis failed.");
+      }
+
+      const payload = data.data;
+      updateDnaPanel(payload);
+      showDetailedReport(payload);
+      
+      window.showToast("Audit Complete", "Design audit report is ready!", "success");
+    })
+    .catch(error => {
+      console.error('[ThumbnailStudio] Analysis failed:', error);
+      window.showToast("Analysis Failed", error.message || "An error occurred during vision processing.", "error");
+      resetSidebarOnFail();
+    })
+    .finally(() => {
+      btn.innerHTML = originalHTML;
+      btn.disabled = false;
+    });
+  }
 }
 
 function setGeneratingState() {
-  const score = document.querySelector(".dna-score");
-  const status = document.querySelector(".dna-score-status");
-  const scoreBar = document.querySelector(".dna-bar-fill");
+  const score = document.getElementById("dnaScore");
+  const status = document.getElementById("dnaScoreStatus");
+  const scoreBar = document.getElementById("dnaScoreBar");
 
   if (score) score.textContent = "--/10";
-  if (status) status.textContent = "Generating";
+  if (status) status.textContent = "Analyzing...";
   if (scoreBar) {
     scoreBar.classList.add("empty");
     scoreBar.style.width = "0%";
   }
 }
 
+function resetSidebarOnFail() {
+  const status = document.getElementById("dnaScoreStatus");
+  if (status) status.textContent = "Failed";
+}
+
 function resetThumbnailDna() {
-  const score = document.querySelector(".dna-score");
-  const status = document.querySelector(".dna-score-status");
-  const scoreBar = document.querySelector(".dna-bar-fill");
-  const titles = document.querySelectorAll(".dna-title");
-  const descs = document.querySelectorAll(".dna-desc");
-  const archetype = document.querySelector(".dna-archetype");
-  const mobileScore = document.querySelector(".mobile-score");
-  const swatchesWrap = document.querySelector(".dna-swatches");
+  const score = document.getElementById("dnaScore");
+  const status = document.getElementById("dnaScoreStatus");
+  const scoreBar = document.getElementById("dnaScoreBar");
+  const attentionDesc = document.getElementById("dnaAttentionDesc");
+  const trigger = document.getElementById("dnaTrigger");
+  const triggerDesc = document.getElementById("dnaTriggerDesc");
+  const archetype = document.getElementById("dnaArchetype");
+  const swatchesWrap = document.getElementById("dnaSwatches");
+  const colorDesc = document.getElementById("dnaColorDesc");
+  const intentTitle = document.getElementById("dnaIntent");
+  const intentDesc = document.getElementById("dnaIntentDesc");
+  const eyeFlow = document.getElementById("dnaEyeFlow");
+  const mobileScore = document.getElementById("dnaMobileScore");
+  const mobileDesc = document.getElementById("dnaMobileDesc");
 
   if (score) score.textContent = "--/10";
-  if (status) status.textContent = "Awaiting concept";
+  if (status) status.textContent = "Awaiting upload";
   if (scoreBar) {
     scoreBar.classList.add("empty");
     scoreBar.style.width = "0%";
   }
-
-  titles.forEach(title => title.textContent = "--");
-  descs.forEach(desc => desc.textContent = "--");
-  if (descs[0]) descs[0].textContent = "Generate a thumbnail to calculate attention strength.";
+  if (attentionDesc) attentionDesc.textContent = "Upload design files or input YouTube link to perform vision AI audit analysis.";
+  if (trigger) trigger.textContent = "--";
+  if (triggerDesc) triggerDesc.textContent = "--";
   if (archetype) archetype.textContent = "--";
+  if (colorDesc) colorDesc.textContent = "--";
+  if (intentTitle) intentTitle.textContent = "--";
+  if (intentDesc) intentDesc.textContent = "--";
+  if (eyeFlow) eyeFlow.textContent = "--";
   if (mobileScore) mobileScore.textContent = "-- / 10";
+  if (mobileDesc) mobileDesc.textContent = "--";
   if (swatchesWrap) {
     swatchesWrap.innerHTML = [1, 2, 3, 4].map(() => '<div class="dna-swatch muted"></div>').join("");
   }
 }
 
-function updateDnaPanel(dna) {
-  const score = document.querySelector(".dna-score");
-  const status = document.querySelector(".dna-score-status");
-  const scoreBar = document.querySelector(".dna-bar-fill");
-  const titles = document.querySelectorAll(".dna-title");
-  const descriptions = document.querySelectorAll(".dna-desc");
-  const archetype = document.querySelector(".dna-archetype");
-  const mobileScore = document.querySelector(".mobile-score");
-  const swatchesWrap = document.querySelector(".dna-swatches");
+function getNestedValue(obj, paths, fallback = "--") {
+  for (const path of paths) {
+    const parts = path.split('.');
+    let current = obj;
+    for (const part of parts) {
+      if (current && typeof current === 'object' && part in current) {
+        current = current[part];
+      } else {
+        current = null;
+        break;
+      }
+    }
+    if (current !== null && current !== undefined && current !== "") {
+      return current;
+    }
+  }
+  return fallback;
+}
 
-  if (score) score.textContent = dna.score || "--/10";
-  if (status) status.textContent = dna.scoreStatus || "Analyzed";
+function updateDnaPanel(payload) {
+  const analysis = payload.analysis || {};
+  
+  const score = document.getElementById("dnaScore");
+  const status = document.getElementById("dnaScoreStatus");
+  const scoreBar = document.getElementById("dnaScoreBar");
+  const attentionDesc = document.getElementById("dnaAttentionDesc");
+
+  const urgency = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.urgency', 'emotional_register.urgency'], 5));
+  const trust = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.trust', 'emotional_register.trust'], 5));
+  const excitement = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.excitement', 'emotional_register.excitement'], 5));
+  
+  const compositeScore = Math.round(((urgency + trust + excitement) / 3) * 10) / 10;
+  
+  if (score) score.textContent = `${compositeScore}/10`;
+  
+  let scoreStatusText = "Average";
+  if (compositeScore >= 8) scoreStatusText = "Excellent";
+  else if (compositeScore >= 6) scoreStatusText = "Strong";
+  else if (compositeScore < 4) scoreStatusText = "Weak";
+
+  if (status) {
+    status.textContent = scoreStatusText;
+    status.style.color = (compositeScore >= 8) ? "#10b981" : ((compositeScore >= 6) ? "#b89ffd" : "#ef4444");
+  }
+
   if (scoreBar) {
     scoreBar.classList.remove("empty");
-    scoreBar.style.width = dna.scoreWidth || "0%";
+    scoreBar.style.width = `${compositeScore * 10}%`;
   }
 
-  if (titles[0]) titles[0].textContent = dna.trigger || "--";
-  if (titles[1]) titles[1].textContent = dna.intent || "--";
-  if (archetype) archetype.textContent = dna.archetype || "--";
+  if (attentionDesc) {
+    attentionDesc.textContent = `Overall thumbnail optimization is ${scoreStatusText.toLowerCase()}. Visual parameters analyzed successfully.`;
+  }
 
-  if (descriptions[0]) descriptions[0].textContent = dna.description || "--";
-  if (descriptions[1]) descriptions[1].textContent = dna.description || "--";
-  if (descriptions[2]) descriptions[2].textContent = dna.colorDesc || "--";
-  if (descriptions[3]) descriptions[3].textContent = dna.intentDesc || "--";
-  if (descriptions[4]) descriptions[4].textContent = dna.eyeFlow || "--";
-  if (descriptions[5]) descriptions[5].textContent = dna.mobileDesc || "Subject separation and contrast are estimated from the thumbnail brief.";
+  const triggerTitle = document.getElementById("dnaTrigger");
+  const triggerDesc = document.getElementById("dnaTriggerDesc");
+  const primaryTrigger = getNestedValue(analysis, ['mood_and_trigger.primary_trigger', 'psychological_trigger']);
+  const actionIntent = getNestedValue(analysis, ['mood_and_trigger.viewer_action_intent', 'viewer_action_intent']);
+  
+  if (triggerTitle) triggerTitle.textContent = primaryTrigger;
+  if (triggerDesc) triggerDesc.textContent = actionIntent;
 
-  if (mobileScore) mobileScore.textContent = dna.mobileScore || "-- / 10";
-  if (swatchesWrap && Array.isArray(dna.swatches)) {
-    swatchesWrap.innerHTML = dna.swatches.map(color => `
-      <div class="dna-swatch" style="background:${color}"></div>
+  const dnaArchetype = document.getElementById("dnaArchetype");
+  const layoutPattern = getNestedValue(analysis, ['composition.layout_pattern', 'scene.framing']);
+  if (dnaArchetype) dnaArchetype.textContent = layoutPattern;
+
+  const swatchesWrap = document.getElementById("dnaSwatches");
+  const colorDesc = document.getElementById("dnaColorDesc");
+  const dominantBg = getNestedValue(analysis, ['color_palette.dominant_bg', 'colors.dominant']);
+  const accentsList = getNestedValue(analysis, ['color_palette.accents', 'colors.accent']);
+  const accentsArr = Array.isArray(accentsList) ? accentsList : (typeof accentsList === 'string' ? [accentsList] : []);
+  const textColorStr = getNestedValue(analysis, ['color_palette.text_color', 'colors.text_color']);
+  const colorTemp = getNestedValue(analysis, ['color_palette.temp', 'mood']);
+  const contrastLevel = getNestedValue(analysis, ['color_palette.contrast', 'colors.contrast']);
+  
+  if (swatchesWrap) {
+    const dominant = dominantBg !== "--" ? dominantBg : "#ccc";
+    const accents = accentsArr.length > 0 ? accentsArr : [];
+    const textCol = textColorStr !== "--" ? textColorStr : "#fff";
+    
+    const allColors = [dominant, ...accents, textCol].filter(Boolean).slice(0, 4);
+    swatchesWrap.innerHTML = allColors.map(color => `
+      <div class="dna-swatch" style="background:${color}" title="${color}"></div>
     `).join("");
   }
+  if (colorDesc) {
+    colorDesc.textContent = `Palette style is ${colorTemp} with ${contrastLevel} contrast.`;
+  }
+
+  const intentTitle = document.getElementById("dnaIntent");
+  const intentDesc = document.getElementById("dnaIntentDesc");
+  if (intentTitle) intentTitle.textContent = primaryTrigger;
+  if (intentDesc) intentDesc.textContent = actionIntent;
+
+  const eyeFlow = document.getElementById("dnaEyeFlow");
+  const elementHierarchy = getNestedValue(analysis, ['composition.element_hierarchy', 'composition.hierarchy_flow']);
+  if (eyeFlow) eyeFlow.textContent = elementHierarchy;
+
+  const mobileScore = document.getElementById("dnaMobileScore");
+  const mobileDesc = document.getElementById("dnaMobileDesc");
+  const textSizeVal = getNestedValue(analysis, ['typography.size', 'text_overlay.size']);
+  const textPosVal = getNestedValue(analysis, ['typography.position', 'text_overlay.position']);
+  
+  let sizeScore = 7;
+  const rawSize = String(textSizeVal).toLowerCase();
+  if (rawSize.includes("dominant") || rawSize.includes("large")) sizeScore = 9;
+  else if (rawSize.includes("medium")) sizeScore = 7;
+  else if (rawSize.includes("small")) sizeScore = 4;
+  
+  if (mobileScore) mobileScore.textContent = `${sizeScore} / 10`;
+  if (mobileDesc) {
+    mobileDesc.textContent = `Font size is ${textSizeVal} placed at ${textPosVal}.`;
+  }
 }
+
+function showDetailedReport(payload) {
+  const analysis = payload.analysis || {};
+
+  setTextContent("valCompositionPattern", getNestedValue(analysis, ['composition.layout_pattern', 'scene.framing']));
+  setTextContent("valCompositionFraming", getNestedValue(analysis, ['composition.framing', 'scene.framing']));
+  setTextContent("valCompositionThirds", getNestedValue(analysis, ['composition.rule_of_thirds']));
+  setTextContent("valCompositionHierarchy", getNestedValue(analysis, ['composition.element_hierarchy', 'composition.hierarchy_flow']));
+
+  setTextContent("valSubjectDesc", getNestedValue(analysis, ['subject.description', 'subject.desc']));
+  setTextContent("valSubjectExpression", getNestedValue(analysis, ['subject.expression']));
+  setTextContent("valSubjectGestures", getNestedValue(analysis, ['subject.body_language', 'subject.gesture']));
+  setTextContent("valSubjectClothing", getNestedValue(analysis, ['subject.clothing']));
+
+  setTextContent("valTextContent", getNestedValue(analysis, ['typography.text_visible', 'text_overlay.content']));
+  setTextContent("valFontStyle", getNestedValue(analysis, ['typography.font_style', 'text_overlay.style']));
+  setTextContent("valFontSize", getNestedValue(analysis, ['typography.size', 'text_overlay.size']));
+  setTextContent("valTextPosition", getNestedValue(analysis, ['typography.position', 'text_overlay.position']));
+
+  setTextContent("valLightingStyle", getNestedValue(analysis, ['lighting.style', 'lighting']));
+  setTextContent("valLightingDirection", getNestedValue(analysis, ['lighting.direction']));
+  setTextContent("valLightingShadows", getNestedValue(analysis, ['lighting.shadows']));
+  setTextContent("valLightingDof", getNestedValue(analysis, ['lighting.depth_of_field', 'scene.depth']));
+
+  setTextContent("valTriggerType", getNestedValue(analysis, ['mood_and_trigger.primary_trigger', 'psychological_trigger']));
+  setTextContent("valViewerIntent", getNestedValue(analysis, ['mood_and_trigger.viewer_action_intent', 'viewer_action_intent']));
+  setTextContent("valColorTemp", getNestedValue(analysis, ['color_palette.temp', 'mood']));
+  setTextContent("valContrastLevel", getNestedValue(analysis, ['color_palette.contrast', 'colors.contrast']));
+
+  setTextContent("promptPlainText", payload.prompt_plain);
+  setTextContent("promptImageGenText", payload.generation_prompt);
+  
+  const jsonText = document.getElementById("promptJsonText");
+  if (jsonText) {
+    jsonText.textContent = JSON.stringify(payload.prompt_json, null, 2);
+  }
+
+  const variationsContainer = document.getElementById("variationsContainer");
+  if (variationsContainer && Array.isArray(payload.adjacent_variants)) {
+    variationsContainer.innerHTML = payload.adjacent_variants.map((variant, idx) => `
+      <div class="dna-card" style="background: #0f0b1a; border: 1px solid rgba(255, 255, 255, 0.08); border-left: 4px solid #7c5cff; box-shadow: var(--shadow-sm);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span class="dna-label" style="color: #7c5cff;">${variant.label || `Variation ${idx + 1}`}</span>
+          <button class="copy-prompt-btn" onclick="copyText('promptVariant${idx}')">
+            <i class="fa-regular fa-copy"></i> Copy
+          </button>
+        </div>
+        <p id="promptVariant${idx}" style="font-size: 14.5px; font-weight: 600; color: #ffffff; line-height: 1.5; margin-top: 8px;">${variant.prompt}</p>
+      </div>
+    `).join("");
+  }
+
+  const resultsContainer = document.getElementById("analysisResults");
+  if (resultsContainer) {
+    resultsContainer.style.display = "block";
+    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+function setTextContent(elementId, value) {
+  const el = document.getElementById(elementId);
+  if (el) el.textContent = value || "--";
+}
+
+window.switchAnalysisTab = function(tabId) {
+  const tabs = document.querySelectorAll('.analysis-tab-btn');
+  const contents = document.querySelectorAll('.analysis-tab-content');
+  
+  tabs.forEach(tab => {
+    // Only toggle the audit tabs (exclude the media source upload tabs)
+    if (tab.id.startsWith('btnTab')) {
+      if (tab.getAttribute('onclick').includes(tabId)) {
+        tab.classList.add('active');
+        tab.style.color = '#ffffff';
+      } else {
+        tab.classList.remove('active');
+        tab.style.color = '#8b8894';
+      }
+    }
+  });
+  
+  contents.forEach(content => {
+    if (content.id === `tab-${tabId}`) {
+      content.style.display = 'block';
+    } else {
+      content.style.display = 'none';
+    }
+  });
+};
+
+window.copyText = function(elementId) {
+  const el = document.getElementById(elementId);
+  if (!el) return;
+  const text = el.innerText || el.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    window.showToast("Copied to Clipboard", "Copied successfully!", "success");
+  }).catch(err => {
+    window.showToast("Copy Failed", err.message, "error");
+  });
+};
