@@ -319,7 +319,7 @@ router.post("/analyze", async (req, res) => {
     const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: "You are a specialized AI that only outputs valid JSON. You always provide exactly 5 hooks." },
           { role: "user", content: prompt }
@@ -389,7 +389,7 @@ Return ONLY valid JSON:
     const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: "You are a hook generation API. Return only valid JSON." },
           { role: "user", content: prompt }
@@ -465,7 +465,7 @@ Return ONLY valid JSON with this exact structure:
     const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: "You are a hook testing API. Return only valid JSON and be strict, concise, and practical." },
           { role: "user", content: prompt }
@@ -557,7 +557,7 @@ Return ONLY valid JSON:
     const response = await axios.post(
       "https://api.groq.com/openai/v1/chat/completions",
       {
-        model: "llama-3.3-70b-versatile",
+        model: "llama-3.1-8b-instant",
         messages: [
           { role: "system", content: "You are a script testing API. Return only valid JSON and score the supplied script only." },
           { role: "user", content: prompt }
@@ -652,12 +652,12 @@ router.post("/api/script/generate", requireApiAuth, async (req, res) => {
 
     try {
       const prompts = buildHumanStorytellingEngine(req.body);
-      console.log("Generating storytelling script with Groq API (llama-3.3-70b-versatile)...");
+      console.log("Generating storytelling script with Groq API (llama-3.1-8b-instant)...");
       
       const response = await axios.post(
         "https://api.groq.com/openai/v1/chat/completions",
         {
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
           messages: [
             { role: "system", content: prompts.systemPrompt },
             { role: "user", content: prompts.userPrompt }
@@ -682,7 +682,7 @@ router.post("/api/script/generate", requireApiAuth, async (req, res) => {
         script,
         metadata: {
           type,
-          model: "llama-3.3-70b-versatile",
+          model: "llama-3.1-8b-instant",
           wordCount,
           estimatedDuration,
           sectionsMatch: true
@@ -737,8 +737,8 @@ router.post("/api/script/generate", requireApiAuth, async (req, res) => {
     userPrompt = prompts.userPrompt;
   }
 
-  const primaryModel = "llama-3.3-70b-versatile";
-  const fallbackModel = "llama3-8b-8192";
+  const primaryModel = "llama-3.1-8b-instant";
+  const fallbackModel = "llama-3.3-70b-versatile";
 
   const makeRequest = async (model) => {
     return await axios.post(

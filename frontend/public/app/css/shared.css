@@ -164,7 +164,7 @@ h6,
 }
 
 .sidebar.collapsed {
-  width: 52px;
+  width: 60px;
 }
 
 /* Header */
@@ -172,8 +172,9 @@ h6,
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 16px;
-  border-bottom: 1px solid rgba(20, 20, 25, 0.05);
+  padding: 12px 12px;
+  margin-top: -7px;
+  border-bottom: 1px solid rgb(160, 155, 155);
   flex-shrink: 0;
 }
 

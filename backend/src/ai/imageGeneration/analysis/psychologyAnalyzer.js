@@ -9,7 +9,7 @@ async function analyzeThumbnailConcept(prompt, selectedModel, selectedAspectRati
         const groqRes = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
             {
-                model: "llama-3.3-70b-versatile",
+                model: "llama-3.1-8b-instant",
                 messages: [
                     { role: "system", content: DNA_SYSTEM_PROMPT },
                     { role: "user", content: `Thumbnail concept: ${prompt}\nPsychology mode/model hint: ${selectedModel}\nAspect ratio: ${selectedAspectRatio}` }

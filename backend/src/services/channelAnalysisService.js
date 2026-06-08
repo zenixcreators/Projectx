@@ -3,7 +3,7 @@ const youtubeService = require("./youtubeService");
 const channelMetricsService = require("./channelMetricsService");
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
-const MODEL_NAME = "llama-3.3-70b-versatile";
+const MODEL_NAME = "llama-3.1-8b-instant";
 
 /**
  * Sends metrics and channel meta to Groq to generate a professional analysis report
