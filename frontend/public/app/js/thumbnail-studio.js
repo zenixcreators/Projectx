@@ -6,6 +6,27 @@ let selectedImageFile = null;
 let selectedYoutubeUrl = null;
 let currentSourceMode = 'upload'; // 'upload' or 'url'
 
+function fetchWithTimeout(url, options = {}, timeoutMs = 50000) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+
+  return fetch(url, {
+    ...options,
+    signal: controller.signal
+  })
+    .then(response => {
+      clearTimeout(id);
+      return response;
+    })
+    .catch(error => {
+      clearTimeout(id);
+      if (error.name === 'AbortError') {
+        throw new Error("Request timed out. The upload is taking longer than expected. Please verify your internet connection speed and try again.");
+      }
+      throw error;
+    });
+}
+
 // Initialize listeners on load & dynamic reload
 document.addEventListener('creo:partials-loaded', initThumbnailStudio);
 
@@ -19,7 +40,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 function initThumbnailStudio() {
   resetAll();
   initUploadListeners();
-  
+
   const analyzeBtn = document.getElementById('analyzeBtn');
   if (analyzeBtn) {
     const newBtn = analyzeBtn.cloneNode(true);
@@ -58,7 +79,7 @@ function initUploadListeners() {
     e.preventDefault();
     dropzone.style.borderColor = 'rgba(255, 255, 255, 0.08)';
     dropzone.style.background = '';
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFileSelected(e.dataTransfer.files[0]);
     }
@@ -80,7 +101,7 @@ function initUploadListeners() {
   }
 }
 
-window.switchMediaSource = function(mode) {
+window.switchMediaSource = function (mode) {
   if (mode === currentSourceMode) return;
   currentSourceMode = mode;
 
@@ -94,7 +115,7 @@ window.switchMediaSource = function(mode) {
     btnUpload.style.color = '#ffffff';
     btnUrl.classList.remove('active');
     btnUrl.style.color = '#a7a4ae';
-    
+
     uploadPanel.style.display = 'block';
     urlPanel.style.display = 'none';
   } else {
@@ -102,15 +123,15 @@ window.switchMediaSource = function(mode) {
     btnUrl.style.color = '#ffffff';
     btnUpload.classList.remove('active');
     btnUpload.style.color = '#a7a4ae';
-    
+
     urlPanel.style.display = 'block';
     uploadPanel.style.display = 'none';
   }
-  
+
   resetAll();
 };
 
-window.loadYoutubeThumbnail = function() {
+window.loadYoutubeThumbnail = function () {
   const urlInput = document.getElementById('ytVideoUrl');
   const preview = document.getElementById('urlThumbnailPreview');
   const form = document.getElementById('urlInputForm');
@@ -136,7 +157,7 @@ window.loadYoutubeThumbnail = function() {
 
   // Use maxresdefault for clean, high-fidelity UI preview
   const imageUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-  
+
   if (preview && form) {
     preview.onload = () => {
       form.style.display = 'none';
@@ -144,7 +165,7 @@ window.loadYoutubeThumbnail = function() {
       if (analyzeBtn) analyzeBtn.disabled = false;
       if (resetBtn) resetBtn.style.display = 'block';
     };
-    
+
     preview.onerror = () => {
       // Fallback to hqdefault
       preview.src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -166,7 +187,7 @@ function handleFileSelected(file) {
 
   if (file.type.startsWith('video/')) {
     window.showToast("Extracting Frame", "Reading video file to capture a thumbnail frame...", "info");
-    
+
     if (placeholder) {
       const textSpan = placeholder.querySelector('span:first-of-type');
       const subtextSpan = placeholder.querySelector('span:last-of-type');
@@ -183,11 +204,11 @@ function handleFileSelected(file) {
     video.src = URL.createObjectURL(file);
     video.muted = true;
     video.playsInline = true;
-    
+
     video.onloadeddata = () => {
       video.currentTime = Math.min(1.0, video.duration / 2);
     };
-    
+
     video.onseeked = () => {
       try {
         const canvas = document.createElement('canvas');
@@ -195,12 +216,12 @@ function handleFileSelected(file) {
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
+
         canvas.toBlob((blob) => {
           if (blob) {
             const imageFile = new File([blob], "extracted_frame.jpg", { type: "image/jpeg" });
             selectedImageFile = imageFile;
-            
+
             const reader = new FileReader();
             reader.onload = (e) => {
               if (preview) {
@@ -212,7 +233,7 @@ function handleFileSelected(file) {
               if (resetBtn) resetBtn.style.display = 'block';
             };
             reader.readAsDataURL(imageFile);
-            
+
             window.showToast("Video Frame Loaded", "Successfully captured video frame for vision audit!", "success");
           }
         }, 'image/jpeg');
@@ -267,16 +288,20 @@ function resetAll() {
   const urlPreview = document.getElementById('urlThumbnailPreview');
   const placeholder = document.getElementById('thumbPlaceholder');
   const urlForm = document.getElementById('urlInputForm');
-  
+
   const analyzeBtn = document.getElementById('analyzeBtn');
   const resetBtn = document.getElementById('resetBtn');
   const resultsContainer = document.getElementById('analysisResults');
 
   if (preview) {
+    preview.onload = null;
+    preview.onerror = null;
     preview.src = '';
     preview.style.display = 'none';
   }
   if (urlPreview) {
+    urlPreview.onload = null;
+    urlPreview.onerror = null;
     urlPreview.src = '';
     urlPreview.style.display = 'none';
   }
@@ -321,38 +346,42 @@ function handleAnalyzeClick(btn) {
       return;
     }
 
-    fetch('/api/analyze-thumbnail-url', {
+    fetchWithTimeout('/api/analyze-thumbnail-url', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ videoUrl: selectedYoutubeUrl })
     })
-    .then(response => response.json().then(data => ({ ok: response.ok, data })))
-    .then(({ ok, data }) => {
-      if (!ok || !data.success || !data.data) {
-        throw new Error(data.error || "Vision analysis failed.");
-      }
+      .then(response => response.json().then(data => ({ ok: response.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok || !data.success || !data.data) {
+          throw new Error(data.error || "Vision analysis failed.");
+        }
 
-      // Show the extracted base64 image on the URL preview node
-      const urlPreview = document.getElementById('urlThumbnailPreview');
-      if (urlPreview && data.extractedThumbnailUrl) {
-        urlPreview.src = data.extractedThumbnailUrl;
-      }
+        // Show the extracted base64 image on the URL preview node
+        const urlPreview = document.getElementById('urlThumbnailPreview');
+        if (urlPreview && data.extractedThumbnailUrl) {
+          urlPreview.src = data.extractedThumbnailUrl;
+        }
 
-      const payload = data.data;
-      updateDnaPanel(payload);
-      showDetailedReport(payload);
-      
-      window.showToast("Audit Complete", "URL design audit report is ready!", "success");
-    })
-    .catch(error => {
-      console.error('[ThumbnailStudio] URL Analysis failed:', error);
-      window.showToast("Analysis Failed", error.message || "An error occurred during vision processing.", "error");
-      resetSidebarOnFail();
-    })
-    .finally(() => {
-      btn.innerHTML = originalHTML;
-      btn.disabled = false;
-    });
+        const payload = data.data;
+        updateDnaPanel(payload);
+        showDetailedReport(payload);
+
+        window.showToast("Audit Complete", "URL design audit report is ready!", "success");
+      })
+      .catch(error => {
+        console.error('[ThumbnailStudio] URL Analysis failed:', error);
+        let userFriendlyMsg = error.message || "An error occurred during vision processing.";
+        if (error.message.includes("Failed to fetch") || error.name === "TypeError") {
+          userFriendlyMsg = "Network connection failed. Please check if your computer is online and try again.";
+        }
+        window.showToast("Analysis Failed", userFriendlyMsg, "error");
+        resetSidebarOnFail();
+      })
+      .finally(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      });
 
   } else {
     if (!selectedImageFile) {
@@ -365,31 +394,35 @@ function handleAnalyzeClick(btn) {
     const formData = new FormData();
     formData.append('thumbnailImage', selectedImageFile);
 
-    fetch('/api/analyze-thumbnail', {
+    fetchWithTimeout('/api/analyze-thumbnail', {
       method: 'POST',
       body: formData
     })
-    .then(response => response.json().then(data => ({ ok: response.ok, data })))
-    .then(({ ok, data }) => {
-      if (!ok || !data.success || !data.data) {
-        throw new Error(data.error || "Vision analysis failed.");
-      }
+      .then(response => response.json().then(data => ({ ok: response.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok || !data.success || !data.data) {
+          throw new Error(data.error || "Vision analysis failed.");
+        }
 
-      const payload = data.data;
-      updateDnaPanel(payload);
-      showDetailedReport(payload);
-      
-      window.showToast("Audit Complete", "Design audit report is ready!", "success");
-    })
-    .catch(error => {
-      console.error('[ThumbnailStudio] Analysis failed:', error);
-      window.showToast("Analysis Failed", error.message || "An error occurred during vision processing.", "error");
-      resetSidebarOnFail();
-    })
-    .finally(() => {
-      btn.innerHTML = originalHTML;
-      btn.disabled = false;
-    });
+        const payload = data.data;
+        updateDnaPanel(payload);
+        showDetailedReport(payload);
+
+        window.showToast("Audit Complete", "Design audit report is ready!", "success");
+      })
+      .catch(error => {
+        console.error('[ThumbnailStudio] Analysis failed:', error);
+        let userFriendlyMsg = error.message || "An error occurred during vision processing.";
+        if (error.message.includes("Failed to fetch") || error.name === "TypeError") {
+          userFriendlyMsg = "Network connection failed. Please check if your computer is online and try again.";
+        }
+        window.showToast("Analysis Failed", userFriendlyMsg, "error");
+        resetSidebarOnFail();
+      })
+      .finally(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      });
   }
 }
 
@@ -469,7 +502,7 @@ function getNestedValue(obj, paths, fallback = "--") {
 
 function updateDnaPanel(payload) {
   const analysis = payload.analysis || {};
-  
+
   const score = document.getElementById("dnaScore");
   const status = document.getElementById("dnaScoreStatus");
   const scoreBar = document.getElementById("dnaScoreBar");
@@ -478,11 +511,11 @@ function updateDnaPanel(payload) {
   const urgency = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.urgency', 'emotional_register.urgency'], 5));
   const trust = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.trust', 'emotional_register.trust'], 5));
   const excitement = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.excitement', 'emotional_register.excitement'], 5));
-  
+
   const compositeScore = Math.round(((urgency + trust + excitement) / 3) * 10) / 10;
-  
+
   if (score) score.textContent = `${compositeScore}/10`;
-  
+
   let scoreStatusText = "Average";
   if (compositeScore >= 8) scoreStatusText = "Excellent";
   else if (compositeScore >= 6) scoreStatusText = "Strong";
@@ -506,7 +539,7 @@ function updateDnaPanel(payload) {
   const triggerDesc = document.getElementById("dnaTriggerDesc");
   const primaryTrigger = getNestedValue(analysis, ['mood_and_trigger.primary_trigger', 'psychological_trigger']);
   const actionIntent = getNestedValue(analysis, ['mood_and_trigger.viewer_action_intent', 'viewer_action_intent']);
-  
+
   if (triggerTitle) triggerTitle.textContent = primaryTrigger;
   if (triggerDesc) triggerDesc.textContent = actionIntent;
 
@@ -522,12 +555,12 @@ function updateDnaPanel(payload) {
   const textColorStr = getNestedValue(analysis, ['color_palette.text_color', 'colors.text_color']);
   const colorTemp = getNestedValue(analysis, ['color_palette.temp', 'mood']);
   const contrastLevel = getNestedValue(analysis, ['color_palette.contrast', 'colors.contrast']);
-  
+
   if (swatchesWrap) {
     const dominant = dominantBg !== "--" ? dominantBg : "#ccc";
     const accents = accentsArr.length > 0 ? accentsArr : [];
     const textCol = textColorStr !== "--" ? textColorStr : "#fff";
-    
+
     const allColors = [dominant, ...accents, textCol].filter(Boolean).slice(0, 4);
     swatchesWrap.innerHTML = allColors.map(color => `
       <div class="dna-swatch" style="background:${color}" title="${color}"></div>
@@ -550,13 +583,13 @@ function updateDnaPanel(payload) {
   const mobileDesc = document.getElementById("dnaMobileDesc");
   const textSizeVal = getNestedValue(analysis, ['typography.size', 'text_overlay.size']);
   const textPosVal = getNestedValue(analysis, ['typography.position', 'text_overlay.position']);
-  
+
   let sizeScore = 7;
   const rawSize = String(textSizeVal).toLowerCase();
   if (rawSize.includes("dominant") || rawSize.includes("large")) sizeScore = 9;
   else if (rawSize.includes("medium")) sizeScore = 7;
   else if (rawSize.includes("small")) sizeScore = 4;
-  
+
   if (mobileScore) mobileScore.textContent = `${sizeScore} / 10`;
   if (mobileDesc) {
     mobileDesc.textContent = `Font size is ${textSizeVal} placed at ${textPosVal}.`;
@@ -593,7 +626,7 @@ function showDetailedReport(payload) {
 
   setTextContent("promptPlainText", payload.prompt_plain);
   setTextContent("promptImageGenText", payload.generation_prompt);
-  
+
   const jsonText = document.getElementById("promptJsonText");
   if (jsonText) {
     jsonText.textContent = JSON.stringify(payload.prompt_json, null, 2);
@@ -602,14 +635,14 @@ function showDetailedReport(payload) {
   const variationsContainer = document.getElementById("variationsContainer");
   if (variationsContainer && Array.isArray(payload.adjacent_variants)) {
     variationsContainer.innerHTML = payload.adjacent_variants.map((variant, idx) => `
-      <div class="dna-card" style="background: #0f0b1a; border: 1px solid rgba(255, 255, 255, 0.08); border-left: 4px solid #7c5cff; box-shadow: var(--shadow-sm);">
+      <div class="dna-card prompt-card">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span class="dna-label" style="color: #7c5cff;">${variant.label || `Variation ${idx + 1}`}</span>
+          <span class="dna-label">${variant.label || `Variation ${idx + 1}`}</span>
           <button class="copy-prompt-btn" onclick="copyText('promptVariant${idx}')">
             <i class="fa-regular fa-copy"></i> Copy
           </button>
         </div>
-        <p id="promptVariant${idx}" style="font-size: 14.5px; font-weight: 600; color: #ffffff; line-height: 1.5; margin-top: 8px;">${variant.prompt}</p>
+        <p id="promptVariant${idx}" class="prompt-text-block" style="font-weight: 600;">${variant.prompt}</p>
       </div>
     `).join("");
   }
@@ -617,7 +650,6 @@ function showDetailedReport(payload) {
   const resultsContainer = document.getElementById("analysisResults");
   if (resultsContainer) {
     resultsContainer.style.display = "block";
-    resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
@@ -626,14 +658,15 @@ function setTextContent(elementId, value) {
   if (el) el.textContent = value || "--";
 }
 
-window.switchAnalysisTab = function(tabId) {
+window.switchAnalysisTab = function (tabId) {
   const tabs = document.querySelectorAll('.analysis-tab-btn');
   const contents = document.querySelectorAll('.analysis-tab-content');
-  
+
   tabs.forEach(tab => {
     // Only toggle the audit tabs (exclude the media source upload tabs)
     if (tab.id.startsWith('btnTab')) {
-      if (tab.getAttribute('onclick').includes(tabId)) {
+      const onclickAttr = tab.getAttribute('onclick') || '';
+      if (onclickAttr.includes(tabId)) {
         tab.classList.add('active');
         tab.style.color = '#ffffff';
       } else {
@@ -642,7 +675,7 @@ window.switchAnalysisTab = function(tabId) {
       }
     }
   });
-  
+
   contents.forEach(content => {
     if (content.id === `tab-${tabId}`) {
       content.style.display = 'block';
@@ -652,7 +685,7 @@ window.switchAnalysisTab = function(tabId) {
   });
 };
 
-window.copyText = function(elementId) {
+window.copyText = function (elementId) {
   const el = document.getElementById(elementId);
   if (!el) return;
   const text = el.innerText || el.textContent;
