@@ -1,4 +1,4 @@
-# 🌌 Aurora — Nexus Creator Studio
+# 🌌 Creo Studio
 > The Elite AI-Powered Workspace & Competitor Intelligence Suite for Modern Digital Creators.
 
 Aurora is a state-of-the-art, full-stack creator suite engineered specifically to help digital video creators, vloggers, and growth marketers script, translate, analyze, and outperform their competition. Combining a matte-ivory glass-morphic SPA shell, lightning-fast Llama-3 AI strategy crunching, and dedicated video intelligence pipelines, Aurora turns raw competitor data into actionable, high-growth playbooks.
