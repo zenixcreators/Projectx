@@ -115,6 +115,18 @@ const ChannelReportSchema = new mongoose.Schema({
   },
   thumbnailStrategy: {
     type: String
+  },
+  scriptLogic: {
+    type: String
+  },
+  postingSchedule: {
+    type: String
+  },
+  thumbnailPsychology: {
+    type: String
+  },
+  engagementSummary: {
+    type: String
   }
 }, {
   timestamps: true

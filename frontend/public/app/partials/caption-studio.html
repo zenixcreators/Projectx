@@ -1,6 +1,15 @@
 <section id="caption-view" class="view-section">
   <div class="caption-studio-layout">
 
+    <!-- Top error banner -->
+    <div class="caption-error-banner" id="captionErrorBanner" style="display:none;">
+      <div class="error-banner-content">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="captionErrorMsg"></span>
+      </div>
+      <button class="error-banner-close" onclick="hideCaptionError()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
     <!-- Output Canvas (Enhanced for YouTube/Video preview) -->
     <div class="caption-canvas" id="captionCanvas">
       <div class="canvas-empty-state" id="canvasEmpty">
@@ -40,6 +49,32 @@
               <div class="preview-placeholder">
                 <i class="fa-brands fa-youtube"></i>
                 <span>Video Preview</span>
+              </div>
+            </div>
+
+            <!-- Video Captions Export & Burning Panel -->
+            <div class="burn-actions-panel" id="burnActionsPanel" style="display:none; margin-top: 20px;">
+              <div class="burn-panel-title">Video Captions Export</div>
+              <div class="burn-buttons-row">
+                <button class="burn-action-btn secondary" onclick="downloadActiveCaption()">
+                  <i class="fa-solid fa-download"></i> Download Captions
+                </button>
+                <button class="burn-action-btn primary" id="burnVideoBtn" onclick="burnCaptionsE2E()">
+                  <i class="fa-solid fa-fire"></i> Burn onto Video
+                </button>
+              </div>
+              
+              <!-- Progress Indicator -->
+              <div class="burn-progress-container" id="burnProgress" style="display:none; margin-top: 15px;">
+                <div class="burn-progress-bar">
+                  <div class="burn-progress-fill" id="burnProgressFill" style="width: 0%;"></div>
+                </div>
+                <div class="burn-progress-status" id="burnProgressStatus">Processing video...</div>
+              </div>
+
+              <!-- Error Alert Banner -->
+              <div class="burn-error-banner" id="burnErrorBanner" style="display:none; margin-top: 12px; padding: 12px; border-radius: var(--radius-sm); background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.15); color: var(--red); font-size: 12.5px;">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span id="burnErrorMsg">Failed to burn captions.</span>
               </div>
             </div>
           </div>
@@ -131,10 +166,64 @@
         </div>
       </div>
 
+      <!-- Style & Input Language Selector Row -->
+      <div class="composer-options-row">
+        <!-- Spoken/Input Language Dropdown -->
+        <div class="option-section">
+          <label class="studio-label" for="captionLanguage">Spoken Language</label>
+          <div class="select-wrapper">
+            <select id="captionLanguage" class="studio-select">
+              <option value="auto">Auto Detect</option>
+              <option value="te">Telugu</option>
+              <option value="ta">Tamil</option>
+              <option value="hi">Hindi</option>
+              <option value="ml">Malayalam</option>
+              <option value="kn">Kannada</option>
+              <option value="bn">Bengali</option>
+              <option value="en">English</option>
+              <option value="tenglish">Tenglish (Telugu + English)</option>
+            </select>
+            <i class="fa-solid fa-chevron-down select-chevron"></i>
+          </div>
+        </div>
+
+        <div class="v-divider-studio"></div>
+
+        <!-- Caption Style Selector -->
+        <div class="option-section style-group-section">
+          <label class="studio-label">Caption Style Template</label>
+          <div class="style-pills">
+            <button class="style-pill-btn active" data-style="hormozi" onclick="selectCaptionStyle('hormozi', this)">
+              Hormozi
+            </button>
+            <button class="style-pill-btn" data-style="viral" onclick="selectCaptionStyle('viral', this)">
+              Viral Shorts
+            </button>
+            <button class="style-pill-btn" data-style="subtitle" onclick="selectCaptionStyle('subtitle', this)">
+              Subtitle
+            </button>
+            <button class="style-pill-btn" data-style="cinematic" onclick="selectCaptionStyle('cinematic', this)">
+              Cinematic
+            </button>
+          </div>
+        </div>
+      </div>
+
+
       <!-- Bottom: Unified Studio Control Bar -->
       <div class="composer-footer-unified">
 
-        <!-- Left: Languages Selection -->
+        <!-- Left: Action (Generate Button) -->
+        <div class="footer-action-section">
+          <button class="studio-generate-btn-v2" id="genBtn" onclick="generateCaptions()">
+            <i class="fa-solid fa-paper-plane"></i>
+            <span>Generate</span>
+          </button>
+        </div>
+
+        <div class="v-divider-studio"></div>
+
+        <!-- Center-Left: Languages Selection -->
         <div class="footer-section">
           <label class="studio-label">Languages</label>
           <div class="lang-selector-studio-v2">
@@ -151,7 +240,7 @@
 
         <div class="v-divider-studio"></div>
 
-        <!-- Center: Format -->
+        <!-- Center-Right: Format -->
         <div class="footer-section" aria-disabled="false">
           <label class="studio-label">Format</label>
           <div class="format-pills">
@@ -162,11 +251,6 @@
           </div>
         </div>
 
-        <!-- Right: Action -->
-        <button class="studio-generate-btn-v2" id="genBtn" onclick="generateCaptions()">
-          <i class="fa-solid fa-paper-plane"></i>
-          <span>Generate</span>
-        </button>
       </div>
     </div>
 

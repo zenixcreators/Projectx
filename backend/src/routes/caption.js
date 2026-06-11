@@ -5,12 +5,20 @@
 //   const captionRoute = require('./routes/caption');
 //   app.use(captionRoute);
 // ============================================================
-
 const express = require("express");
 const { YoutubeTranscript } = require("youtube-transcript");
 const axios = require("axios");
 const multer = require("multer");
 const FormData = require("form-data");
+const path = require("path");
+const fs = require("fs");
+const os = require("os");
+const ffmpeg = require("fluent-ffmpeg");
+if (process.platform === "win32") {
+  ffmpeg.setFfmpegPath(path.join(__dirname, "../../bin/ffmpeg.exe"));
+  ffmpeg.setFfprobePath(path.join(__dirname, "../../bin/ffprobe.exe"));
+}
+const captionStyles = require("../captionStyles");
 const router = express.Router();
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
@@ -70,11 +78,14 @@ async function groqChat(messages) {
   throw new Error("All models failed: " + lastErr);
 }
 
-async function transcribeAudio(buffer, mimetype, filename) {
+async function transcribeAudio(buffer, mimetype, filename, language) {
   const form = new FormData();
   form.append("file", buffer, { filename: filename || "audio.mp3", contentType: mimetype });
   form.append("model", "whisper-large-v3");
   form.append("response_format", "verbose_json");
+  if (language && language !== "auto") {
+    form.append("language", language);
+  }
 
   const res = await axios.post(
     "https://api.groq.com/openai/v1/audio/transcriptions",
@@ -536,6 +547,350 @@ ${toneInstruction}` },
   return result;
 }
 
+const tempDir = process.platform === "win32" ? path.join(process.cwd(), "tmp") : "/tmp";
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
+
+async function transliterateToTenglish(segments) {
+  if (!segments || segments.length === 0) return segments;
+
+  const result = [...segments];
+  try {
+    console.log(`Transliterating ${segments.length} Telugu segments to Tenglish (English script)...`);
+    const sourceText = segments.map((s, idx) => `[${idx}] ${s.text}`).join("\n");
+    const prompt = `Transliterate the following Telugu script text into Tenglish (Telugu language written phonetically in English/Latin letters as used in casual texting/chatting).
+Keep the [number] prefix on each line exactly as given.
+Return ONLY the transliterated lines with their numbers. No explanation, no english translation.
+
+Example input:
+[0] ఏం చేస్తున్నావ్
+[1] తిన్నావా
+Example output:
+[0] em chesthunnav
+[1] thinnava
+
+Text to transliterate:
+${sourceText}`;
+
+    const response = await groqChat([
+      {
+        role: "system",
+        content: "You are a precise transliterator. Your job is to convert Telugu script text into colloquial Tenglish (Telugu words in English script). Do not translate the meaning to English; only write the Telugu words phonetically in English letters."
+      },
+      { role: "user", content: prompt }
+    ]);
+
+    const lines = response.trim().split("\n").filter(l => l.match(/^\[\d+\]/));
+    let successCount = 0;
+    segments.forEach((s, idx) => {
+      const line = lines.find(l => l.startsWith(`[${idx}]`));
+      if (line) {
+        result[idx] = { ...s, text: line.replace(/^\[\d+\]\s*/, "").trim() };
+        successCount++;
+      }
+    });
+
+    if (successCount > 0) {
+      console.log(`Tenglish transliteration successful for ${successCount}/${segments.length} segments.`);
+      return result;
+    }
+  } catch (err) {
+    console.warn(`Tenglish transliteration failed: ${err.message}`);
+  }
+  return segments;
+}
+
+function processTenglish(segments) {
+  try {
+    const dictPath = path.join(__dirname, "../../data/tenglishDict.json");
+    if (!fs.existsSync(dictPath)) {
+      console.warn("Tenglish dictionary file not found at:", dictPath);
+      return segments;
+    }
+    const dict = JSON.parse(fs.readFileSync(dictPath, "utf-8"));
+    
+    // Phrase replacement dictionary for multi-word Tenglish typos
+    const phraseReplacements = [
+      { regex: /you\s+tube/gi, replace: "YouTube" },
+      { regex: /vee\s+dio/gi, replace: "video" },
+      { regex: /sub\s+skrayb/gi, replace: "subscribe" },
+      { regex: /sub\s+skrayi/gi, replace: "subscribe" },
+      { regex: /sub\s+scribe/gi, replace: "subscribe" },
+      { regex: /em\s+chesthunnav/gi, replace: "aim chesthunnav" }
+    ];
+    
+    return segments.map(seg => {
+      if (!seg.text) return seg;
+      
+      let text = seg.text;
+      // 1. Perform phrase replacements
+      for (const phrase of phraseReplacements) {
+        text = text.replace(phrase.regex, phrase.replace);
+      }
+      
+      // 2. Perform word-by-word replacements
+      const words = text.split(/(\s+)/);
+      const mapped = words.map(w => {
+        const clean = w.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g, "").trim();
+        const lowerClean = clean.toLowerCase();
+        if (dict[lowerClean]) {
+          return w.replace(clean, dict[lowerClean]);
+        }
+        return w;
+      });
+      return { ...seg, text: mapped.join("") };
+    });
+  } catch (err) {
+    console.error("Tenglish processing error:", err.message);
+    return segments;
+  }
+}
+
+function probeVideo(filePath) {
+  return new Promise((resolve, reject) => {
+    ffmpeg.ffprobe(filePath, (err, metadata) => {
+      if (err) return reject(new Error("Failed to probe video file: " + err.message));
+      const hasAudio = metadata.streams.some(s => s.codec_type === "audio");
+      const duration = metadata.format.duration || 0;
+      resolve({ hasAudio, duration });
+    });
+  });
+}
+
+async function verifyAudioFile(reqFile) {
+  const tempPath = path.join(tempDir, `verify_${Date.now()}_${reqFile.originalname}`);
+  fs.writeFileSync(tempPath, reqFile.buffer);
+  
+  try {
+    const { hasAudio } = await probeVideo(tempPath);
+    try { fs.unlinkSync(tempPath); } catch (_) {}
+    return hasAudio;
+  } catch (err) {
+    try { fs.unlinkSync(tempPath); } catch (_) {}
+    console.error("Audio stream verification failed:", err.message);
+    return false;
+  }
+}
+
+function parseSRT(srtContent) {
+  const normalized = srtContent.replace(/\r\n/g, "\n").trim();
+  const blocks = normalized.split(/\n\n+/);
+  const segments = [];
+  
+  for (const block of blocks) {
+    const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+    if (lines.length < 3) continue;
+    
+    const timeLine = lines[1];
+    const textLines = lines.slice(2);
+    const text = textLines.join(" ");
+    
+    const timeMatch = timeLine.match(/(\d+:\d+:\d+[\.,]\d+) --> (\d+:\d+:\d+[\.,]\d+)/);
+    if (!timeMatch) continue;
+    
+    const parseTime = (str) => {
+      const parts = str.replace(",", ".").split(":");
+      const hrs = parseInt(parts[0], 10);
+      const mins = parseInt(parts[1], 10);
+      const secs = parseFloat(parts[2]);
+      return hrs * 3600 + mins * 60 + secs;
+    };
+    
+    const start = parseTime(timeMatch[1]);
+    const end = parseTime(timeMatch[2]);
+    segments.push({ start, end, text });
+  }
+  return segments;
+}
+
+function toASSWithFadeAndStyle(segments, style) {
+  const fmt = t => {
+    const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = Math.floor(t % 60), ms = Math.round((t % 1) * 100);
+    return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}.${String(ms).padStart(2, "0")}`;
+  };
+
+  const lines = [
+    "[Script Info]",
+    "Title: Cinematic Animated Captions",
+    "ScriptType: v4.00+",
+    "Collisions: Normal",
+    "PlayResX: 384",
+    "PlayResY: 288",
+    "Timer: 100.0000",
+    "",
+    "[V4+ Styles]",
+    "Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding",
+    `Style: Default,${style.font},16,&H00FFFFFF,&H000000FF,&H00000000,&H66000000,-1,0,0,0,100,100,0,0,3,1,0,5,10,10,10,1`,
+    "",
+    "[Events]",
+    "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text"
+  ];
+
+  segments.forEach((s) => {
+    lines.push(`Dialogue: 0,${fmt(s.start)},${fmt(s.end)},Default,,0,0,0,,{\\fad(300,300)}${s.text}`);
+  });
+
+  return lines.join("\n");
+}
+
+function cleanupFiles(files) {
+  files.forEach(file => {
+    if (file && fs.existsSync(file)) {
+      try { fs.unlinkSync(file); } catch (_) {}
+    }
+  });
+}
+
+// Note: On Railway, the FFmpeg buildpack must be manually added to the project settings:
+// Settings -> Buildpacks -> https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest.git
+
+const burnUpload = multer({
+  dest: tempDir,
+  limits: { fileSize: 500 * 1024 * 1024 } // 500MB size limit
+}).single("video");
+
+router.post("/api/captions/burn", (req, res) => {
+  burnUpload(req, res, async (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(400).json({ error: "Video file exceeds the 500MB size limit." });
+      }
+      return res.status(400).json({ error: "Upload failed: " + err.message });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No video file was uploaded." });
+    }
+
+    const srtContent = req.body.srt;
+    const styleName = req.body.style || "subtitle";
+
+    if (!srtContent) {
+      cleanupFiles([req.file.path]);
+      return res.status(400).json({ error: "SRT captions content is required." });
+    }
+
+    const activeStyle = captionStyles[styleName] || captionStyles.subtitle;
+    const videoPath = req.file.path;
+    let tempSrtPath = "";
+    let tempAssPath = "";
+    let outputPath = "";
+
+    try {
+      // 1. Upfront duration check
+      const { hasAudio, duration } = await probeVideo(videoPath);
+      if (duration > 600) {
+        throw new Error("Video duration exceeds the 10-minute limit.");
+      }
+
+      const timestamp = Date.now();
+      let filterString = "";
+
+      if (styleName === "subtitle") {
+        tempSrtPath = path.join(tempDir, `burn_${timestamp}.srt`);
+        fs.writeFileSync(tempSrtPath, srtContent);
+        
+        const escapedSubPath = process.platform === "win32"
+          ? tempSrtPath.replace(/\\/g, "/").replace(/:/g, "\\:")
+          : tempSrtPath;
+          
+        filterString = `subtitles='${escapedSubPath}':force_style='Fontname=${activeStyle.font},Fontsize=${activeStyle.fontSize},PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=1,Outline=${activeStyle.strokeWidth}'`;
+
+      } else if (styleName === "cinematic") {
+        tempAssPath = path.join(tempDir, `burn_${timestamp}.ass`);
+        const parsedSegments = parseSRT(srtContent);
+        const assContent = toASSWithFadeAndStyle(parsedSegments, activeStyle);
+        fs.writeFileSync(tempAssPath, assContent);
+
+        const escapedSubPath = process.platform === "win32"
+          ? tempAssPath.replace(/\\/g, "/").replace(/:/g, "\\:")
+          : tempAssPath;
+          
+        filterString = `subtitles='${escapedSubPath}'`;
+
+      } else if (styleName === "hormozi" || styleName === "viral") {
+        const parsedSegments = parseSRT(srtContent);
+        const wordsList = [];
+
+        for (const seg of parsedSegments) {
+          const words = seg.text.split(/\s+/).filter(Boolean);
+          const N = words.length;
+          if (N === 0) continue;
+          
+          const segDuration = seg.end - seg.start;
+          const wordDuration = segDuration / N;
+
+          for (let i = 0; i < N; i++) {
+            wordsList.push({
+              text: words[i],
+              start: seg.start + i * wordDuration,
+              end: seg.start + (i + 1) * wordDuration,
+              index: i
+            });
+          }
+        }
+
+        const drawtextFilters = wordsList.map((word) => {
+          const escapedText = word.text
+            .replace(/\\/g, '\\\\')
+            .replace(/'/g, "'\\''")
+            .replace(/:/g, '\\:');
+          
+          let fontColor = activeStyle.color;
+          if (styleName === "viral") {
+            fontColor = word.index % 2 === 0 ? "yellow" : "cyan";
+          }
+
+          return `drawtext=text='${escapedText}':x=(w-text_w)/2:y=h-80:enable='between(t,${word.start.toFixed(3)},${word.end.toFixed(3)})':fontfile='${activeStyle.font}':fontsize=${activeStyle.fontSize}:fontcolor=${fontColor}:borderw=${activeStyle.strokeWidth}:bordercolor=black`;
+        });
+
+        filterString = drawtextFilters.join(",");
+      }
+
+      outputPath = path.join(tempDir, `output_${timestamp}.mp4`);
+      let killed = false;
+      const ffmpegCmd = ffmpeg(videoPath).outputOptions("-preset superfast");
+
+      if (filterString) {
+        ffmpegCmd.videoFilters(filterString);
+      }
+
+      // Safety timeout: 3 minutes
+      const safetyTimeout = setTimeout(() => {
+        killed = true;
+        try { ffmpegCmd.kill("SIGKILL"); } catch (_) {}
+        res.status(500).json({ error: "FFmpeg processing timed out after 3 minutes." });
+        cleanupFiles([videoPath, tempSrtPath, tempAssPath, outputPath]);
+      }, 180000);
+
+      ffmpegCmd
+        .save(outputPath)
+        .on("end", () => {
+          clearTimeout(safetyTimeout);
+          if (killed) return;
+
+          res.download(outputPath, "burned_video.mp4", (downloadErr) => {
+            cleanupFiles([videoPath, tempSrtPath, tempAssPath, outputPath]);
+          });
+        })
+        .on("error", (ffmpegErr) => {
+          clearTimeout(safetyTimeout);
+          if (killed) return;
+
+          console.error("FFmpeg processing failed:", ffmpegErr.message);
+          res.status(500).json({ error: "FFmpeg processing failed: " + ffmpegErr.message });
+          cleanupFiles([videoPath, tempSrtPath, tempAssPath, outputPath]);
+        });
+
+    } catch (err) {
+      console.error("Burn video error:", err.message);
+      res.status(500).json({ error: err.message });
+      cleanupFiles([videoPath, tempSrtPath, tempAssPath, outputPath]);
+    }
+  });
+});
+
 // ── MAIN ROUTE ───────────────────────────────────────────────
 
 router.post("/caption", handleMulterUpload, async (req, res) => {
@@ -575,16 +930,32 @@ router.post("/caption", handleMulterUpload, async (req, res) => {
   }
 
   try {
+    const langVal = req.body?.language || req.query?.language || "auto";
+    const whisperLang = langVal === "tenglish" ? "te" : (langVal === "auto" ? undefined : langVal);
+
     let rawText, whisperSegments = [];
     console.log(`Processing caption request: type=${type}`);
 
     // 1. Get source text/segments
     if (req.file) {
       type = req.body.type || "audio";
-      console.log(`Transcribing ${type} file: ${req.file.originalname}`);
-      const whisperResult = await transcribeAudio(req.file.buffer, req.file.mimetype, req.file.originalname);
+
+      // Upfront audio validation check
+      const hasAudio = await verifyAudioFile(req.file);
+      if (!hasAudio) {
+        return res.status(400).json({ error: "The uploaded file does not contain a valid audio stream." });
+      }
+
+      console.log(`Transcribing ${type} file: ${req.file.originalname} using language parameter: ${langVal}`);
+      const whisperResult = await transcribeAudio(req.file.buffer, req.file.mimetype, req.file.originalname, whisperLang);
       rawText = whisperResult.text;
       whisperSegments = whisperResult.segments || [];
+
+      if (langVal === "tenglish") {
+        whisperSegments = await transliterateToTenglish(whisperSegments);
+        whisperSegments = processTenglish(whisperSegments);
+        rawText = whisperSegments.map(s => s.text).join(" ");
+      }
 
     } else {
       type = req.body.type;
@@ -592,8 +963,20 @@ router.post("/caption", handleMulterUpload, async (req, res) => {
         const ytData = await fetchYouTubeTranscript(req.body.value);
         rawText = ytData.text;
         whisperSegments = ytData.segments || [];
+        if (langVal === "tenglish") {
+          whisperSegments = await transliterateToTenglish(whisperSegments);
+          whisperSegments = processTenglish(whisperSegments);
+          rawText = whisperSegments.map(s => s.text).join(" ");
+        }
       } else {
         rawText = req.body.value;
+        if (langVal === "tenglish") {
+          let tempSegs = buildTimestamps(rawText.trim(), []);
+          tempSegs = await transliterateToTenglish(tempSegs);
+          tempSegs = processTenglish(tempSegs);
+          rawText = tempSegs.map(s => s.text).join(" ");
+          whisperSegments = tempSegs;
+        }
       }
     }
 
@@ -609,9 +992,19 @@ router.post("/caption", handleMulterUpload, async (req, res) => {
 
     await Promise.all(langs.map(async (lang) => {
       try {
-        const segments = await translateSegments(baseSegments, lang);
+        let segments;
+        if (lang === "tenglish") {
+          if (langVal === "tenglish") {
+            segments = baseSegments;
+          } else {
+            segments = await transliterateToTenglish(baseSegments);
+            segments = processTenglish(segments);
+          }
+        } else {
+          segments = await translateSegments(baseSegments, lang);
+        }
         captions[lang] = {};
-        if (formats.includes("srt")) captions[lang].srt = toSRT(segments);
+        captions[lang].srt = toSRT(segments);
         if (formats.includes("vtt")) captions[lang].vtt = toVTT(segments);
         if (formats.includes("ass")) captions[lang].ass = toASS(segments);
         if (formats.includes("txt")) captions[lang].txt = segments.map(s => s.text).join("\n");

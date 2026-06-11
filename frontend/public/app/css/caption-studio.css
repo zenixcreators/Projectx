@@ -1287,3 +1287,466 @@
 .raw-caption-textarea:focus {
   border-color: var(--accent-border);
 }
+
+/* ═══════════════════════════════════════════════════
+   APPLE GLASS OVERRIDES — Caption Studio
+   Transform old purple theme to premium Apple Blue.
+   Frosted glass panels and left-aligned button.
+═══════════════════════════════════════════════════ */
+
+#caption-view {
+  --accent: #007AFF;
+  --accent-bg: rgba(0, 122, 255, 0.07);
+  --accent-border: rgba(0, 122, 255, 0.18);
+  --accent-glow: rgba(0, 122, 255, 0.14);
+  --bg: #F2F5FA;
+  --surface: rgba(255, 255, 255, 0.70);
+  --surface2: rgba(240, 244, 252, 0.75);
+  --card: rgba(255, 255, 255, 0.68);
+  --border-soft: rgba(0, 0, 0, 0.06);
+  --border-mid: rgba(0, 0, 0, 0.08);
+  --text: #1D1D1F;
+  --text-sec: #6E6E73;
+  --muted: #8E8E93;
+
+  /* Force Apple typography stack */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif !important;
+
+  /* Make whole view scrollable vertically to prevent footer cut-off */
+  overflow-y: auto !important;
+}
+
+/* Top error banner with premium glass-morphism style */
+.caption-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 59, 48, 0.09) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 59, 48, 0.22) !important;
+  border-radius: 12px !important;
+  padding: 14px 20px !important;
+  color: #FF3B30 !important;
+  font-weight: 500 !important;
+  font-size: 13.5px !important;
+  margin-bottom: 20px !important;
+  box-shadow: 0 4px 16px rgba(255, 59, 48, 0.04) !important;
+  animation: captionErrorSlideDown 300ms cubic-bezier(0.34, 1.3, 0.64, 1) forwards;
+}
+
+@keyframes captionErrorSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.error-banner-content i {
+  font-size: 16px;
+  color: #FF3B30 !important;
+}
+
+.error-banner-close {
+  background: transparent;
+  border: none;
+  color: #FF3B30 !important;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.error-banner-close:hover {
+  opacity: 1;
+}
+
+#caption-view h1,
+#caption-view h2,
+#caption-view h3,
+#caption-view span,
+#caption-view button,
+#caption-view input,
+#caption-view textarea,
+#caption-view p,
+#caption-view div {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif !important;
+}
+
+/* Restore Font Awesome icon fonts */
+#caption-view .fa,
+#caption-view .fas,
+#caption-view .far,
+#caption-view .fal,
+#caption-view .fad,
+#caption-view .fab,
+#caption-view [class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+}
+
+/* Frosted Glass Panels */
+#caption-view .composer-bar,
+#caption-view .caption-canvas {
+  background: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+/* Composer Bar inner adjustments */
+#caption-view .composer-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+#caption-view .mode-btn {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #6E6E73 !important;
+  border-radius: 10px !important;
+}
+#caption-view .mode-btn.active {
+  background: rgba(255, 255, 255, 0.90) !important;
+  color: #007AFF !important;
+  border-color: rgba(0, 122, 255, 0.25) !important;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.10) !important;
+}
+#caption-view .mode-btn.active i {
+  color: #007AFF !important;
+}
+#caption-view .status-badge {
+  background: rgba(0, 122, 255, 0.07) !important;
+  border: 1px solid rgba(0, 122, 255, 0.18) !important;
+  color: #007AFF !important;
+  border-radius: 12px !important;
+}
+#caption-view .status-badge::before {
+  background: #007AFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.20) !important;
+}
+
+/* URL and Dropzones */
+#caption-view .url-input-wrap input {
+  background: rgba(255, 255, 255, 0.60) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1D1D1F !important;
+  border-radius: 10px !important;
+}
+#caption-view .url-input-wrap input:focus {
+  border-color: #007AFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
+}
+#caption-view .url-fetch-btn {
+  background: #007AFF !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.18) !important;
+}
+#caption-view .url-fetch-btn:hover {
+  background: #0066D6 !important;
+}
+
+#caption-view .studio-dropzone {
+  background: rgba(0, 0, 0, 0.01) !important;
+  border: 2px dashed rgba(0, 0, 0, 0.08) !important;
+  border-radius: 16px !important;
+}
+#caption-view .studio-dropzone:hover {
+  border-color: #007AFF !important;
+  background: rgba(0, 122, 255, 0.04) !important;
+}
+
+/* Left-Align Generate Button & Unified Footer */
+#caption-view .composer-footer-unified {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 24px !important;
+  border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+  padding: 16px 24px !important;
+}
+#caption-view .footer-action-section {
+  display: flex !important;
+  align-items: center !important;
+  align-self: center !important;
+}
+#caption-view .footer-section {
+  flex: initial !important;
+}
+#caption-view .studio-generate-btn-v2 {
+  margin-left: 0 !important;
+  align-self: center !important;
+  margin-bottom: 0 !important;
+  background: #007AFF !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.18) !important;
+  padding: 10px 24px !important;
+}
+#caption-view .studio-generate-btn-v2:hover {
+  background: #0066D6 !important;
+  box-shadow: 0 6px 18px rgba(0, 122, 255, 0.28) !important;
+}
+
+/* Language selector small trigger */
+#caption-view .add-lang-trigger-small {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+}
+#caption-view .add-lang-trigger-small:hover {
+  border-color: #007AFF !important;
+  color: #007AFF !important;
+  background: rgba(0, 122, 255, 0.04) !important;
+}
+#caption-view .lang-pill {
+  background: rgba(0, 122, 255, 0.05) !important;
+  border: 1px solid rgba(0, 122, 255, 0.18) !important;
+  color: #007AFF !important;
+  border-radius: 80px !important;
+}
+
+/* Format Pills */
+#caption-view .fmt-pill {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #6E6E73 !important;
+  border-radius: 10px !important;
+}
+#caption-view .fmt-pill.active {
+  background: #1D1D1F !important;
+  color: white !important;
+  border-color: #1D1D1F !important;
+}
+
+/* Results section glass */
+#caption-view .canvas-transcript-side {
+  background: rgba(255, 255, 255, 0.40) !important;
+}
+#caption-view .caption-tab {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+#caption-view .caption-tab.active {
+  background: rgba(255, 255, 255, 0.90) !important;
+  color: #007AFF !important;
+  border-color: rgba(0, 122, 255, 0.20) !important;
+}
+#caption-view .caption-segment:hover {
+  background: rgba(0, 122, 255, 0.02) !important;
+}
+#caption-view .caption-segment.active {
+  background: rgba(0, 122, 255, 0.04) !important;
+  border-left: 3px solid #007AFF !important;
+}
+#caption-view .segment-time {
+  color: #007AFF !important;
+  background: rgba(0, 122, 255, 0.06) !important;
+}
+#caption-view .canvas-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+}
+#caption-view .canvas-action-btn {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #6E6E73 !important;
+  border-radius: 8px !important;
+}
+#caption-view .canvas-action-btn.primary {
+  background: #007AFF !important;
+  color: white !important;
+  border-color: #007AFF !important;
+}
+#caption-view .canvas-action-btn.primary:hover {
+  background: #0066D6 !important;
+}
+
+/* Style & Input Language Selector Row */
+.composer-options-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  flex-wrap: wrap;
+}
+
+.composer-options-row .option-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.composer-options-row .select-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.composer-options-row select.studio-select {
+  width: 100%;
+  appearance: none;
+  padding: 8px 32px 8px 12px;
+  background: rgba(255, 255, 255, 0.6) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 10px !important;
+  color: #1D1D1F;
+  font-family: var(--font);
+  font-size: 13px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.composer-options-row select.studio-select:focus {
+  border-color: #007AFF !important;
+}
+
+.composer-options-row .select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8E8E93;
+  pointer-events: none;
+  font-size: 10px;
+}
+
+.style-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.style-pill-btn {
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.5);
+  color: #6E6E73;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.style-pill-btn:hover {
+  border-color: #007AFF;
+  color: #007AFF;
+}
+
+.style-pill-btn.active {
+  background: #1D1D1F;
+  color: white;
+  border-color: #1D1D1F;
+}
+
+/* Burn Actions Panel and Progress Indicator */
+.burn-actions-panel {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+}
+
+.burn-panel-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #8E8E93;
+  letter-spacing: 0.05em;
+  margin-bottom: 10px;
+}
+
+.burn-buttons-row {
+  display: flex;
+  gap: 10px;
+}
+
+.burn-action-btn {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.burn-action-btn.secondary {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #1D1D1F;
+}
+
+.burn-action-btn.secondary:hover {
+  background: #E5E7EB;
+}
+
+.burn-action-btn.primary {
+  background: #007AFF;
+  border: 1px solid #007AFF;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.15);
+}
+
+.burn-action-btn.primary:hover {
+  background: #0066D6;
+  border-color: #0066D6;
+}
+
+.burn-action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Progress Bar */
+.burn-progress-container {
+  width: 100%;
+}
+
+.burn-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.burn-progress-fill {
+  height: 100%;
+  background: #007AFF;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+.burn-progress-status {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6E6E73;
+  margin-top: 6px;
+  text-align: center;
+}

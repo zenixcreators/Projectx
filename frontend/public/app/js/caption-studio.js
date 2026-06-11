@@ -123,17 +123,18 @@ function getActiveInput() {
 
 /* ---- Generate ---- */
 async function generateCaptions() {
+  hideCaptionError();
   const input = getActiveInput();
   if (!input) return;
 
   const langs = [...selectedLangs];
   const formats = [...document.querySelectorAll('.fmt-pill.active')].map(el => el.dataset.fmt);
 
-  if (!langs.length) return window.showToast('Language Selection Required', 'Please select at least one language.', 'warning');
-  if (!formats.length) return window.showToast('Format Selection Required', 'Please select at least one file format.', 'warning');
-  if (input.type === 'transcript' && !input.value) return window.showToast('Transcript Missing', 'Please paste the transcript content.', 'warning');
-  if (input.type === 'url' && !input.value) return window.showToast('URL Required', 'Please enter a valid YouTube video URL.', 'warning');
-  if ((input.type === 'video' || input.type === 'audio') && !input.file) return window.showToast('File Required', 'Please select an audio or video file.', 'warning');
+  if (!langs.length) { showCaptionError('Please select at least one language.'); return; }
+  if (!formats.length) { showCaptionError('Please select at least one file format.'); return; }
+  if (input.type === 'transcript' && !input.value) { showCaptionError('Please paste the transcript content.'); return; }
+  if (input.type === 'url' && !input.value) { showCaptionError('Please enter a valid YouTube video URL.'); return; }
+  if ((input.type === 'video' || input.type === 'audio') && !input.file) { showCaptionError('Please select an audio or video file.'); return; }
 
   const btn = document.getElementById('genBtn');
   btn.disabled = true;
@@ -147,6 +148,7 @@ async function generateCaptions() {
   try {
     let body;
     const headers = {};
+    const spokenLang = document.getElementById("captionLanguage")?.value || "auto";
 
     if (input.type === 'video' || input.type === 'audio') {
       const fd = new FormData();
@@ -154,6 +156,7 @@ async function generateCaptions() {
       fd.append('type', input.type);
       fd.append('langs', JSON.stringify(langs));
       fd.append('formats', JSON.stringify(formats));
+      fd.append('language', spokenLang);
       body = fd;
     } else {
       headers['Content-Type'] = 'application/json';
@@ -161,7 +164,8 @@ async function generateCaptions() {
         type: input.type,
         value: input.value,
         langs: JSON.stringify(langs),
-        formats: JSON.stringify(formats)
+        formats: JSON.stringify(formats),
+        language: spokenLang
       });
     }
 
@@ -171,6 +175,7 @@ async function generateCaptions() {
 
     renderCaptionResults(data, langs, formats);
   } catch (err) {
+    showCaptionError(err.message);
     const isUrlError = input.type === 'url';
     if (canvasEmpty) {
       canvasEmpty.style.display = 'flex';
@@ -302,6 +307,11 @@ function renderCaptionResults(data, langs, formats) {
   window._captionFormats = formats;
   window._captionActiveLang = defLang;
   window._captionActiveFormat = formats[0] || 'txt';
+
+  const burnActions = document.getElementById('burnActionsPanel');
+  if (burnActions) {
+    burnActions.style.display = 'block';
+  }
 }
 
 /* ---- Parse SRT/VTT ---- */
@@ -490,3 +500,163 @@ if (document.getElementById('caption-view')) {
 } else {
   document.addEventListener('creo:partials-loaded', initCaptionStudio, { once: true });
 }
+
+/* ---- Style Template Selection ---- */
+let selectedCaptionStyle = "hormozi"; // default
+
+function selectCaptionStyle(style, btn) {
+  selectedCaptionStyle = style;
+  
+  // Update active style pill in DOM
+  const pills = btn.closest('.style-pills');
+  if (pills) {
+    pills.querySelectorAll('.style-pill-btn').forEach(b => b.classList.remove('active'));
+  }
+  btn.classList.add('active');
+}
+
+/* ---- Burn Captions E2E Flow ---- */
+async function burnCaptionsE2E() {
+  const activeLang = window._captionActiveLang;
+  const data = window._captionData;
+  const srtContent = data?.captions?.[activeLang]?.srt;
+
+  if (!srtContent) {
+    return window.showToast("SRT Missing", "No captions found for the active language. Re-generate first.", "warning");
+  }
+
+  // Get uploaded video file if already uploaded
+  const videoInput = document.getElementById("videoFile");
+  let file = videoInput?.files[0];
+
+  if (!file) {
+    // If no video was uploaded, prompt the user to upload one now
+    const uploadPrompt = confirm("No video file is loaded. Please select a video file (.mp4, .mov, etc.) to burn these captions onto.");
+    if (!uploadPrompt) return;
+
+    // Trigger a file input dialog dynamically
+    const dynamicInput = document.createElement("input");
+    dynamicInput.type = "file";
+    dynamicInput.accept = "video/*";
+    dynamicInput.onchange = async () => {
+      const selectedFile = dynamicInput.files[0];
+      if (selectedFile) {
+        await executeBurnRequest(selectedFile, srtContent, selectedCaptionStyle);
+      }
+    };
+    dynamicInput.click();
+  } else {
+    // Video is already loaded from the dropzone
+    await executeBurnRequest(file, srtContent, selectedCaptionStyle);
+  }
+}
+
+async function executeBurnRequest(videoFile, srtString, styleName) {
+  const btn = document.getElementById("burnVideoBtn");
+  const progressContainer = document.getElementById("burnProgress");
+  const progressFill = document.getElementById("burnProgressFill");
+  const progressStatus = document.getElementById("burnProgressStatus");
+  const errorBanner = document.getElementById("burnErrorBanner");
+  const errorMsg = document.getElementById("burnErrorMsg");
+
+  // Reset UI states
+  if (errorBanner) errorBanner.style.display = "none";
+  if (btn) btn.disabled = true;
+
+  if (progressContainer) progressContainer.style.display = "block";
+  if (progressFill) progressFill.style.width = "10%";
+  if (progressStatus) progressStatus.textContent = "Uploading video & preparing captions...";
+
+  // Create form data
+  const fd = new FormData();
+  fd.append("video", videoFile);
+  fd.append("srt", srtString);
+  fd.append("style", styleName);
+
+  // Use a simulated progress interval since standard fetch doesn't support upload progress naturally
+  let progress = 10;
+  const progressInterval = setInterval(() => {
+    if (progress < 90) {
+      progress += Math.floor(Math.random() * 8) + 2;
+      if (progressFill) progressFill.style.width = `${progress}%`;
+      if (progressStatus) {
+        if (progress < 30) progressStatus.textContent = "Uploading video to processing unit...";
+        else if (progress < 60) progressStatus.textContent = "Analyzing video properties and rendering style filters...";
+        else progressStatus.textContent = "Applying style outlines and rendering output video...";
+      }
+    }
+  }, 1000);
+
+  try {
+    const res = await fetch("/api/captions/burn", {
+      method: "POST",
+      body: fd
+    });
+
+    clearInterval(progressInterval);
+
+    if (!res.ok) {
+      const errJson = await res.json().catch(() => ({}));
+      throw new Error(errJson.error || "Server failed to process the request.");
+    }
+
+    if (progressFill) progressFill.style.width = "100%";
+    if (progressStatus) progressStatus.textContent = "Done! Downloading processed video...";
+
+    // Retrieve file blob from response stream
+    const blob = await res.blob();
+    const downloadUrl = URL.createObjectURL(blob);
+    
+    // Trigger download
+    const a = document.createElement("a");
+    a.href = downloadUrl;
+    a.download = `creo_burned_${styleName}.mp4`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    
+    window.showToast("Video Processed Successfully", "Your captioned video has been downloaded.", "success");
+    
+    // Fade out progress indicator
+    setTimeout(() => {
+      if (progressContainer) progressContainer.style.display = "none";
+    }, 2000);
+
+  } catch (err) {
+    clearInterval(progressInterval);
+    console.error("Burn pipeline error:", err);
+
+    if (progressContainer) progressContainer.style.display = "none";
+    
+    if (errorBanner && errorMsg) {
+      errorBanner.style.display = "block";
+      errorMsg.textContent = err.message || "Failed to render video captions.";
+    }
+    
+    window.showToast("Processing Failed", err.message || "Could not burn captions.", "error");
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+/* ---- Top-of-Page Error Banner Helpers ---- */
+function showCaptionError(msg) {
+  const banner = document.getElementById('captionErrorBanner');
+  const msgEl = document.getElementById('captionErrorMsg');
+  if (banner && msgEl) {
+    msgEl.textContent = msg;
+    banner.style.display = 'flex';
+    // Smooth scroll to top of caption view so error is clearly visible
+    const container = document.getElementById('caption-view');
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+}
+
+function hideCaptionError() {
+  const banner = document.getElementById('captionErrorBanner');
+  if (banner) {
+    banner.style.display = 'none';
+  }
+}

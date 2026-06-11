@@ -794,3 +794,284 @@
   border-color: var(--accent);
   box-shadow: 0 4px 15px var(--accent-glow);
 }
+
+/* ═══════════════════════════════════════════════════
+   APPLE GLASS OVERRIDES — Channel & Competitor Analysis
+   Unifies the color scheme, adds frosted overlays,
+   safeguards Font Awesome icons, and implements
+   Apple's clean visual typography.
+═══════════════════════════════════════════════════ */
+
+#channel-analysis-view {
+  --accent: #007AFF;
+  --accent-bg: rgba(0, 122, 255, 0.07);
+  --accent-border: rgba(0, 122, 255, 0.18);
+  --accent-glow: rgba(0, 122, 255, 0.14);
+  --bg: #F2F5FA;
+  --surface: rgba(255, 255, 255, 0.70);
+  --surface2: rgba(240, 244, 252, 0.75);
+  --card: rgba(255, 255, 255, 0.68);
+  --border-soft: rgba(0, 0, 0, 0.06);
+  --border-mid: rgba(0, 0, 0, 0.08);
+  --text: #1D1D1F;
+  --text-sec: #6E6E73;
+  --muted: #8E8E93;
+
+  /* Force Apple system typography stack */
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif !important;
+}
+
+/* Heading & Typography Adjustments */
+#channel-analysis-view h2,
+#channel-analysis-view h3,
+#channel-analysis-view h4,
+#channel-analysis-view h5,
+#channel-analysis-view span,
+#channel-analysis-view button,
+#channel-analysis-view input,
+#channel-analysis-view p,
+#channel-analysis-view div {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif !important;
+}
+
+/* Restore Font Awesome font-family explicitly to prevent broken icons */
+#channel-analysis-view .fa,
+#channel-analysis-view .fas,
+#channel-analysis-view .far,
+#channel-analysis-view .fal,
+#channel-analysis-view .fad,
+#channel-analysis-view .fab,
+#channel-analysis-view [class*="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+}
+
+/* Glassmorphism Surface Upgrades */
+#channel-analysis-view .analysis-composer,
+#channel-analysis-view .hero-stats-card,
+#channel-analysis-view .report-panel,
+#channel-analysis-view .creator-notebook-card,
+#channel-analysis-view .stat-metric-card {
+  background: rgba(255, 255, 255, 0.68) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.65) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.04) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1) !important;
+}
+
+/* Search bar and inputs */
+#channel-analysis-view .search-input-row input {
+  background: rgba(255, 255, 255, 0.60) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #1D1D1F !important;
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+}
+#channel-analysis-view .search-input-row input:focus {
+  border-color: #007AFF !important;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.90) !important;
+}
+
+/* Stepper Pill glass */
+#channel-analysis-view .step-pill {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+}
+#channel-analysis-view .step-pill.active {
+  border-color: #007AFF !important;
+  box-shadow: 0 0 12px rgba(0, 122, 255, 0.15) !important;
+}
+#channel-analysis-view .step-pill.completed {
+  background: rgba(0, 122, 255, 0.05) !important;
+  border-color: rgba(0, 122, 255, 0.20) !important;
+}
+
+/* Tabs */
+#channel-analysis-view .report-tabs {
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.60) !important;
+  border-radius: 18px !important;
+  padding: 4px !important;
+}
+#channel-analysis-view .report-tab-btn {
+  font-weight: 500 !important;
+  color: #6E6E73 !important;
+  border-radius: 14px !important;
+  border: none !important;
+}
+#channel-analysis-view .report-tab-btn i {
+  color: #8E8E93 !important;
+}
+#channel-analysis-view .report-tab-btn:hover {
+  background: rgba(255, 255, 255, 0.50) !important;
+  color: #1D1D1F !important;
+}
+#channel-analysis-view .report-tab-btn.active {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #007AFF !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+#channel-analysis-view .report-tab-btn.active i {
+  color: #007AFF !important;
+}
+
+/* AI Summary statement glass */
+#channel-analysis-view .summary-highlight-panel {
+  background: rgba(0, 122, 255, 0.05) !important;
+  border: 1px solid rgba(0, 122, 255, 0.15) !important;
+  border-radius: 16px !important;
+  color: #007AFF !important;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.04) !important;
+}
+
+/* Badge rules */
+#channel-analysis-view .badge {
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: capitalize !important;
+  font-size: 11px !important;
+}
+#channel-analysis-view .badge-growth {
+  background: rgba(0, 122, 255, 0.07) !important;
+  color: #007AFF !important;
+  border: 1px solid rgba(0, 122, 255, 0.18) !important;
+}
+
+/* Specific gauge rings */
+#channel-analysis-view .score-gauge-ring {
+  background: radial-gradient(circle, rgba(0, 122, 255, 0.06) 50%, transparent 100%) !important;
+  border: 2px solid rgba(0, 122, 255, 0.18) !important;
+  box-shadow: 0 0 12px rgba(0, 122, 255, 0.08) !important;
+}
+#channel-analysis-view .score-gauge-ring.velocity {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.02) 50%, transparent 100%) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  box-shadow: none !important;
+}
+#channel-analysis-view .score-num-big {
+  color: #007AFF !important;
+  letter-spacing: -0.03em !important;
+}
+#channel-analysis-view .score-num-big.velocity-val {
+  color: #1D1D1F !important;
+}
+
+/* Metric card text colors */
+#channel-analysis-view .stat-val {
+  color: #1D1D1F !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Revenue cards layout */
+#channel-analysis-view .revenue-highlight-grid .stat-metric-card {
+  border: 1px solid rgba(0, 122, 255, 0.18) !important;
+  border-left: 4px solid #007AFF !important;
+}
+#channel-analysis-view .revenue-highlight-grid .stat-val {
+  color: #007AFF !important;
+}
+
+/* Topics DNA Chips */
+#channel-analysis-view .dna-chip {
+  background: rgba(240, 244, 252, 0.60) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #6E6E73 !important;
+  border-radius: 12px !important;
+  font-weight: 500 !important;
+}
+#channel-analysis-view .dna-chip:hover {
+  background: rgba(0, 122, 255, 0.08) !important;
+  color: #007AFF !important;
+  border-color: rgba(0, 122, 255, 0.18) !important;
+}
+
+/* Platform selector row */
+#channel-analysis-view .platform-pill {
+  background: rgba(255, 255, 255, 0.50) !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 12px !important;
+}
+#channel-analysis-view .platform-pill.active {
+  background: rgba(255, 255, 255, 0.90) !important;
+  color: #007AFF !important;
+  border-color: rgba(0, 122, 255, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.10) !important;
+}
+
+/* Remove colored headers */
+#channel-analysis-view .report-panel h4 {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+  color: #1D1D1F !important;
+}
+#channel-analysis-view .report-panel h4 i {
+  color: #007AFF !important;
+}
+
+/* Strategic Recommendations */
+#channel-analysis-view .rec-item {
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border-left: 4px solid #007AFF !important;
+  background: rgba(255, 255, 255, 0.40) !important;
+  border-radius: 0 12px 12px 0 !important;
+}
+#channel-analysis-view .rec-item.high {
+  border-left-color: #007AFF !important;
+  background: rgba(255, 255, 255, 0.40) !important;
+}
+#channel-analysis-view .rec-item.medium {
+  border-left-color: #34AADC !important;
+  background: rgba(255, 255, 255, 0.40) !important;
+}
+#channel-analysis-view .rec-action {
+  color: #1D1D1F !important;
+}
+
+/* Lined Notebook Checklist spacing */
+#channel-analysis-view .notebook-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06) !important;
+  color: #1D1D1F !important;
+  font-weight: 600 !important;
+}
+#channel-analysis-view .notebook-header i {
+  color: #007AFF !important;
+}
+#channel-analysis-view .creator-notebook-card {
+  border-top: none !important;
+}
+
+/* Hover effects */
+#channel-analysis-view .creator-notebook-card:hover,
+#channel-analysis-view .report-panel:hover {
+  transform: translateY(-2px) !important;
+  border-color: rgba(0, 122, 255, 0.15) !important;
+  box-shadow: 0 12px 36px rgba(0, 122, 255, 0.05) !important;
+}
+
+/* Tables and watch buttons */
+#channel-analysis-view .top-videos-table th {
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.06) !important;
+}
+#channel-analysis-view .top-videos-table td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+}
+#channel-analysis-view .top-videos-table tr:hover td {
+  background: rgba(0, 122, 255, 0.02) !important;
+}
+#channel-analysis-view .btn-watch {
+  background: rgba(255, 255, 255, 0.80) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #007AFF !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+}
+#channel-analysis-view .btn-watch:hover {
+  background: #007AFF !important;
+  color: white !important;
+  border-color: #007AFF !important;
+}

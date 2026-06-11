@@ -357,11 +357,11 @@ function handleAnalyzeClick(btn) {
           throw new Error(data.error || "Vision analysis failed.");
         }
 
-        // Show the extracted base64 image on the URL preview node
-        const urlPreview = document.getElementById('urlThumbnailPreview');
-        if (urlPreview && data.extractedThumbnailUrl) {
-          urlPreview.src = data.extractedThumbnailUrl;
-        }
+        // Show the extracted base64 image on the URL preview node (disabled to prevent image from vanishing on reload)
+        // const urlPreview = document.getElementById('urlThumbnailPreview');
+        // if (urlPreview && data.extractedThumbnailUrl) {
+        //   urlPreview.src = data.extractedThumbnailUrl;
+        // }
 
         const payload = data.data;
         updateDnaPanel(payload);
@@ -647,41 +647,127 @@ function showDetailedReport(payload) {
     `).join("");
   }
 
-  const resultsContainer = document.getElementById("analysisResults");
+  const resultsContainer = document.getElementById('analysisResults');
   if (resultsContainer) {
-    resultsContainer.style.display = "block";
+    resultsContainer.style.display = 'block';
   }
+
+  // Populate the Summary tab
+  populateSummaryTab(payload);
+}
+
+function populateSummaryTab(payload) {
+  const analysis = payload.analysis || {};
+
+  // Score
+  const urgency   = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.urgency', 'emotional_register.urgency'], 5));
+  const trust     = Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.trust',   'emotional_register.trust'],   5));
+  const excitement= Number(getNestedValue(analysis, ['mood_and_trigger.emotional_register.excitement','emotional_register.excitement'], 5));
+  const compositeScore = Math.round(((urgency + trust + excitement) / 3) * 10) / 10;
+
+  let verdict = 'Average';
+  if (compositeScore >= 8) verdict = 'Excellent';
+  else if (compositeScore >= 6) verdict = 'Strong';
+  else if (compositeScore < 4) verdict = 'Needs Work';
+
+  const scoreEl = document.getElementById('summaryScore');
+  if (scoreEl) {
+    scoreEl.textContent = `${compositeScore}/10`;
+    scoreEl.style.background = compositeScore >= 8
+      ? 'linear-gradient(135deg, #34C759, #30D158)'
+      : compositeScore >= 6
+        ? 'linear-gradient(135deg, #007AFF, #34AADC)'
+        : 'linear-gradient(135deg, #FF3B30, #FF6961)';
+  }
+  setTextContent('summaryVerdict', verdict);
+  setTextContent('summaryArchetype', getNestedValue(analysis, ['composition.layout_pattern', 'scene.framing']));
+
+  // Narrative — build a full paragraph from all analysis fields
+  const subject    = getNestedValue(analysis, ['subject.description', 'subject.desc']);
+  const trigger    = getNestedValue(analysis, ['mood_and_trigger.primary_trigger', 'psychological_trigger']);
+  const layout     = getNestedValue(analysis, ['composition.layout_pattern', 'scene.framing']);
+  const textVis    = getNestedValue(analysis, ['typography.text_visible', 'text_overlay.content']);
+  const colorTemp  = getNestedValue(analysis, ['color_palette.temp', 'mood']);
+  const contrast   = getNestedValue(analysis, ['color_palette.contrast', 'colors.contrast']);
+  const lighting   = getNestedValue(analysis, ['lighting.style', 'lighting']);
+  const intent     = getNestedValue(analysis, ['mood_and_trigger.viewer_action_intent', 'viewer_action_intent']);
+  const textSize   = getNestedValue(analysis, ['typography.size', 'text_overlay.size']);
+  const textPos    = getNestedValue(analysis, ['typography.position', 'text_overlay.position']);
+
+  const narrative = `This thumbnail features ${subject !== '--' ? subject : 'a primary subject'} positioned using a ${layout} layout. `
+    + `The primary psychological trigger is "${trigger}", designed to drive "${intent}". `
+    + `Typography ${textVis !== '--' ? `reading "${textVis}"` : ''} is placed at ${textPos} in a ${textSize} relative size, contributing to ${verdict.toLowerCase()} mobile readability. `
+    + `The color palette is ${colorTemp} with ${contrast} contrast, complemented by ${lighting} lighting. `
+    + `Overall, this thumbnail scores ${compositeScore}/10 on attention strength — ${
+        compositeScore >= 8 ? 'a top-tier design ready to compete in high-traffic feeds.'
+      : compositeScore >= 6 ? 'a solid design with room for minor refinements.'
+      : 'a design that could benefit from stronger visual hierarchy and clearer focal points.'}`;
+
+  setTextContent('summaryNarrative', narrative);
+
+  // Strengths
+  const strengthsEl = document.getElementById('summaryStrengths');
+  if (strengthsEl) {
+    const strengths = [];
+    if (compositeScore >= 7) strengths.push('Strong emotional resonance score');
+    if (contrast && contrast.toLowerCase().includes('high')) strengths.push('High contrast for visibility');
+    if (textSize && (textSize.toLowerCase().includes('large') || textSize.toLowerCase().includes('dominant'))) strengths.push('Dominant, readable text size');
+    if (trigger && trigger !== '--') strengths.push(`Clear psychological trigger: ${trigger}`);
+    if (lighting && lighting !== '--') strengths.push(`Effective ${lighting} lighting`);
+    if (strengths.length === 0) strengths.push('Consistent visual style');
+    strengthsEl.innerHTML = strengths.map(s => `<li><i class="fa-solid fa-check"></i> ${s}</li>`).join('');
+  }
+
+  // Weaknesses
+  const weaknessesEl = document.getElementById('summaryWeaknesses');
+  if (weaknessesEl) {
+    const weaknesses = [];
+    if (compositeScore < 6) weaknesses.push('Low attention score — needs stronger hook');
+    if (contrast && contrast.toLowerCase().includes('low')) weaknesses.push('Low contrast reduces click-through potential');
+    if (textSize && textSize.toLowerCase().includes('small')) weaknesses.push('Text too small for mobile feeds');
+    if (!textVis || textVis === '--') weaknesses.push('No visible text overlay detected');
+    if (weaknesses.length === 0) weaknesses.push('No critical issues detected');
+    weaknessesEl.innerHTML = weaknesses.map(w => `<li><i class="fa-solid fa-circle-exclamation"></i> ${w}</li>`).join('');
+  }
+
+  // Metric chips
+  setTextContent('summaryTrigger', trigger);
+  setTextContent('summaryColorTemp', colorTemp);
+  setTextContent('summaryLayout', layout);
+
+  // Mobile score chip
+  let sizeScore = 7;
+  const rawSize = String(textSize).toLowerCase();
+  if (rawSize.includes('dominant') || rawSize.includes('large')) sizeScore = 9;
+  else if (rawSize.includes('medium')) sizeScore = 7;
+  else if (rawSize.includes('small')) sizeScore = 4;
+  setTextContent('summaryMobile', `${sizeScore} / 10`);
 }
 
 function setTextContent(elementId, value) {
   const el = document.getElementById(elementId);
-  if (el) el.textContent = value || "--";
+  if (el) el.textContent = value || '--';
 }
 
 window.switchAnalysisTab = function (tabId) {
-  const tabs = document.querySelectorAll('.analysis-tab-btn');
-  const contents = document.querySelectorAll('.analysis-tab-content');
-
-  tabs.forEach(tab => {
-    // Only toggle the audit tabs (exclude the media source upload tabs)
-    if (tab.id.startsWith('btnTab')) {
-      const onclickAttr = tab.getAttribute('onclick') || '';
-      if (onclickAttr.includes(tabId)) {
+  // Update tab button active state
+  document.querySelectorAll('.analysis-tab-btn').forEach(tab => {
+    if (tab.id && tab.id.startsWith('btnTab')) {
+      const onclick = tab.getAttribute('onclick') || '';
+      if (onclick.includes(tabId)) {
         tab.classList.add('active');
-        tab.style.color = '#ffffff';
+        tab.style.removeProperty('color');
       } else {
         tab.classList.remove('active');
-        tab.style.color = '#8b8894';
+        tab.style.removeProperty('color');
       }
     }
   });
 
-  contents.forEach(content => {
-    if (content.id === `tab-${tabId}`) {
-      content.style.display = 'block';
-    } else {
-      content.style.display = 'none';
-    }
+  // Show matching content, hide others
+  document.querySelectorAll('.analysis-tab-content').forEach(content => {
+    content.classList.toggle('active', content.id === `tab-${tabId}`);
+    content.style.display = content.id === `tab-${tabId}` ? 'block' : 'none';
   });
 };
 
@@ -690,8 +776,8 @@ window.copyText = function (elementId) {
   if (!el) return;
   const text = el.innerText || el.textContent;
   navigator.clipboard.writeText(text).then(() => {
-    window.showToast("Copied to Clipboard", "Copied successfully!", "success");
+    window.showToast('Copied to Clipboard', 'Copied successfully!', 'success');
   }).catch(err => {
-    window.showToast("Copy Failed", err.message, "error");
+    window.showToast('Copy Failed', err.message, 'error');
   });
 };

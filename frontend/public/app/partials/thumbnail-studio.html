@@ -1,7 +1,7 @@
 <section id="thumbnail-view" class="view-section">
   <div class="thumbnail-workspace">
-    
-    <!-- Top Workspace Header -->
+
+    <!-- Top Workspace Header 
     <div class="thumb-header">
       <div class="thumb-header-left">
         <h1>Vision Studio</h1>
@@ -10,16 +10,17 @@
       <div class="thumb-header-model">
         Model: llama-4-scout-17b-16e-instruct
       </div>
-    </div>
+    </div>-->
 
     <div class="thumb-layout">
 
       <!-- Main Audit Workflow Workspace -->
       <main class="thumb-main-area" style="scrollbar-width: none;">
-        
+
         <!-- URL / Media Source Toggle Controls -->
         <div class="media-tabs" style="display: flex; gap: 4px; margin-bottom: 18px; width: 100%; max-width: 1080px;">
-          <button class="analysis-tab-btn active" id="tabSourceUpload" onclick="switchMediaSource('upload')" style="flex: 1;">
+          <button class="analysis-tab-btn active" id="tabSourceUpload" onclick="switchMediaSource('upload')"
+            style="flex: 1;">
             <i class="fa-solid fa-file-arrow-up" style="margin-right: 6px;"></i> Upload File (Image/Video)
           </button>
           <button class="analysis-tab-btn" id="tabSourceUrl" onclick="switchMediaSource('url')" style="flex: 1;">
@@ -35,7 +36,7 @@
               <span>CHOOSE IMAGE OR VIDEO</span>
               <span>Drag & drop visual file here or click to browse</span>
             </div>
-            
+
             <img id="mainThumbnail" src="" alt="Thumbnail preview for analysis">
             <input type="file" id="thumbUploadInput" accept="image/*,video/*" style="display: none;">
           </div>
@@ -44,10 +45,10 @@
         <!-- Panel 2: YouTube URL Input Form Container -->
         <section class="thumb-preview-panel" id="urlInputContainer" style="display: none;">
           <div class="thumb-preview-wrap">
-            
+
             <!-- YouTube Preview Frame if Loaded -->
             <img id="urlThumbnailPreview" src="" alt="YouTube frame extraction preview">
-            
+
             <!-- Initial Input View Form -->
             <div id="urlInputForm">
               <i class="fa-brands fa-youtube"></i>
@@ -57,13 +58,14 @@
               </div>
               <div class="yt-input-wrapper">
                 <i class="fa-solid fa-link"></i>
-                <input type="url" id="ytVideoUrl" placeholder="Paste YouTube video link..." aria-label="YouTube video link">
+                <input type="url" id="ytVideoUrl" placeholder="Paste YouTube video link..."
+                  aria-label="YouTube video link">
                 <button class="generate-btnn" onclick="loadYoutubeThumbnail()">
                   <span>Load</span>
                 </button>
               </div>
             </div>
-            
+
           </div>
         </section>
 
@@ -83,7 +85,7 @@
               </button>
               <button class="generate-btnn btn-analyze" id="analyzeBtn" disabled>
                 <span>Analyze Design</span>
-                <i class="fa-solid fa-eye-low-vision"></i>
+                <i class="fa-solid fa-bullseye"></i>
               </button>
             </div>
           </div>
@@ -91,18 +93,27 @@
 
         <!-- Vision Audit Results Section (Plain English Output & Recreation Prompts) -->
         <div class="analysis-results-container" id="analysisResults" style="display: none;">
-          
+
           <!-- Tab Navigation -->
           <div class="analysis-tabs">
-            <button class="analysis-tab-btn active" id="btnTabVisual" onclick="switchAnalysisTab('visual-audit')">Visual Audit</button>
-            <button class="analysis-tab-btn" id="btnTabRecreation" onclick="switchAnalysisTab('recreation')">Recreation Prompts</button>
-            <button class="analysis-tab-btn" id="btnTabVariants" onclick="switchAnalysisTab('variants')">Style Variations</button>
+            <button class="analysis-tab-btn active" id="btnTabVisual" onclick="switchAnalysisTab('visual-audit')">
+              <i class="fa-solid fa-eye"></i> Visual Audit
+            </button>
+            <button class="analysis-tab-btn" id="btnTabSummary" onclick="switchAnalysisTab('summary')">
+              <i class="fa-solid fa-sparkles"></i> Summary
+            </button>
+            <button class="analysis-tab-btn" id="btnTabRecreation" onclick="switchAnalysisTab('recreation')">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Recreation Prompts
+            </button>
+            <button class="analysis-tab-btn" id="btnTabVariants" onclick="switchAnalysisTab('variants')">
+              <i class="fa-solid fa-layer-group"></i> Style Variations
+            </button>
           </div>
 
           <!-- Tab Content: Visual Audit -->
           <div class="analysis-tab-content active" id="tab-visual-audit">
             <div class="audit-grid">
-              
+
               <!-- Card: Composition -->
               <div class="dna-card premium-audit-card">
                 <div class="card-header-with-icon">
@@ -118,7 +129,8 @@
                     <strong>Rule of Thirds:</strong> <span id="valCompositionThirds">--</span>
                   </div>
                   <div class="detail-row">
-                    <strong>Hierarchy Flow:</strong> <span id="valCompositionHierarchy" style="max-width: 170px;">--</span>
+                    <strong>Hierarchy Flow:</strong> <span id="valCompositionHierarchy"
+                      style="max-width: 170px;">--</span>
                   </div>
                 </div>
               </div>
@@ -129,7 +141,8 @@
                   <i class="fa-solid fa-bullseye"></i>
                   <span class="dna-label">Subject & Focus</span>
                 </div>
-                <h3 class="dna-title" id="valSubjectDesc" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
+                <h3 class="dna-title" id="valSubjectDesc"
+                  style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
                 <div class="details-list">
                   <div class="detail-row">
                     <strong>Expression:</strong> <span id="valSubjectExpression">--</span>
@@ -149,7 +162,8 @@
                   <i class="fa-solid fa-signature"></i>
                   <span class="dna-label">Typography & Overlay</span>
                 </div>
-                <h3 class="dna-title" id="valTextContent" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
+                <h3 class="dna-title" id="valTextContent"
+                  style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">--</h3>
                 <div class="details-list">
                   <div class="detail-row">
                     <strong>Font Style:</strong> <span id="valFontStyle">--</span>
@@ -206,10 +220,87 @@
             </div>
           </div>
 
+          <!-- Tab Content: Summary (NEW) -->
+          <div class="analysis-tab-content" id="tab-summary">
+            <div class="summary-tab-layout">
+
+              <!-- Hero Score Card -->
+              <div class="summary-hero-card">
+                <div class="summary-hero-left">
+                  <div class="summary-score-badge" id="summaryScore">--</div>
+                  <div class="summary-score-label">Attention Score</div>
+                </div>
+                <div class="summary-hero-right">
+                  <div class="summary-verdict" id="summaryVerdict">Awaiting analysis</div>
+                  <div class="summary-archetype-label">
+                    <i class="fa-solid fa-fingerprint"></i>
+                    <span id="summaryArchetype">--</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Narrative Summary -->
+              <div class="summary-narrative-card">
+                <div class="summary-card-header">
+                  <i class="fa-solid fa-sparkles"></i>
+                  <span>AI Thumbnail Analysis</span>
+                  <button class="copy-prompt-btn" onclick="copyText('summaryNarrative')">
+                    <i class="fa-regular fa-copy"></i> Copy
+                  </button>
+                </div>
+                <p id="summaryNarrative" class="summary-narrative-text">Run a thumbnail analysis to see a full
+                  AI-written breakdown of your design here.</p>
+              </div>
+
+              <!-- Two-column: Strengths + Weaknesses -->
+              <div class="summary-two-col">
+                <div class="summary-col-card strengths-card">
+                  <div class="summary-col-header">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Key Strengths</span>
+                  </div>
+                  <ul id="summaryStrengths" class="summary-list">
+                    <li class="placeholder-item">--</li>
+                  </ul>
+                </div>
+                <div class="summary-col-card weaknesses-card">
+                  <div class="summary-col-header">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Improvement Areas</span>
+                  </div>
+                  <ul id="summaryWeaknesses" class="summary-list">
+                    <li class="placeholder-item">--</li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Metric Snapshot Row -->
+              <div class="summary-metrics-row">
+                <div class="summary-metric-chip">
+                  <span class="chip-label">Emotional Trigger</span>
+                  <span class="chip-value" id="summaryTrigger">--</span>
+                </div>
+                <div class="summary-metric-chip">
+                  <span class="chip-label">Color Temperature</span>
+                  <span class="chip-value" id="summaryColorTemp">--</span>
+                </div>
+                <div class="summary-metric-chip">
+                  <span class="chip-label">Mobile Readability</span>
+                  <span class="chip-value" id="summaryMobile">-- / 10</span>
+                </div>
+                <div class="summary-metric-chip">
+                  <span class="chip-label">Layout Pattern</span>
+                  <span class="chip-value" id="summaryLayout">--</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
           <!-- Tab Content: Recreation Prompts -->
           <div class="analysis-tab-content" id="tab-recreation">
             <div style="display: flex; flex-direction: column; gap: 20px;">
-              
+
               <!-- Plain Text Prompt -->
               <div class="dna-card prompt-card">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -235,12 +326,14 @@
               <!-- Structured JSON Prompt -->
               <div class="dna-card prompt-card" style="border-left: 1px solid var(--border-soft) !important;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                  <span class="dna-label" style="color: var(--text-sec) !important;">Structured prompt (JSON Format)</span>
+                  <span class="dna-label" style="color: var(--text-sec) !important;">Structured prompt (JSON
+                    Format)</span>
                   <button class="copy-prompt-btn" onclick="copyText('promptJsonText')">
                     <i class="fa-regular fa-copy"></i> Copy
                   </button>
                 </div>
-                <pre id="promptJsonText" class="prompt-text-block" style="font-family: var(--mono); font-size: 12px; overflow-x: auto; max-height: 250px;">--</pre>
+                <pre id="promptJsonText" class="prompt-text-block"
+                  style="font-family: var(--mono); font-size: 12px; overflow-x: auto; max-height: 250px;">--</pre>
               </div>
 
             </div>
@@ -278,7 +371,8 @@
             <div class="dna-bar">
               <div class="dna-bar-fill empty" id="dnaScoreBar"></div>
             </div>
-            <p class="dna-desc" id="dnaAttentionDesc">Upload design files or input YouTube link to perform vision AI audit analysis.</p>
+            <p class="dna-desc" id="dnaAttentionDesc">Upload design files or input YouTube link to perform vision AI
+              audit analysis.</p>
           </div>
 
           <div class="dna-card">

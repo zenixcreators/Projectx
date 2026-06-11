@@ -63,7 +63,7 @@
      LAYOUT
   ======================================== */
 
-  --sidebar-width: 220px;
+  --sidebar-width: 260px;
   --topbar-height: 68px;
 
   /* ========================================
@@ -148,57 +148,166 @@ h6,
 }
 
 /* ─────────────────────────────────────────
-   SIDEBAR
+   SIDEBAR (Light Frosted Glass Theme - Thick White)
 ───────────────────────────────────────── */
 .sidebar {
-  width: 220px;
+  position: relative !important;
+  overflow: hidden !important;
+  width: var(--sidebar-width) !important;
+  height: 100vh !important;
   flex-shrink: 0;
-  background: #f4f3f6;
-  border-right: 1px solid rgba(20, 20, 25, 0.05);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   transition: width var(--t) var(--ease);
-  position: relative;
   z-index: 20;
 }
 
 .sidebar.collapsed {
-  width: 60px;
+  width: 60px !important;
+}
+
+/* Background base: Light soft grey-blue wash */
+.sidebar-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  background: #F1F4FA !important;
+  overflow: hidden;
+}
+
+/* SVG noise pattern overlay on the background */
+.sidebar-noise {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E") !important;
+  pointer-events: none;
+}
+
+/* Soft Glowing Blobs: Light blue and lavender auroras */
+.blob {
+  position: absolute !important;
+  border-radius: 50% !important;
+  z-index: 0 !important;
+  pointer-events: none;
+}
+
+.blob-1 {
+  top: -15%;
+  left: -15%;
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(circle, #DDE4F8 0%, transparent 70%) !important;
+  opacity: 0.85 !important;
+  filter: blur(40px) !important;
+  animation: fluid-blob-1 14s ease-in-out infinite alternate;
+}
+
+.blob-2 {
+  top: 35%;
+  right: -15%;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, #E2DDF8 0%, transparent 70%) !important;
+  opacity: 0.80 !important;
+  filter: blur(35px) !important;
+  animation: fluid-blob-2 16s ease-in-out infinite alternate;
+}
+
+.blob-3 {
+  bottom: -10%;
+  left: -5%;
+  width: 230px;
+  height: 230px;
+  background: radial-gradient(circle, #E0F2FE 0%, transparent 70%) !important;
+  opacity: 0.75 !important;
+  filter: blur(35px) !important;
+  animation: fluid-blob-1 20s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes fluid-blob-1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(35px, -35px) scale(1.18);
+  }
+
+  100% {
+    transform: translate(-20px, 20px) scale(0.85);
+  }
+}
+
+@keyframes fluid-blob-2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-35px, 35px) scale(0.82);
+  }
+
+  100% {
+    transform: translate(30px, -25px) scale(1.12);
+  }
+}
+
+/* Glass Layer: "Thick White" Frosted Glass */
+.sidebar-glass {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  background: rgba(255, 255, 255, 0.45) !important;
+  backdrop-filter: blur(30px) saturate(160%) brightness(1.05) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(160%) brightness(1.05) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    inset 0 0 0 0.5px rgba(255, 255, 255, 0.5),
+    4px 0 24px rgba(0, 0, 0, 0.01) !important;
+}
+
+/* Sidebar Content Wrapper */
+.sidebar-content {
+  position: relative !important;
+  z-index: 2 !important;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
 .sidebar-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 12px;
-  margin-top: -7px;
-  border-bottom: 1px solid rgb(160, 155, 155);
+  gap: 12px;
+  padding: 18px 16px 12px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   flex-shrink: 0;
 }
 
 /* The logo IS the toggle button */
 .sidebar-logo-toggle {
-  background: none;
-  border: none;
-  padding: 0;
+  background: linear-gradient(135deg, #EEF2F6, #E2E8F0) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   border-radius: 8px;
+  width: 40px;
+  height: 40px;
   transition: transform 0.2s ease;
 }
 
-.sidebar-logo-toggle:hover .sidebar-logo-img {
-  filter: drop-shadow(0 0 6px rgba(124, 58, 237, 0.45));
+.sidebar-logo-toggle:hover {
+  transform: scale(1.05);
 }
 
 .sidebar-logo-img {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
   display: block;
   transition: transform 0.5s cubic-bezier(0.34, 1.2, 0.64, 1);
@@ -220,11 +329,11 @@ h6,
 }
 
 .sidebar-brand-text {
-  font-size: 25px;
-  font-weight: 600;
-  color: #1b1238;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0F172A !important;
   white-space: nowrap;
-  letter-spacing: 0.05em;
+  letter-spacing: -0.02em;
   margin-top: 10px;
   overflow: hidden;
   opacity: 1;
@@ -243,8 +352,9 @@ h6,
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 4px 0;
+  padding: 8px 0;
   scrollbar-width: none;
+  position: relative;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -252,12 +362,12 @@ h6,
 }
 
 .nav-section {
-  font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.13em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #9f95bf;
-  padding: 10px 18px 5px;
+  color: #94A3B8 !important;
+  padding: 16px 20px 8px;
   white-space: nowrap;
   overflow: hidden;
   transition: opacity var(--t);
@@ -269,25 +379,26 @@ h6,
 }
 
 .nav-item {
-  width: 100%;
+  width: calc(100% - 24px);
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 8px 11px;
-  margin: 1px 8px;
-  width: calc(100% - 16px);
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #4c3b70;
-  font-size: 12.5px;
+  gap: 12px;
+  padding: 10px 16px;
+  margin: 6px 12px;
+  border-radius: 10px;
+  background: transparent !important;
+  border: none !important;
+  color: #475569 !important;
+  font-size: 13.5px;
   font-family: var(--font);
-  font-weight: 400;
+  font-weight: 500;
   cursor: pointer;
   text-align: left;
   position: relative;
   white-space: nowrap;
   transition: all 0.15s ease;
+  z-index: 1 !important;
+
   /* staggered load-in */
   opacity: 0;
   transform: translateY(5px);
@@ -338,36 +449,42 @@ h6,
 }
 
 .nav-item:hover {
-  background: #ece9f6;
-  color: #6d28d9;
-  transition: all 0.15s ease;
+  color: #0F172A !important;
 }
 
 .nav-item.active {
-  background: #e9e5f7;
-  border: 1px solid #d2c8f9;
-  color: #6d28d9;
-  font-weight: 500;
-  box-shadow: none;
+  color: #2563EB !important;
+  font-weight: 600;
 }
 
 .nav-item i {
-  font-size: 15px;
+  font-size: 16px;
   flex-shrink: 0;
-  color: #4c3b70;
+  color: #64748B !important;
   transition: color 0.15s ease;
-  width: 16px;
+  width: 18px;
   text-align: center;
+  position: relative;
+  z-index: 2;
+  display: inline-block !important;
+  transform-origin: left center !important;
 }
 
-.nav-item:hover i,
+.nav-item:hover i {
+  color: #0F172A !important;
+}
+
 .nav-item.active i {
-  color: #6d28d9;
+  color: #2563EB !important;
 }
 
 .nav-item span {
-  transition: opacity var(--t) var(--ease);
   overflow: hidden;
+  position: relative;
+  z-index: 2;
+  display: inline-block !important;
+  transform-origin: left center !important;
+  transition: opacity var(--t) var(--ease);
 }
 
 .sidebar.collapsed .nav-item span {
@@ -375,14 +492,40 @@ h6,
   width: 0;
 }
 
+/* ── Floating Liquid Glass Nav Indicator Pill ────────────────────── */
+.nav-indicator-pill {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 42px;
+  border-radius: 18px;
+  /* Liquid glass surface */
+  background: rgba(255, 255, 255, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 122, 255, 0.06),
+    0 4px 20px rgba(0, 122, 255, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.04) !important;
+  /* Spring slide transition for position */
+  transition:
+    top 0.5s cubic-bezier(0.34, 1.5, 0.64, 1),
+    height 0.5s cubic-bezier(0.34, 1.5, 0.64, 1);
+  pointer-events: none;
+  z-index: 0;
+  will-change: top, height;
+}
+
 /* Sidebar Footer */
 .sidebar-footer {
-  border-top: 1px solid rgba(20, 20, 25, 0.05);
-  padding: 14px 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 16px 20px;
   flex-shrink: 0;
 }
 
-/* Hide upgrade box — not in spec */
+/* Hide upgrade box */
 .sidebar-upgrade {
   display: none;
 }
@@ -398,15 +541,15 @@ h6,
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #6d28d9;
+  background: linear-gradient(135deg, #3B82F6, #2563EB) !important;
+  color: #FFFFFF !important;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
-  font-weight: 500;
-  color: #ffffff;
+  font-weight: 600;
   flex-shrink: 0;
-  letter-spacing: 0.02em;
+  border: none !important;
 }
 
 .user-meta {
@@ -424,8 +567,8 @@ h6,
 
 .user-name {
   font-size: 13.5px;
-  font-weight: 700;
-  color: #1b1238;
+  font-weight: 600;
+  color: #0F172A !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -433,10 +576,10 @@ h6,
 
 .user-plan-badge {
   font-size: 10px;
-  font-weight: 500;
-  color: #6d28d9;
-  background: #e9e5f7;
-  border: 1px solid #d2c8f9;
+  font-weight: 600;
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563EB !important;
+  border: 1px solid rgba(37, 99, 235, 0.15) !important;
   border-radius: 20px;
   padding: 1px 8px;
   display: inline-block;
@@ -575,7 +718,7 @@ h6,
 
 @media (max-width: 720px) {
   .sidebar {
-    width: 56px;
+    width: 56px !important;
   }
 
   .sidebar-brand,
@@ -683,13 +826,12 @@ h6,
   color: var(--muted);
   font-weight: 500;
 }
-
 /* ─────────────────────────────────────────
    TOAST NOTIFICATION SYSTEM
 ───────────────────────────────────────── */
 .toast-container {
   position: fixed;
-  bottom: 24px;
+  top: 24px;
   right: 24px;
   display: flex;
   flex-direction: column;
@@ -792,3 +934,1029 @@ h6,
   background: var(--hover);
   color: var(--text);
 }
+
+/* ─────────────────────────────────────────
+   PART 4 — CANVAS / MAIN AREA COLOR UPDATE
+───────────────────────────────────────── */
+.main-wrapper,
+.workspace {
+  background: #F1F5F9 !important;
+}
+
+/* Card components in main-wrapper to match the premium light theme */
+.main-wrapper .metric-card,
+.main-wrapper .dna-card,
+.main-wrapper .section-card,
+.main-wrapper .premium-audit-card,
+.main-wrapper .prompt-card,
+.main-wrapper .highlight-card,
+.main-wrapper .hook-test-card,
+.main-wrapper .bg-white.border,
+.main-wrapper [class*="bg-white border"],
+.main-wrapper [class*="bg-gradient-to-br from-white"] {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+/* ─────────────────────────────────────────
+   APPLE LIQUID GLASS REDESIGN OVERRIDES
+───────────────────────────────────────── */
+
+/* 1. Typography & Font Family Override (SF Pro Display / Apple Style) */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", sans-serif;
+  --font-head: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Inter", sans-serif;
+}
+
+body, button, input, textarea, select {
+  font-family: var(--font) !important;
+}
+
+/* Font weight overrides */
+h1, h2, h3, h4, h5, h6, .page-title, .canvas-topbar h2, .upgrade-title, .sidebar-brand-text, .topbar-title {
+  font-weight: 600 !important;
+}
+
+label, .sec-label, .metric-card-header, .hooks-panel-title, .toggle-title, .plan-select-title {
+  font-weight: 500 !important;
+}
+
+/* 2. Ambient Gradient Background */
+body, .app-container {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(0, 122, 255, 0.08),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(90, 200, 250, 0.06),
+      transparent 40%
+    ),
+    #F5F5F7 !important;
+}
+
+/* 3. Side Nav (Sidebar) Liquid Glass */
+.sidebar-glass {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(30px) saturate(130%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(130%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.05) !important;
+}
+
+/* 4. Cards Liquid Glass (Applied in main-wrapper to match layout spacing) */
+.main-wrapper .metric-card,
+.main-wrapper .dna-card,
+.main-wrapper .section-card,
+.main-wrapper .premium-audit-card,
+.main-wrapper .prompt-card,
+.main-wrapper .highlight-card,
+.main-wrapper .hook-test-card,
+.main-wrapper .bg-white.border,
+.main-wrapper [class*="bg-white border"],
+.main-wrapper [class*="bg-gradient-to-br from-white"] {
+  background: rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(30px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(30px) saturate(120%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.05) !important;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.main-wrapper .metric-card:hover,
+.main-wrapper .section-card:hover,
+.main-wrapper .premium-audit-card:hover,
+.main-wrapper .prompt-card:hover,
+.main-wrapper .highlight-card:hover,
+.main-wrapper .hook-test-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 5. Buttons Redesign */
+.btn-primary,
+.generate-btn,
+.hook-test-main-btn {
+  background: #007AFF !important;
+  color: #FFFFFF !important;
+  border-radius: 16px !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15) !important;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.btn-primary:hover,
+.generate-btn:hover,
+.hook-test-main-btn:hover {
+  background: #0066D6 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(0, 122, 255, 0.25) !important;
+}
+
+.btn-primary:disabled,
+.generate-btn:disabled,
+.hook-test-main-btn:disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-secondary,
+.btn-ghost,
+.copy-full-btn,
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 16px !important;
+  color: #1D1D1F !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover,
+.copy-full-btn:hover,
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
+  transform: translateY(-1px) !important;
+  color: #1D1D1F !important;
+}
+
+/* 6. Inputs redesign */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+.settings-input,
+textarea,
+.hook-tester textarea,
+#mainInput {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
+  border-radius: 16px !important;
+  color: #1D1D1F !important;
+  transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+  outline: none !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+.settings-input:focus,
+textarea:focus,
+.hook-tester textarea:focus,
+#mainInput:focus {
+  border-color: #007AFF !important;
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.75) !important;
+}
+
+/* 7. Accent Color Accoutrements */
+.metric-progress-fill {
+  background: #007AFF !important;
+}
+
+.tone-chip.active {
+  background: rgba(0, 122, 255, 0.08) !important;
+  border-color: rgba(0, 122, 255, 0.15) !important;
+  color: #007AFF !important;
+}
+
+.hashtag {
+  background: rgba(0, 122, 255, 0.08) !important;
+  border-color: rgba(0, 122, 255, 0.15) !important;
+  color: #007AFF !important;
+}
+
+.score-ring-progress {
+  stroke: #007AFF !important;
+}
+
+.user-plan-badge {
+  background: rgba(0, 122, 255, 0.08) !important;
+  color: #007AFF !important;
+  border: 1px solid rgba(0, 122, 255, 0.15) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   LIQUID GLASS LENS — pill animation (enhanced)
+   Refracts like glass during slide instead of just squishing
+═══════════════════════════════════════════════════════════ */
+@keyframes liquid-morph {
+  0% {
+    border-radius: 18px;
+    transform: scaleX(1) scaleY(1);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      0 4px 20px rgba(0, 122, 255, 0.08);
+  }
+  20% {
+    border-radius: 22px 16px 16px 22px / 20px 14px 14px 20px;
+    transform: scaleX(1.05) scaleY(0.9);
+    background: rgba(255, 255, 255, 0.85);
+    box-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 1),
+      0 6px 24px rgba(0, 122, 255, 0.14);
+  }
+  45% {
+    border-radius: 16px 22px 22px 16px / 14px 20px 20px 14px;
+    transform: scaleX(0.94) scaleY(1.08);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      0 8px 28px rgba(0, 122, 255, 0.1);
+  }
+  70% {
+    border-radius: 20px 18px 18px 20px / 18px 16px 16px 18px;
+    transform: scaleX(1.02) scaleY(0.97);
+    background: rgba(255, 255, 255, 0.74);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      0 4px 20px rgba(0, 122, 255, 0.08);
+  }
+  88% {
+    border-radius: 18px;
+    transform: scaleX(0.99) scaleY(1.01);
+  }
+  100% {
+    border-radius: 18px;
+    transform: scaleX(1) scaleY(1);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.95),
+      0 4px 20px rgba(0, 122, 255, 0.08);
+  }
+}
+
+/* Triggered via JS when transitioning between tabs */
+.nav-indicator-pill.moving {
+  animation: liquid-morph 500ms cubic-bezier(0.34, 1.35, 0.64, 1) forwards;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ╔═══════════════════════════════════════════════════════╗
+   ║        APPLE GLASS DESIGN SYSTEM — SITE WIDE         ║
+   ╚═══════════════════════════════════════════════════════╝
+   Unified palette · SF Pro typography · Glass surfaces ·
+   Glass buttons · Canvas section alignment fixes
+═══════════════════════════════════════════════════════════ */
+
+/* ── 1. Design Tokens (override root) ── */
+:root {
+  /* Apple palette */
+  --apple-blue:       #007AFF;
+  --apple-blue-hover: #0066D6;
+  --apple-blue-glow:  rgba(0, 122, 255, 0.18);
+  --apple-blue-tint:  rgba(0, 122, 255, 0.07);
+  --apple-blue-border:rgba(0, 122, 255, 0.18);
+
+  /* Surfaces */
+  --glass-bg:     rgba(255, 255, 255, 0.65);
+  --glass-bg-mid: rgba(255, 255, 255, 0.50);
+  --glass-border: rgba(255, 255, 255, 0.60);
+  --glass-shadow: 0 8px 32px rgba(15,23,42,0.06), 0 1px 3px rgba(15,23,42,0.04);
+
+  /* Typography — Apple system stack */
+  --font:      -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
+  --font-head: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif;
+  --mono:      ui-monospace, "SF Mono", Menlo, "Geist Mono", monospace;
+
+  /* Text — Apple palette */
+  --text:     #1D1D1F !important;
+  --text-sec: #6E6E73 !important;
+  --muted:    #8E8E93 !important;
+
+  /* Accent — Apple Blue */
+  --accent:        var(--apple-blue);
+  --accent-bg:     var(--apple-blue-tint);
+  --accent-glow:   var(--apple-blue-glow);
+  --accent-border: var(--apple-blue-border);
+
+  /* Background */
+  --bg:      #F2F5FA;
+  --surface: rgba(255,255,255,0.80);
+  --card:    rgba(255,255,255,0.70);
+  --hover:   rgba(255,255,255,0.85);
+  --border:  rgba(0,0,0,0.07);
+  --border-soft: rgba(0,0,0,0.04);
+  --border-mid:  rgba(0,0,0,0.10);
+
+  /* Radius */
+  --radius-sm: 10px;
+  --radius:    14px;
+  --radius-lg: 18px;
+  --radius-xl: 22px;
+}
+
+/* ── 2. Body & Base ── */
+html, body {
+  background: #F2F5FA !important;
+  font-family: var(--font) !important;
+  -webkit-font-smoothing: antialiased !important;
+  font-size: 16px !important;
+  color: #1D1D1F !important;
+}
+
+/* Ambient wash on app container */
+.app-container {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0,122,255,0.06) 0%, transparent 38%),
+    radial-gradient(circle at 80% 90%, rgba(90,200,250,0.05) 0%, transparent 35%),
+    #F2F5FA !important;
+}
+
+/* ── 3. Typography — consistent everywhere (Font Awesome EXCLUDED) ── */
+
+/* Protect Font Awesome icon fonts — must come BEFORE any font overrides */
+.fa, .fas, .far, .fab, .fal, .fad, .fass, .fasr, .fasl, .fat,
+[class*=" fa-"], [class^="fa-"],
+i.fa, i.fas, i.far, i.fab, i.fal,
+*::before, *::after {
+  font-family: inherit;
+}
+
+/* But FA pseudo-elements need their own font, so re-restore them */
+.fa::before, .fas::before, .far::before, .fab::before, .fal::before,
+[class*=" fa-"]::before, [class^="fa-"]::before {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro" !important;
+}
+
+/* Apply SF Pro to text elements specifically — NOT pseudo-elements */
+html, body,
+h1, h2, h3, h4, h5, h6,
+p, li, label, span:not([class*="fa"]),
+button:not([class*="fa"]), input, textarea, select,
+.nav-item, .nav-section, .sidebar-brand-text,
+.topbar-title, .sec-content, .hook-text,
+.canvas-topbar h2, .hook-board-topbar h2,
+.user-name, .user-plan-badge, .analysis-verdict,
+.hooks-panel-title, .analysis-panel-title, .analysis-label,
+.hook-test-label, .sec-label, .analysis-list li,
+.plan-select-title, .plan-select-desc, .modal-header h2,
+.modal-header p, .toast-title, .toast-message,
+.score-number, .score-label, .meta-item,
+.hook-score-grade, .hook-score-verdict {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Inter, sans-serif !important;
+}
+
+/* Section / panel labels */
+.nav-section, .hooks-panel-title, .analysis-panel-title,
+.sec-label, .analysis-label, .hook-test-label,
+.canvas-topbar h2, .hook-board-topbar h2 {
+  font-weight: 600 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+  font-size: 10.5px !important;
+  color: #8E8E93 !important;
+}
+
+/* Body copy */
+.sec-content, .hook-text, .analysis-verdict,
+.hook-score-verdict, .analysis-list li {
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+}
+
+/* Nav items */
+.nav-item {
+  font-weight: 450 !important;
+  letter-spacing: -0.01em !important;
+  font-size: 13.5px !important;
+}
+
+.nav-item.active {
+  font-weight: 590 !important;
+  color: #007AFF !important;
+}
+
+.nav-item.active i {
+  color: #007AFF !important;
+}
+
+/* ── 4. Topbar — Glass ── */
+.topbar {
+  background: rgba(242, 245, 250, 0.85) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border-bottom: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.8) !important;
+}
+
+.topbar-title {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #1D1D1F !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* ── 5. Sidebar — stronger glass ── */
+.sidebar-glass {
+  background: rgba(242, 245, 250, 0.78) !important;
+  backdrop-filter: blur(36px) saturate(200%) brightness(1.04) !important;
+  -webkit-backdrop-filter: blur(36px) saturate(200%) brightness(1.04) !important;
+  border-right: 1px solid rgba(255,255,255,0.55) !important;
+  box-shadow:
+    inset -1px 0 0 rgba(255,255,255,0.6),
+    4px 0 28px rgba(0,0,0,0.03) !important;
+}
+
+.sidebar-content {
+  background: transparent !important;
+}
+
+/* Sidebar brand */
+.sidebar-brand-text {
+  font-size: 22px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.03em !important;
+  color: #1D1D1F !important;
+}
+
+/* Nav item icon colors — theme-matched */
+.nav-item i {
+  color: #6E6E73 !important;
+  font-size: 15px !important;
+  width: 18px !important;
+  text-align: center !important;
+  flex-shrink: 0 !important;
+  /* Restore FA font for icons */
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+  font-weight: 900 !important;
+}
+
+.nav-item.active i {
+  color: #007AFF !important;
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands" !important;
+  font-weight: 900 !important;
+}
+
+.nav-item:hover i {
+  color: #3C3C43 !important;
+}
+
+/* All FA icons anywhere — restore their rendering */
+i[class*="fa-"],
+[class^="fa-"],
+[class*=" fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "Font Awesome 6 Pro" !important;
+  font-style: normal !important;
+  display: inline-block !important;
+}
+
+/* ── 6. Main canvas — glass cards ── */
+.main-wrapper,
+.workspace {
+  background: #F2F5FA !important;
+}
+
+.script-canvas,
+.hook-board {
+  background: transparent !important;
+  padding: 28px 36px !important;
+  padding-bottom: 180px !important;
+}
+
+.hooks-panel,
+.analysis-panel {
+  background: rgba(255,255,255,0.72) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border-left: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+/* All cards get glass treatment */
+.section-card,
+.hook-item,
+.hook-test-card,
+.analysis-card,
+.analysis-empty-state,
+.hook-test-loading,
+.metric-card,
+.dna-card,
+.premium-audit-card,
+.prompt-card,
+.highlight-card {
+  background: rgba(255,255,255,0.68) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
+  border: 1px solid rgba(255,255,255,0.7) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03) !important;
+  border-radius: 16px !important;
+}
+
+.section-card:hover,
+.hook-item:hover {
+  background: rgba(255,255,255,0.82) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04) !important;
+  transform: translateY(-1px) !important;
+  border-color: rgba(255,255,255,0.85) !important;
+}
+
+/* ── 7. Primary Buttons — Apple Blue ── */
+.btn-primary,
+.generate-btn,
+.hook-test-main-btn,
+.analysis-main-btn,
+.hook-test-inline-btn.primary {
+  background: #007AFF !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 16px !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  letter-spacing: -0.01em !important;
+  box-shadow: 0 2px 8px rgba(0,122,255,0.20) !important;
+  transition: all 220ms cubic-bezier(0.4,0,0.2,1) !important;
+  cursor: pointer !important;
+}
+
+.btn-primary:hover,
+.generate-btn:hover,
+.hook-test-main-btn:hover,
+.analysis-main-btn:hover {
+  background: #0066D6 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 16px rgba(0,122,255,0.28) !important;
+}
+
+.btn-primary:disabled,
+.generate-btn:disabled,
+.hook-test-main-btn:disabled,
+.analysis-main-btn:disabled {
+  opacity: 0.45 !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── 8. Secondary / Ghost / Copy Buttons — Glass ── */
+.btn-secondary,
+.btn-ghost,
+.copy-full-btn,
+.modal-close-btn,
+.hook-rewrite button,
+.hook-copy-btn,
+.hook-test-inline-btn {
+  background: rgba(255,255,255,0.58) !important;
+  border: 1px solid rgba(255,255,255,0.62) !important;
+  border-radius: 12px !important;
+  color: #3C3C43 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 200ms cubic-bezier(0.4,0,0.2,1) !important;
+  cursor: pointer !important;
+}
+
+.btn-secondary:hover,
+.btn-ghost:hover,
+.copy-full-btn:hover,
+.modal-close-btn:hover,
+.hook-rewrite button:hover,
+.hook-copy-btn:hover,
+.hook-test-inline-btn:hover {
+  background: rgba(255,255,255,0.82) !important;
+  color: #1D1D1F !important;
+  border-color: rgba(255,255,255,0.90) !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Mode selector pills (Long Form / Short Form / Story Mode) */
+.mode-selector-pill,
+.script-mode-group {
+  display: inline-flex !important;
+  gap: 4px !important;
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+  border-radius: 22px !important;
+  padding: 4px !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+}
+
+.mode-btn, .mode-pill {
+  padding: 8px 18px !important;
+  border-radius: 18px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -0.01em !important;
+  background: transparent !important;
+  border: none !important;
+  color: #6E6E73 !important;
+  cursor: pointer !important;
+  transition: all 200ms ease !important;
+}
+
+.mode-btn.active, .mode-pill.active,
+.mode-btn[data-active="true"] {
+  background: rgba(255,255,255,0.90) !important;
+  color: #1D1D1F !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04) !important;
+  font-weight: 600 !important;
+}
+
+/* Tone chips */
+.tone-chip, .tone-btn {
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  color: #6E6E73 !important;
+  cursor: pointer !important;
+  transition: all 180ms ease !important;
+  white-space: nowrap !important;
+}
+
+.tone-chip.active, .tone-btn.active,
+.tone-chip:hover, .tone-btn:hover {
+  background: var(--apple-blue-tint) !important;
+  border-color: var(--apple-blue-border) !important;
+  color: #007AFF !important;
+}
+
+/* ── 9. Input / Textarea — Apple style ── */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+.settings-input,
+textarea,
+select {
+  background: rgba(255,255,255,0.62) !important;
+  border: 1px solid rgba(0,0,0,0.08) !important;
+  border-radius: 14px !important;
+  color: #1D1D1F !important;
+  font-size: 15px !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em !important;
+  transition: all 200ms ease !important;
+  outline: none !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #8E8E93 !important;
+  font-weight: 400 !important;
+}
+
+input:focus, textarea:focus, select:focus {
+  background: rgba(255,255,255,0.82) !important;
+  border-color: rgba(0,122,255,0.35) !important;
+  box-shadow: 0 0 0 4px rgba(0,122,255,0.10) !important;
+}
+
+/* Hook / Script tester textarea */
+.hook-tester textarea,
+.script-tester textarea {
+  background: rgba(255,255,255,0.62) !important;
+  border-color: rgba(0,0,0,0.07) !important;
+  border-radius: 14px !important;
+  font-size: 14px !important;
+  padding: 12px 14px !important;
+}
+
+.hook-tester textarea:focus,
+.script-tester textarea:focus {
+  border-color: rgba(0,122,255,0.35) !important;
+  box-shadow: 0 0 0 4px rgba(0,122,255,0.10) !important;
+}
+
+/* Main chat input bar glass card */
+.input-bar-wrapper > div,
+.hook-input-bar-wrapper > div,
+.input-card, [class*="input-bar"] {
+  background: rgba(255,255,255,0.72) !important;
+  backdrop-filter: blur(28px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
+  border: 1px solid rgba(255,255,255,0.75) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.06) !important;
+}
+
+/* ── 10. Accent chips, hashtags, badges ── */
+.hashtag, .tone-chip.active, .analysis-pill.active,
+.hook-best-label, .hook-count-pill, #hookCount {
+  background: rgba(0,122,255,0.08) !important;
+  border-color: rgba(0,122,255,0.18) !important;
+  color: #007AFF !important;
+}
+
+.analysis-pill {
+  background: rgba(255,255,255,0.55) !important;
+  border: 1px solid rgba(0,0,0,0.07) !important;
+  color: #6E6E73 !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+}
+
+/* ── 11. Modal — glass ── */
+.modal-overlay {
+  background: rgba(0,0,0,0.25) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.modal-window {
+  background: rgba(255,255,255,0.82) !important;
+  backdrop-filter: blur(40px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
+  border: 1px solid rgba(255,255,255,0.70) !important;
+  border-radius: 22px !important;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.12) !important;
+}
+
+/* ── 12. Plan select cards — glass ── */
+.plan-select-card {
+  background: rgba(255,255,255,0.62) !important;
+  border: 1.5px solid rgba(0,0,0,0.07) !important;
+  border-radius: 18px !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  transition: all 200ms ease !important;
+}
+
+.plan-select-card.active,
+.plan-select-card:hover {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,122,255,0.30) !important;
+  box-shadow: 0 0 0 3px rgba(0,122,255,0.10), 0 4px 16px rgba(0,0,0,0.06) !important;
+}
+
+/* ── 13. Progress bars — Apple Blue ── */
+.metric-progress-fill,
+.analysis-meter-fill {
+  background: linear-gradient(90deg, #007AFF, #34AADC) !important;
+}
+
+/* ── 14. Score rings ── */
+.score-ring-progress {
+  stroke: #007AFF !important;
+}
+
+/* ── 15. Canvas topbar alignment ── */
+.canvas-topbar,
+.hook-board-topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 22px !important;
+  padding-bottom: 0 !important;
+}
+
+.canvas-topbar h2,
+.hook-board-topbar h2 {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #8E8E93 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── 16. User avatar — Apple Blue ── */
+.user-avatar {
+  background: linear-gradient(135deg, #007AFF, #34AADC) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  font-size: 13px !important;
+}
+
+/* ── 17. Topbar "LIVE" badge ── */
+.topbar-badge {
+  background: rgba(52,199,89,0.10) !important;
+  color: #34C759 !important;
+  border: 1px solid rgba(52,199,89,0.20) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* ── 18. Nav section dividers ── */
+.nav-section {
+  color: #8E8E93 !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.10em !important;
+  padding: 18px 20px 6px !important;
+}
+
+/* ── 19. Hooks panel empty state ── */
+.hooks-empty-state,
+.canvas-empty {
+  opacity: 0.7 !important;
+}
+
+.hooks-empty-state *,
+.canvas-empty * {
+  font-weight: 400 !important;
+}
+
+/* ── 20. Section card accent colours → Apple Blue ── */
+.hook-card-main {
+  border-color: rgba(0,122,255,0.12) !important;
+  background: rgba(0,122,255,0.03) !important;
+}
+
+.hook-card-main .sec-label {
+  color: #007AFF !important;
+  opacity: 0.9 !important;
+}
+
+.analysis-list li::before {
+  background: #007AFF !important;
+}
+
+/* ── 21. Hook item "Best" badge ── */
+.hook-item.best {
+  border-color: rgba(0,122,255,0.18) !important;
+  background: linear-gradient(160deg, rgba(0,122,255,0.05), rgba(255,255,255,0.72)) !important;
+}
+
+/* ── 22. Sidebar logo toggle ── */
+.sidebar-logo-toggle {
+  background: rgba(255,255,255,0.62) !important;
+  border: 1px solid rgba(0,0,0,0.06) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05) !important;
+}
+
+/* ── 23. Scrollbar polish ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.20); }
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .3;
+  }
+}
+
+/* ── 24. Creative Onboarding Empty States (Senior Design Refactor) ── */
+
+.hook-board, .script-canvas {
+  position: relative;
+}
+
+.onboarding-container {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Inter", sans-serif;
+  max-width: 480px;
+  margin: 40px auto 0;
+  display: none;
+  opacity: 0;
+  flex-direction: column;
+  gap: 28px;
+  padding: 0 16px;
+  transition: opacity 400ms ease;
+  user-select: none;
+  width: 100%;
+}
+
+.onboarding-header {
+  text-align: left;
+}
+
+.onboarding-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.onboarding-subtitle {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.onboarding-steps {
+  position: relative;
+  min-height: 180px;
+}
+
+.onboarding-step {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition: opacity 400ms ease, transform 400ms ease;
+  transform: translateY(4px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.onboarding-step.active {
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.onboarding-step-meta {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.onboarding-step-num {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-bg);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-family: var(--mono);
+}
+
+.onboarding-step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onboarding-step-title {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1e293b;
+}
+
+.onboarding-step-desc {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.onboarding-step-preview {
+  margin-left: 28px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 52px;
+}
+
+.onboarding-cursor {
+  color: var(--accent);
+  font-weight: bold;
+  animation: cursor-blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
+@keyframes cursor-blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .onboarding-step {
+    transition: none !important;
+    transform: none !important;
+  }
+  .onboarding-cursor {
+    animation: none !important;
+  }
+  .onboarding-container {
+    transition: none !important;
+  }
+  #hook-preview-card,
+  #script-preview-card {
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

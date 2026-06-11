@@ -281,6 +281,12 @@ function displayReport(report) {
   document.getElementById("statMonthlyRev").textContent = `$${formatCompactNumber(minM)} - $${formatCompactNumber(maxM)}`;
   document.getElementById("statYearlyRev").textContent = `$${formatCompactNumber(minM * 12)} - $${formatCompactNumber(maxM * 12)}`;
 
+  // Content Intelligence upgrades
+  document.getElementById("rptPostingSchedule").textContent = report.postingSchedule || "No specific upload timing patterns observed.";
+  document.getElementById("rptEngagementSummary").textContent = report.engagementSummary || "No reach/engagement psychology summaries calculated.";
+  document.getElementById("rptScriptLogic").textContent = report.scriptLogic || "Hook structure details and storytelling logic unavailable.";
+  document.getElementById("rptThumbnailPsychology").textContent = report.thumbnailPsychology || "Thumbnail cognitive click triggers are currently blank.";
+
   // Content DNA
   const topicsContainer = document.getElementById("rptTopics");
   topicsContainer.innerHTML = report.contentDNA.dominantTopics.map(topic => `

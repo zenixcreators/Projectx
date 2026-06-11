@@ -143,23 +143,31 @@
 }
 
 .section-card:nth-child(2) {
-  animation-delay: 50ms;
+  animation-delay: 80ms;
 }
 
 .section-card:nth-child(3) {
-  animation-delay: 100ms;
+  animation-delay: 160ms;
 }
 
 .section-card:nth-child(4) {
-  animation-delay: 150ms;
+  animation-delay: 240ms;
 }
 
 .section-card:nth-child(5) {
-  animation-delay: 200ms;
+  animation-delay: 320ms;
 }
 
 .section-card:nth-child(6) {
-  animation-delay: 250ms;
+  animation-delay: 400ms;
+}
+
+.section-card:nth-child(7) {
+  animation-delay: 480ms;
+}
+
+.section-card:nth-child(8) {
+  animation-delay: 560ms;
 }
 
 .hook-card-main {
@@ -606,6 +614,14 @@
   box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.06),
     0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 150ms ease, box-shadow 150ms ease, outline 150ms ease !important;
+}
+
+.input-shell:focus-within {
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  outline: 2px solid rgba(59, 130, 246, 0.3) !important;
+  outline-offset: 0px !important;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08), 0 10px 30px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* TEXTAREA */
@@ -689,7 +705,7 @@
   font-size: 13px;
   font-family: var(--font);
   cursor: pointer;
-  transition: all var(--t);
+  transition: all 150ms ease-in-out;
   white-space: nowrap;
 }
 
@@ -699,10 +715,12 @@
 }
 
 .tone-chip.active {
-  background: var(--accent-bg);
-  border-color: var(--accent-border);
-  color: var(--accent);
-  font-weight: 500;
+  background-color: #2563EB !important; /* bg-blue-600 */
+  color: #ffffff !important; /* text-white */
+  font-weight: 500 !important; /* font-medium */
+  transform: scale(1.03) !important; /* scale-[1.03] */
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25) !important;
 }
 
 /* Generate button */
@@ -1760,6 +1778,19 @@
   padding: 18px 22px;
   position: relative;
   transition: border-color var(--t);
+  animation: cardIn 300ms var(--ease) both;
+}
+
+.zone-card:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.zone-card:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.zone-card:nth-child(3) {
+  animation-delay: 160ms;
 }
 
 .zone-card:hover {
@@ -1944,6 +1975,124 @@
   0%, 100% { transform: translateX(0); }
   20%, 60% { transform: translateX(-4px); }
   40%, 80% { transform: translateX(4px); }
+}
+
+/* --- Hook Analyzer Animations --- */
+
+.analysis-card.animate-mode {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.analysis-card.animate-mode.enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.analysis-card.exit-active {
+  opacity: 0 !important;
+  transform: translateY(12px) !important;
+  transition: opacity 200ms ease-out, transform 200ms ease-out !important;
+}
+
+.analysis-card.animate-mode .analysis-hero-info {
+  opacity: 0;
+  transition: opacity 0.4s ease-out;
+}
+
+.analysis-card.animate-mode .analysis-hero-info.show {
+  opacity: 1;
+}
+
+.analysis-card.animate-mode .analysis-block {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.analysis-card.animate-mode .analysis-block.enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.analysis-card.animate-mode .analysis-list li {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.analysis-card.animate-mode .analysis-list li.enter-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.analysis-card.animate-mode .hook-rewrite {
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+}
+
+.analysis-card.animate-mode .hook-rewrite.enter-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Button loading state shimmer and complete pulse */
+
+.analysis-main-btn.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--accent) 0%,
+    var(--accent) 35%,
+    rgba(255, 255, 255, 0.35) 50%,
+    var(--accent) 65%,
+    var(--accent) 100%
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: button-shimmer 1.5s infinite linear !important;
+}
+
+@keyframes button-shimmer {
+  0% {
+    background-position: 150% 0;
+  }
+  100% {
+    background-position: -50% 0;
+  }
+}
+
+.analysis-main-btn.complete-pulse {
+  animation: button-pulse-scale 200ms ease-out !important;
+}
+
+@keyframes button-pulse-scale {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .analysis-card.animate-mode,
+  .analysis-card.animate-mode .analysis-hero-info,
+  .analysis-card.animate-mode .analysis-block,
+  .analysis-card.animate-mode .analysis-list li,
+  .analysis-card.animate-mode .hook-rewrite,
+  .analysis-card.exit-active {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  .analysis-main-btn.loading-shimmer {
+    background: var(--accent) !important;
+    animation: none !important;
+  }
+  .analysis-main-btn.complete-pulse {
+    animation: none !important;
+  }
+  .score-ring-progress {
+    transition: none !important;
+  }
 }
 
 

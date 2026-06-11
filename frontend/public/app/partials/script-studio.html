@@ -14,10 +14,25 @@
       </div>
 
       <!-- Empty state -->
-      <div class="canvas-empty" id="canvasEmpty">
-        <div class="canvas-empty-icon"><i class="fa-solid fa-signature"></i></div>
-        <h3>Start shaping your next viral narrative.</h3>
-        <p>Your AI-generated story workspace begins here. Describe your vision below.</p>
+      <div class="canvas-empty w-full relative" id="canvasEmpty" style="height: auto; align-items: stretch; justify-content: flex-start; text-align: left; padding: 0;">
+        <div id="scriptEmptyState" class="w-full relative transition-opacity duration-200" style="opacity: 0.55; pointer-events: none; max-width: 600px; margin: 24px auto 0;">
+          <div class="section-card relative border border-slate-200 rounded-xl p-5 bg-white shadow-sm flex flex-col gap-3" style="min-height: 200px;">
+            <span class="absolute top-4 right-4 bg-slate-100 text-slate-400 text-[10px] font-medium rounded-full px-2 py-0.5" style="font-family: var(--mono);">example</span>
+            
+            <div class="sec-label text-[11px] font-medium text-slate-400 uppercase tracking-wider" style="font-family: var(--mono); margin-bottom: 0;">Short Form</div>
+            
+            <div class="sec-content text-sm text-slate-600 font-normal leading-relaxed relative" style="max-height: 110px; overflow: hidden; margin-top: 4px;">
+              <p class="mb-1">You've been using AI wrong this entire time.</p>
+              <p class="mb-1">Everyone's asking it to write for them.</p>
+              <p class="mb-1">The creators actually winning? They use it to think.</p>
+              
+              <!-- Gradient mask overlay to fade out the rest of the text -->
+              <div class="absolute bottom-0 left-0 right-0 h-16" style="background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.95)); pointer-events: none;"></div>
+            </div>
+            
+            <div class="mt-1 text-blue-500 font-medium text-xs">Generate yours →</div>
+          </div>
+        </div>
       </div>
 
       <!-- Generated sections -->
@@ -58,6 +73,7 @@
 
   <!-- FLOATING INPUT BAR -->
   <div class="input-bar-wrapper">
+    <div id="scriptStateLine" class="text-center text-slate-400 text-xs mb-2 transition-opacity duration-150" style="display: none;"></div>
     <div class="input-shell">
       <!-- Mode selector pill toggle -->
       <div class="mode-selector-pill">

@@ -18,9 +18,16 @@ function clampHookScore(value) {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
-function normalizeHookTest(data) {
+function normalizeHookTest(data, wordCount) {
   const source = data.result || data.analysis || data.hook_test || data;
-  const score = clampHookScore(source.score ?? source.viral_score ?? source.virality_score);
+  if (source.error) {
+    return {
+      error: true,
+      message: source.message || "Too short to analyze. Write a complete hook first."
+    };
+  }
+
+  let score = clampHookScore(source.score ?? source.viral_score ?? source.virality_score);
   const fallbackMetrics = {
     curiosity: score,
     clarity: Math.max(0, Math.min(100, score + 4)),
@@ -28,11 +35,34 @@ function normalizeHookTest(data) {
     spoken: Math.max(0, Math.min(100, score + 2))
   };
 
+  const metrics = normalizeMetrics(source.metrics, fallbackMetrics);
+  let verdict = String(source.verdict || source.reason || verdictForScore(score)).slice(0, 220);
+
+  if (wordCount !== undefined) {
+    if (wordCount >= 1 && wordCount <= 4) {
+      return {
+        error: true,
+        message: "Too short to analyze. Write a complete hook first."
+      };
+    } else if (wordCount >= 5 && wordCount <= 9) {
+      score = Math.min(score, 52);
+      metrics.curiosity = Math.min(metrics.curiosity, 55);
+      metrics.clarity = Math.min(metrics.clarity, 55);
+      metrics.specificity = Math.min(metrics.specificity, 55);
+      metrics.spoken = Math.min(metrics.spoken, 55);
+      if (!verdict.startsWith("Too brief for an accurate score — expand this hook.")) {
+        verdict = "Too brief for an accurate score — expand this hook. " + verdict;
+      }
+    } else if (wordCount >= 10 && wordCount <= 14) {
+      score = Math.min(score, 72);
+    }
+  }
+
   return {
     score,
-    grade: String(source.grade || gradeHookScore(score)).slice(0, 32),
-    verdict: String(source.verdict || source.reason || verdictForScore(score)).slice(0, 220),
-    metrics: normalizeMetrics(source.metrics, fallbackMetrics),
+    grade: String(gradeHookScore(score)).slice(0, 32),
+    verdict: verdict.slice(0, 220),
+    metrics,
     strengths: normalizeList(source.strengths || source.pros || source.what_works, 3),
     weaknesses: normalizeList(source.weaknesses || source.cons || source.fixes || source.improvements, 3),
     better_versions: normalizeList(source.better_versions || source.rewrites || source.alternatives, 3),
@@ -72,6 +102,15 @@ function verdictForScore(score) {
 function buildFallbackHookTest(hook, topic) {
   const text = String(hook || "").trim();
   const words = text.split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  if (wordCount >= 1 && wordCount <= 4) {
+    return {
+      error: true,
+      message: "Too short to analyze. Write a complete hook first."
+    };
+  }
+
   let score = 45;
 
   if (words.length >= 4 && words.length <= 14) score += 14;
@@ -85,15 +124,33 @@ function buildFallbackHookTest(hook, topic) {
 
   score = clampHookScore(score);
 
+  let curiosity = clampHookScore(score + (/[?]|\bwhy|secret|truth|mistake\b/i.test(text) ? 6 : -4));
+  let clarity = clampHookScore(score + (words.length <= 14 ? 8 : -10));
+  let specificity = clampHookScore(score + (/\d/.test(text) ? 8 : -6));
+  let spoken = clampHookScore(score + (/\b(you|your|I|my)\b/i.test(text) ? 6 : -2));
+
+  let verdict = verdictForScore(score);
+
+  if (wordCount >= 5 && wordCount <= 9) {
+    score = Math.min(score, 52);
+    curiosity = Math.min(curiosity, 55);
+    clarity = Math.min(clarity, 55);
+    specificity = Math.min(specificity, 55);
+    spoken = Math.min(spoken, 55);
+    verdict = "Too brief for an accurate score — expand this hook. " + verdict;
+  } else if (wordCount >= 10 && wordCount <= 14) {
+    score = Math.min(score, 72);
+  }
+
   return {
     score,
     grade: gradeHookScore(score),
-    verdict: verdictForScore(score),
+    verdict,
     metrics: {
-      curiosity: clampHookScore(score + (/[?]|\bwhy|secret|truth|mistake\b/i.test(text) ? 6 : -4)),
-      clarity: clampHookScore(score + (words.length <= 14 ? 8 : -10)),
-      specificity: clampHookScore(score + (/\d/.test(text) ? 8 : -6)),
-      spoken: clampHookScore(score + (/\b(you|your|I|my)\b/i.test(text) ? 6 : -2))
+      curiosity,
+      clarity,
+      specificity,
+      spoken
     },
     strengths: [
       words.length <= 14 ? "Short enough to be understood quickly." : "The idea is understandable.",
@@ -194,6 +251,14 @@ function verdictForScriptScore(score) {
 function buildFallbackScriptTest(script, topic) {
   const text = String(script || "").trim();
   const words = wordCount(text);
+
+  if (words >= 1 && words <= 19) {
+    return {
+      error: true,
+      message: "Too short to analyze. Write a complete script first."
+    };
+  }
+
   const lines = text.split(/\n+/).map(line => line.trim()).filter(Boolean);
   const firstLine = (lines[0] || text.split(".")[0] || "").replace(/^\[[^\]]+\]\s*/i, "").trim();
   const firstWords = wordCount(firstLine);
@@ -208,7 +273,26 @@ function buildFallbackScriptTest(script, topic) {
   const retention = clampHookScore(44 + Math.min(tensionHits * 5, 25) + Math.min(lines.length * 3, 15) + (words > 150 ? -10 : 0));
   const clarity = clampHookScore(48 + (words >= 70 && words <= 130 ? 18 : 0) + Math.min(concreteHits * 4, 20) - (words > 180 ? 14 : 0));
   const payoff = clampHookScore(42 + (/\b(result|ending|cta)\b/i.test(text) ? 14 : 0) + Math.min(ctaHits * 8, 18) + (/\b(the .* was never|wasn't .* it was|that was the point)\b/i.test(text) ? 10 : 0));
-  const score = clampHookScore((hook * 0.24) + (retention * 0.26) + (clarity * 0.2) + (structure * 0.16) + (payoff * 0.14));
+  let score = clampHookScore((hook * 0.24) + (retention * 0.26) + (clarity * 0.2) + (structure * 0.16) + (payoff * 0.14));
+
+  let finalHook = hook;
+  let finalRetention = retention;
+  let finalClarity = clarity;
+  let finalStructure = structure;
+  let finalPayoff = payoff;
+  let verdict = verdictForScriptScore(score);
+
+  if (words >= 20 && words <= 39) {
+    score = Math.min(score, 52);
+    finalHook = Math.min(finalHook, 55);
+    finalRetention = Math.min(finalRetention, 55);
+    finalClarity = Math.min(finalClarity, 55);
+    finalStructure = Math.min(finalStructure, 55);
+    finalPayoff = Math.min(finalPayoff, 55);
+    verdict = "Too brief for an accurate score — expand this script. " + verdict;
+  } else if (words >= 40 && words <= 59) {
+    score = Math.min(score, 72);
+  }
 
   const strengths = [
     firstWords >= 4 && firstWords <= 14 ? "The opening is short enough for a viewer to process quickly." : "The script has a clear starting idea.",
@@ -225,8 +309,8 @@ function buildFallbackScriptTest(script, topic) {
   return {
     score,
     grade: gradeScriptScore(score),
-    verdict: verdictForScriptScore(score),
-    metrics: { hook, retention, clarity, structure, payoff },
+    verdict,
+    metrics: { hook: finalHook, retention: finalRetention, clarity: finalClarity, structure: finalStructure, payoff: finalPayoff },
     strengths,
     weaknesses,
     fixes: [
@@ -239,21 +323,51 @@ function buildFallbackScriptTest(script, topic) {
   };
 }
 
-function normalizeScriptTest(data, fallback) {
+function normalizeScriptTest(data, fallback, wordCount) {
   const source = data.result || data.analysis || data.script_test || data;
-  const score = clampHookScore(source.score ?? source.viral_score ?? source.retention_score ?? fallback.score);
+  if (source.error) {
+    return {
+      error: true,
+      message: source.message || "Too short to analyze. Write a complete script first."
+    };
+  }
+
+  let score = clampHookScore(source.score ?? source.viral_score ?? source.retention_score ?? fallback.score);
   const metricFallback = fallback.metrics || {};
+  const metrics = normalizeMetrics(source.metrics, metricFallback);
+  let verdict = String(source.verdict || source.reason || verdictForScriptScore(score)).slice(0, 260);
+
+  if (wordCount !== undefined) {
+    if (wordCount >= 1 && wordCount <= 19) {
+      return {
+        error: true,
+        message: "Too short to analyze. Write a complete script first."
+      };
+    } else if (wordCount >= 20 && wordCount <= 39) {
+      score = Math.min(score, 52);
+      metrics.hook = Math.min(metrics.hook ?? 55, 55);
+      metrics.retention = Math.min(metrics.retention ?? 55, 55);
+      metrics.clarity = Math.min(metrics.clarity ?? 55, 55);
+      metrics.structure = Math.min(metrics.structure ?? 55, 55);
+      metrics.payoff = Math.min(metrics.payoff ?? 55, 55);
+      if (!verdict.startsWith("Too brief for an accurate score — expand this script.")) {
+        verdict = "Too brief for an accurate score — expand this script. " + verdict;
+      }
+    } else if (wordCount >= 40 && wordCount <= 59) {
+      score = Math.min(score, 72);
+    }
+  }
 
   return {
     score,
-    grade: String(source.grade || gradeScriptScore(score)).slice(0, 32),
-    verdict: String(source.verdict || source.reason || verdictForScriptScore(score)).slice(0, 260),
-    metrics: normalizeMetrics(source.metrics, metricFallback),
+    grade: String(gradeScriptScore(score)).slice(0, 32),
+    verdict: verdict.slice(0, 260),
+    metrics,
     strengths: normalizeList(source.strengths || source.what_works || source.pros, 3),
     weaknesses: normalizeList(source.weaknesses || source.risks || source.cons, 3),
     fixes: normalizeList(source.fixes || source.next_steps || source.improvements, 3),
-    word_count: Number(source.word_count || fallback.word_count) || fallback.word_count,
-    estimated_duration: String(source.estimated_duration || fallback.estimated_duration)
+    word_count: wordCount !== undefined ? wordCount : (Number(source.word_count || fallback.word_count) || fallback.word_count),
+    estimated_duration: estimateDuration(wordCount !== undefined ? wordCount : (Number(source.word_count || fallback.word_count) || fallback.word_count))
   };
 }
 
@@ -432,13 +546,33 @@ router.post("/api/test-hook", async (req, res) => {
     return res.status(400).json({ error: "Hook text is required" });
   }
 
+  const words = hook.trim().split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  if (wordCount >= 1 && wordCount <= 4) {
+    return res.json({
+      error: true,
+      message: "Too short to analyze. Write a complete hook first."
+    });
+  }
+
   if (!GROQ_API_KEY) {
     console.error("GROQ_API_KEY is missing in environment variables");
     return res.json(buildFallbackHookTest(hook, topic));
   }
 
   try {
-    const prompt = `Evaluate this short-form video opening hook.
+    const prompt = `COMPLETENESS GATE:
+1. 1–4 words → do not score. Return only this JSON structure:
+   {
+     "error": true,
+     "message": "Too short to analyze. Write a complete hook first."
+   }
+2. 5–9 words → score but apply a hard cap: total score max 52, and no individual metric (curiosity, clarity, specificity, spoken) above 55. The "verdict" string MUST start with: "Too brief for an accurate score — expand this hook."
+3. 10–14 words → score normally but cap total score at 72. Penalize Specificity and Clarity if the hook is vague.
+4. 15+ words → full scoring, no caps, no restrictions.
+
+Evaluate this short-form video opening hook.
 
 Hook: "${hook}"
 Topic/context: "${topic || "Not provided"}"
@@ -490,9 +624,16 @@ Return ONLY valid JSON with this exact structure:
       return res.json(buildFallbackHookTest(hook, topic));
     }
 
-    const normalized = normalizeHookTest(parsed);
+    const normalized = normalizeHookTest(parsed, wordCount);
+    if (normalized.error) {
+      return res.json(normalized);
+    }
+
     if (!normalized.score) {
       const fallback = buildFallbackHookTest(hook, topic);
+      if (fallback.error) {
+        return res.json(fallback);
+      }
       normalized.score = fallback.score;
       normalized.grade = normalized.grade || fallback.grade;
       normalized.verdict = normalized.verdict || fallback.verdict;
@@ -517,6 +658,16 @@ router.post("/api/test-script", async (req, res) => {
     return res.status(400).json({ error: "Script text is required" });
   }
 
+  const words = script.trim().split(/\s+/).filter(Boolean);
+  const wordCount = words.length;
+
+  if (wordCount >= 1 && wordCount <= 19) {
+    return res.json({
+      error: true,
+      message: "Too short to analyze. Write a complete script first."
+    });
+  }
+
   const fallback = buildFallbackScriptTest(script, topic);
 
   if (!GROQ_API_KEY) {
@@ -525,7 +676,17 @@ router.post("/api/test-script", async (req, res) => {
   }
 
   try {
-    const prompt = `Evaluate this short-form video script like a strict retention strategist.
+    const prompt = `COMPLETENESS GATE:
+1. 1–19 words → do not score. Return only this JSON structure:
+   {
+     "error": true,
+     "message": "Too short to analyze. Write a complete script first."
+   }
+2. 20–39 words → score but apply a hard cap: total score max 52, and no individual metric (hook, retention, clarity, structure, payoff) above 55. The "verdict" string MUST start with: "Too brief for an accurate score — expand this script."
+3. 40–59 words → score normally but cap total score at 72. Penalize metrics if the script is vague or incomplete.
+4. 60+ words → full scoring, no caps, no restrictions.
+
+Evaluate this short-form video script like a strict retention strategist.
 
 Topic/context: "${topic || "Not provided"}"
 Tone: ${tone || "Not specified"}
@@ -582,7 +743,11 @@ Return ONLY valid JSON:
       return res.json(fallback);
     }
 
-    const normalized = normalizeScriptTest(parsed, fallback);
+    const normalized = normalizeScriptTest(parsed, fallback, wordCount);
+    if (normalized.error) {
+      return res.json(normalized);
+    }
+
     if (!normalized.strengths.length) normalized.strengths = fallback.strengths;
     if (!normalized.weaknesses.length) normalized.weaknesses = fallback.weaknesses;
     if (!normalized.fixes.length) normalized.fixes = fallback.fixes;
@@ -590,7 +755,7 @@ Return ONLY valid JSON:
     res.json(normalized);
   } catch (error) {
     console.error("Script Tester Error:", error.response?.data || error.message);
-    res.json(fallback);
+    res.json(buildFallbackScriptTest(script, topic));
   }
 });
 

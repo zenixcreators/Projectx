@@ -9,3 +9,8 @@ out.log
 *.log
 scripts/
 docs/
+backend/bin/ffmpeg.exe
+backend/bin/ffprobe.exe
+tmp/
+*.zip
+*.mp4

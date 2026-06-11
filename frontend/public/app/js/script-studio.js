@@ -19,7 +19,7 @@ function escapeJsString(text) {
     .replace(/\r/g, '\\r');
 }
 
-function buildScoreRingHtml(score) {
+function buildScoreRingHtml(score, animate = false) {
   const numScore = Math.max(0, Math.min(100, Number(score) || 0));
   const radius = 25;
   const circumference = 2 * Math.PI * radius;
@@ -31,14 +31,31 @@ function buildScoreRingHtml(score) {
   else if (numScore >= 55) { color = 'var(--amber)'; }
   else { color = 'var(--red)'; }
 
+  // Overridden color logic for Hook Tester if we animate:
+  // Color: electric blue (#3B82F6) for scores 70+
+  //        amber (#F59E0B) for scores 50–69
+  //        red (#EF4444) for scores below 50
+  if (animate) {
+    if (numScore >= 70) { color = '#3B82F6'; }
+    else if (numScore >= 50) { color = '#F59E0B'; }
+    else { color = '#EF4444'; }
+  }
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const useAnimation = animate && !prefersReducedMotion;
+  const initialOffset = useAnimation ? circumference : offset;
+
   return `
     <div class="analysis-score-ring-wrapper" style="--score-color: ${color}">
       <svg class="score-ring-svg" viewBox="0 0 60 60">
         <circle class="score-ring-bg" cx="30" cy="30" r="25"></circle>
-        <circle class="score-ring-progress" cx="30" cy="30" r="25" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}"></circle>
+        <circle class="score-ring-progress" cx="30" cy="30" r="25" 
+                stroke-dasharray="${circumference}" 
+                stroke-dashoffset="${initialOffset}" 
+                data-target-offset="${offset}"></circle>
       </svg>
       <div class="score-ring-text">
-        <span class="score-number">${numScore}</span>
+        <span class="score-number">${useAnimation ? 0 : numScore}</span>
         <span class="score-label">Score</span>
       </div>
     </div>
@@ -571,13 +588,25 @@ window.toggleAccordion = function (headerEl) {
   item.classList.toggle('active');
 };
 
+const TONE_EMOJIS = {
+  'Energetic': '⚡',
+  'Dramatic': '🎭',
+  'Educational': '📚',
+  'Controversial': '🔥',
+  'Storytelling': '📖',
+  'Authority': '💡',
+  'Inspirational': '✨',
+  'Humorous': '😄'
+};
+
 function buildToneStrip() {
   const strip = document.getElementById('toneStrip');
   if (!strip) return;
 
-  strip.innerHTML = TONES.map(t =>
-    `<button class="tone-chip ${t === activeTone ? 'active' : ''}" onclick="selectTone('${t}', this)">${t}</button>`
-  ).join('');
+  strip.innerHTML = TONES.map(t => {
+    const emoji = TONE_EMOJIS[t] || '';
+    return `<button class="tone-chip ${t === activeTone ? 'active' : ''}" onclick="selectTone('${t}', this)">${emoji} ${t}</button>`;
+  }).join('');
 }
 
 function selectTone(tone, el) {
@@ -627,7 +656,26 @@ async function triggerGenerate() {
   btn.disabled = true;
   icon.innerHTML = '<div class="spinner"></div>';
 
-  document.getElementById('canvasEmpty').style.display = 'none';
+  if (window.scriptEmptyStateManager) {
+    window.scriptEmptyStateManager.setGenerating(true);
+  }
+
+  const stateLine = document.getElementById('scriptStateLine');
+  if (stateLine) {
+    stateLine.textContent = "Generating your script...";
+    stateLine.style.display = 'block';
+    stateLine.style.opacity = '1';
+  }
+
+  const emptyState = document.getElementById('scriptEmptyState');
+  if (emptyState) {
+    emptyState.style.opacity = '0.25';
+  }
+
+  if (typeof window.setLiveBadgeLoading === 'function') {
+    window.setLiveBadgeLoading(true);
+  }
+
   const grid = document.getElementById('sectionsGrid');
   if (grid) grid.style.display = 'none';
 
@@ -713,9 +761,27 @@ async function triggerGenerate() {
     if (scriptTesterResult) {
       scriptTesterResult.innerHTML = `<div class="hook-test-error">Could not generate this script: ${escapeHtml(e.message)}</div>`;
     }
+    if (stateLine) {
+      stateLine.textContent = "Something went wrong. Try again.";
+      stateLine.style.display = 'block';
+      stateLine.style.opacity = '1';
+    }
+    if (emptyState) {
+      emptyState.style.opacity = '0.55';
+    }
+    const canvasEmpty = document.getElementById('canvasEmpty');
+    if (canvasEmpty) {
+      canvasEmpty.style.display = 'flex';
+    }
   } finally {
     btn.disabled = false;
     icon.innerHTML = '<i class="fa-solid fa-arrow-up"></i>';
+    if (typeof window.setLiveBadgeLoading === 'function') {
+      window.setLiveBadgeLoading(false);
+    }
+    if (window.scriptEmptyStateManager) {
+      window.scriptEmptyStateManager.setGenerating(false);
+    }
   }
 }
 
@@ -799,8 +865,25 @@ window.renderScriptResult = function (data) {
   const testerInput = document.getElementById('scriptTesterInput');
   if (testerInput) testerInput.value = latestScriptText;
 
-  grid.style.display = 'grid';
-  document.getElementById('canvasEmpty').style.display = 'none';
+  // Hide state line on success
+  const stateLine = document.getElementById('scriptStateLine');
+  if (stateLine) {
+    stateLine.style.opacity = '0';
+    setTimeout(() => { stateLine.style.display = 'none'; }, 150);
+  }
+
+  const canvasEmpty = document.getElementById('canvasEmpty');
+  const emptyState = document.getElementById('scriptEmptyState');
+  if (canvasEmpty && emptyState) {
+    emptyState.style.opacity = '0';
+    setTimeout(() => {
+      canvasEmpty.style.display = 'none';
+      grid.style.display = 'grid';
+    }, 200);
+  } else {
+    if (canvasEmpty) canvasEmpty.style.display = 'none';
+    grid.style.display = 'grid';
+  }
   document.getElementById('copyFullBtn').style.display = 'inline-flex';
 
   const wordCountVal = data.metadata?.wordCount || data.wordCount || getWordCount(text);
@@ -871,6 +954,30 @@ function getHookTestContext() {
     tone: hookContext?.tone || activeTone
   };
 }
+function animateNumber(element, start, end, duration, onComplete) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    element.textContent = end;
+    if (onComplete) onComplete();
+    return;
+  }
+  
+  let startTimestamp = null;
+  const step = (timestamp) => {
+    if (!startTimestamp) startTimestamp = timestamp;
+    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+    const easeProgress = 1 - Math.pow(1 - progress, 3); // easeOut cubic
+    const currentValue = Math.floor(easeProgress * (end - start) + start);
+    element.textContent = currentValue;
+    if (progress < 1) {
+      window.requestAnimationFrame(step);
+    } else {
+      element.textContent = end;
+      if (onComplete) onComplete();
+    }
+  };
+  window.requestAnimationFrame(step);
+}
 
 async function testHookText(hookText, triggerBtn) {
   const resultEl = document.getElementById('hookTesterResult');
@@ -883,10 +990,35 @@ async function testHookText(hookText, triggerBtn) {
   }
 
   if (manualInput) manualInput.value = hookText.trim();
-  if (triggerBtn) triggerBtn.disabled = true;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasExistingResult = resultEl && resultEl.querySelector('.analysis-card');
+
+  if (hasExistingResult && !prefersReducedMotion) {
+    const card = resultEl.querySelector('.analysis-card');
+    card.classList.add('exit-active');
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+
+  let originalBtnHtml = '';
+  if (triggerBtn) {
+    originalBtnHtml = triggerBtn.innerHTML;
+    triggerBtn.disabled = true;
+    triggerBtn.classList.add('loading-shimmer');
+    if (triggerBtn.id === 'hookTesterBtn') {
+      triggerBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Analyzing...</span>`;
+    } else {
+      triggerBtn.textContent = 'Analyzing...';
+    }
+  }
+
   setHookTesterStatus('Analyzing', 'active');
   if (resultEl) {
     resultEl.innerHTML = '<div class="hook-test-loading"><div class="spinner"></div><span>Testing hook...</span></div>';
+  }
+
+  if (typeof window.setLiveBadgeLoading === 'function') {
+    window.setLiveBadgeLoading(true);
   }
 
   try {
@@ -903,19 +1035,47 @@ async function testHookText(hookText, triggerBtn) {
 
     const data = await res.json();
     renderHookTestResult(data);
-    setHookTesterStatus('Scored', 'done');
+    
+    if (data.error) {
+      setHookTesterStatus('Idle');
+    } else {
+      setHookTesterStatus('Scored', 'done');
+    }
   } catch (err) {
     console.error('Hook Test Error:', err);
     setHookTesterStatus('Error');
     if (resultEl) resultEl.innerHTML = '<div class="hook-test-error">Could not test this hook. Please try again.</div>';
   } finally {
-    if (triggerBtn) triggerBtn.disabled = false;
+    if (triggerBtn) {
+      triggerBtn.disabled = false;
+      triggerBtn.classList.remove('loading-shimmer');
+      if (originalBtnHtml) {
+        triggerBtn.innerHTML = originalBtnHtml;
+      }
+      if (!prefersReducedMotion) {
+        triggerBtn.classList.add('complete-pulse');
+        setTimeout(() => {
+          triggerBtn.classList.remove('complete-pulse');
+        }, 200);
+      }
+    }
+    if (typeof window.setLiveBadgeLoading === 'function') {
+      window.setLiveBadgeLoading(false);
+    }
   }
 }
 
 function renderHookTestResult(data) {
   const resultEl = document.getElementById('hookTesterResult');
   if (!resultEl) return;
+
+  if (data.error) {
+    resultEl.innerHTML = `
+      <div class="text-slate-500 text-sm text-center py-6 font-medium w-full">
+        ${escapeHtml(data.message)}
+      </div>`;
+    return;
+  }
 
   const score = Number(data.score || 0);
   const metrics = data.metrics || {};
@@ -929,33 +1089,129 @@ function renderHookTestResult(data) {
   }).join('');
 
   resultEl.innerHTML = `
-    <div class="analysis-card">
+    <div class="analysis-card animate-mode">
       <div class="analysis-hero">
-        ${buildScoreRingHtml(score)}
-        <div>
+        ${buildScoreRingHtml(score, true)}
+        <div class="analysis-hero-info">
           <div class="analysis-grade">${escapeHtml(data.grade || 'Needs Work')}</div>
           <div class="analysis-verdict">${escapeHtml(data.verdict || 'No verdict returned.')}</div>
         </div>
       </div>
       ${renderMetricBars([
-    ['curiosity', 'Curiosity', metrics.curiosity],
-    ['clarity', 'Clarity', metrics.clarity],
-    ['specificity', 'Specificity', metrics.specificity],
-    ['spoken', 'Spoken Feel', metrics.spoken]
-  ])}
+        ['curiosity', 'Curiosity', metrics.curiosity],
+        ['clarity', 'Clarity', metrics.clarity],
+        ['specificity', 'Specificity', metrics.specificity],
+        ['spoken', 'Spoken Feel', metrics.spoken]
+      ], true)}
       ${renderAnalysisList('Works', data.strengths)}
       ${renderAnalysisList('Fix', data.weaknesses)}
       ${betterVersions ? `<div class="analysis-block"><div class="analysis-label">Better Versions</div>${betterVersions}</div>` : ''}
     </div>`;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const card = resultEl.querySelector('.analysis-card');
+
+  if (card) {
+    if (prefersReducedMotion) {
+      card.classList.add('enter-active');
+      card.querySelectorAll('.analysis-block, .analysis-list li, .hook-rewrite').forEach(el => {
+        el.classList.add('enter-active');
+      });
+      const heroInfo = card.querySelector('.analysis-hero-info');
+      if (heroInfo) heroInfo.classList.add('show');
+      card.querySelectorAll('.analysis-meter').forEach(meter => {
+        const fill = meter.querySelector('.analysis-meter-fill');
+        const numSpan = meter.querySelector('.meter-score-num');
+        const targetVal = Number(fill.getAttribute('data-target-value'));
+        fill.style.width = targetVal + '%';
+        numSpan.textContent = targetVal;
+      });
+    } else {
+      // 1. Entrance animation for the entire card
+      requestAnimationFrame(() => {
+        card.classList.add('enter-active');
+      });
+
+      // 2. Score circle progress and number counter
+      const progressCircle = card.querySelector('.score-ring-progress');
+      if (progressCircle) {
+        requestAnimationFrame(() => {
+          progressCircle.style.strokeDashoffset = progressCircle.getAttribute('data-target-offset');
+        });
+      }
+
+      const scoreNumEl = card.querySelector('.score-number');
+      const heroInfo = card.querySelector('.analysis-hero-info');
+      if (scoreNumEl) {
+        animateNumber(scoreNumEl, 0, score, 1200, () => {
+          if (heroInfo) heroInfo.classList.add('show');
+        });
+      }
+
+      // 3. Dimension bars stagger: 80ms delay per bar, 0.6s duration
+      const meters = card.querySelectorAll('.analysis-meter');
+      meters.forEach((meter, index) => {
+        const fill = meter.querySelector('.analysis-meter-fill');
+        const numSpan = meter.querySelector('.meter-score-num');
+        const targetVal = Number(fill.getAttribute('data-target-value'));
+        const delay = index * 80;
+
+        setTimeout(() => {
+          fill.style.transition = 'width 0.6s ease-out';
+          fill.style.width = targetVal + '%';
+          animateNumber(numSpan, 0, targetVal, 600);
+        }, delay);
+      });
+
+      // 4. Staggered Sections: Works, Fix, Better Versions
+      // Start after dimension bars finish (~500ms delay from card enter)
+      // Stagger: 100ms between each section block
+      const sections = card.querySelectorAll('.analysis-block');
+      sections.forEach((section, sIndex) => {
+        const sectionDelay = 500 + sIndex * 100;
+        setTimeout(() => {
+          section.classList.add('enter-active');
+
+          // Inside each section, stagger bullets by 60ms
+          const bullets = section.querySelectorAll('.analysis-list li');
+          bullets.forEach((bullet, bIndex) => {
+            const bulletDelay = bIndex * 60;
+            setTimeout(() => {
+              bullet.classList.add('enter-active');
+            }, bulletDelay);
+          });
+
+          // Or if it's Better Versions section, stagger cards by 120ms
+          const rewrites = section.querySelectorAll('.hook-rewrite');
+          rewrites.forEach((rewrite, rIndex) => {
+            const rewriteDelay = rIndex * 120;
+            setTimeout(() => {
+              rewrite.classList.add('enter-active');
+            }, rewriteDelay);
+          });
+        }, sectionDelay);
+      });
+    }
+  }
 }
 
-function renderMetricBars(items) {
+function renderMetricBars(items, animate = false) {
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const useAnimation = animate && !prefersReducedMotion;
+
   const bars = items.map(([, label, value]) => {
     const score = Math.max(0, Math.min(100, Number(value || 0)));
+    const initialWidth = useAnimation ? 0 : score;
+    const initialScoreText = useAnimation ? 0 : score;
     return `
       <div class="analysis-meter">
-        <div class="analysis-meter-head"><span>${escapeHtml(label)}</span><span>${score}</span></div>
-        <div class="analysis-meter-track"><div class="analysis-meter-fill" style="--value:${score}%"></div></div>
+        <div class="analysis-meter-head">
+          <span>${escapeHtml(label)}</span>
+          <span class="meter-score-num">${initialScoreText}</span>
+        </div>
+        <div class="analysis-meter-track">
+          <div class="analysis-meter-fill" style="width: ${initialWidth}%" data-target-value="${score}"></div>
+        </div>
       </div>`;
   }).join('');
 
@@ -1016,10 +1272,34 @@ async function testCurrentScript() {
     return;
   }
 
-  if (btn) btn.disabled = true;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const hasExistingResult = resultEl && resultEl.querySelector('.analysis-card');
+
+  if (hasExistingResult && !prefersReducedMotion) {
+    const card = resultEl.querySelector('.analysis-card');
+    card.classList.add('exit-active');
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+
+  let originalBtnHtml = '';
+  if (btn) {
+    originalBtnHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.classList.add('loading-shimmer');
+    if (btn.id === 'scriptTesterBtn') {
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Analyzing...</span>`;
+    } else {
+      btn.textContent = 'Analyzing...';
+    }
+  }
+
   setScriptTesterStatus('Analyzing', 'active');
   if (resultEl) {
     resultEl.innerHTML = '<div class="hook-test-loading"><div class="spinner"></div><span>Testing script...</span></div>';
+  }
+
+  if (typeof window.setLiveBadgeLoading === 'function') {
+    window.setLiveBadgeLoading(true);
   }
 
   try {
@@ -1036,19 +1316,47 @@ async function testCurrentScript() {
 
     const data = await res.json();
     renderScriptTestResult(data);
-    setScriptTesterStatus('Scored', 'done');
+    
+    if (data.error) {
+      setScriptTesterStatus('Idle');
+    } else {
+      setScriptTesterStatus('Scored', 'done');
+    }
   } catch (err) {
     console.error('Script Test Error:', err);
     setScriptTesterStatus('Error');
     if (resultEl) resultEl.innerHTML = '<div class="hook-test-error">Could not test this script. Please try again.</div>';
   } finally {
-    if (btn) btn.disabled = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.classList.remove('loading-shimmer');
+      if (originalBtnHtml) {
+        btn.innerHTML = originalBtnHtml;
+      }
+      if (!prefersReducedMotion) {
+        btn.classList.add('complete-pulse');
+        setTimeout(() => {
+          btn.classList.remove('complete-pulse');
+        }, 200);
+      }
+    }
+    if (typeof window.setLiveBadgeLoading === 'function') {
+      window.setLiveBadgeLoading(false);
+    }
   }
 }
 
 function renderScriptTestResult(data) {
   const resultEl = document.getElementById('scriptTesterResult');
   if (!resultEl) return;
+
+  if (data.error) {
+    resultEl.innerHTML = `
+      <div class="text-slate-500 text-sm text-center py-6 font-medium w-full">
+        ${escapeHtml(data.message)}
+      </div>`;
+    return;
+  }
 
   const score = Number(data.score || 0);
   const metrics = data.metrics || {};
@@ -1058,26 +1366,101 @@ function renderScriptTestResult(data) {
   ].filter(Boolean);
 
   resultEl.innerHTML = `
-    <div class="analysis-card">
+    <div class="analysis-card animate-mode">
       <div class="analysis-hero">
-        ${buildScoreRingHtml(score)}
-        <div>
+        ${buildScoreRingHtml(score, true)}
+        <div class="analysis-hero-info">
           <div class="analysis-grade">${escapeHtml(data.grade || 'Needs Tightening')}</div>
           <div class="analysis-verdict">${escapeHtml(data.verdict || 'No verdict returned.')}</div>
           ${meta.length ? `<div class="analysis-meta-row">${meta.map(item => `<span class="analysis-meta-chip">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
         </div>
       </div>
       ${renderMetricBars([
-    ['hook', 'Hook', metrics.hook],
-    ['retention', 'Retention', metrics.retention],
-    ['clarity', 'Clarity', metrics.clarity],
-    ['structure', 'Structure', metrics.structure],
-    ['payoff', 'Payoff', metrics.payoff]
-  ])}
+        ['hook', 'Hook', metrics.hook],
+        ['retention', 'Retention', metrics.retention],
+        ['clarity', 'Clarity', metrics.clarity],
+        ['structure', 'Structure', metrics.structure],
+        ['payoff', 'Payoff', metrics.payoff]
+      ], true)}
       ${renderAnalysisList('Works', data.strengths)}
       ${renderAnalysisList('Weak Spots', data.weaknesses)}
       ${renderAnalysisList('Fix Next', data.fixes)}
     </div>`;
+
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const card = resultEl.querySelector('.analysis-card');
+
+  if (card) {
+    if (prefersReducedMotion) {
+      card.classList.add('enter-active');
+      card.querySelectorAll('.analysis-block, .analysis-list li').forEach(el => {
+        el.classList.add('enter-active');
+      });
+      const heroInfo = card.querySelector('.analysis-hero-info');
+      if (heroInfo) heroInfo.classList.add('show');
+      card.querySelectorAll('.analysis-meter').forEach(meter => {
+        const fill = meter.querySelector('.analysis-meter-fill');
+        const numSpan = meter.querySelector('.meter-score-num');
+        const targetVal = Number(fill.getAttribute('data-target-value'));
+        fill.style.width = targetVal + '%';
+        numSpan.textContent = targetVal;
+      });
+    } else {
+      // 1. Entrance animation for the entire card
+      requestAnimationFrame(() => {
+        card.classList.add('enter-active');
+      });
+
+      // 2. Score circle progress and number counter
+      const progressCircle = card.querySelector('.score-ring-progress');
+      if (progressCircle) {
+        requestAnimationFrame(() => {
+          progressCircle.style.strokeDashoffset = progressCircle.getAttribute('data-target-offset');
+        });
+      }
+
+      const scoreNumEl = card.querySelector('.score-number');
+      const heroInfo = card.querySelector('.analysis-hero-info');
+      if (scoreNumEl) {
+        animateNumber(scoreNumEl, 0, score, 1200, () => {
+          if (heroInfo) heroInfo.classList.add('show');
+        });
+      }
+
+      // 3. Dimension bars stagger: 80ms delay per bar, 0.6s duration
+      const meters = card.querySelectorAll('.analysis-meter');
+      meters.forEach((meter, index) => {
+        const fill = meter.querySelector('.analysis-meter-fill');
+        const numSpan = meter.querySelector('.meter-score-num');
+        const targetVal = Number(fill.getAttribute('data-target-value'));
+        const delay = index * 80;
+
+        setTimeout(() => {
+          fill.style.transition = 'width 0.6s ease-out';
+          fill.style.width = targetVal + '%';
+          animateNumber(numSpan, 0, targetVal, 600);
+        }, delay);
+      });
+
+      // 4. Staggered Sections: Works, Fix Next, Weak Spots
+      const sections = card.querySelectorAll('.analysis-block');
+      sections.forEach((section, sIndex) => {
+        const sectionDelay = 500 + sIndex * 100;
+        setTimeout(() => {
+          section.classList.add('enter-active');
+
+          // Inside each section, stagger bullets by 60ms
+          const bullets = section.querySelectorAll('.analysis-list li');
+          bullets.forEach((bullet, bIndex) => {
+            const bulletDelay = bIndex * 60;
+            setTimeout(() => {
+              bullet.classList.add('enter-active');
+            }, bulletDelay);
+          });
+        }, sectionDelay);
+      });
+    }
+  }
 }
 
 function copyFullScript() {
@@ -1098,6 +1481,22 @@ function initScriptStudio() {
   buildToneStrip();
   if (typeof renderModeOptions === 'function') {
     renderModeOptions();
+  }
+
+  // Rotating tips when idle
+  const tips = [
+    "Open with the payoff, not the setup",
+    "Write your first line last — it's always clearer after",
+    "Short Form scripts hit harder under 150 words"
+  ];
+  const randomTip = tips[Math.floor(Math.random() * tips.length)];
+  const testerResult = document.getElementById('scriptTesterResult');
+  if (testerResult) {
+    testerResult.innerHTML = `
+      <div class="flex flex-col items-center justify-center text-center p-6 text-slate-400 text-xs italic">
+        "${randomTip}"
+      </div>
+    `;
   }
 
   document.getElementById('mainInput')?.addEventListener('keydown', e => {

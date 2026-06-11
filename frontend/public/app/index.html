@@ -2,216 +2,247 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creo-Studio</title>
-  <link rel="icon" type="image/png" href="/logo.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../app/app.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      corePlugins: {
-        preflight: false
-      }
-    }
-  </script>
-  <script src="../auth.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creo-Studio</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../app/app.css?v=7">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            corePlugins: {
+                preflight: false
+            }
+        }
+    </script>
+    <script src="../auth.js"></script>
 </head>
 
 <body>
 
-  <div class="app-container">
+    <div class="app-container">
 
-    <!-- ═══ SIDEBAR ═══ -->
-    <aside class="sidebar" id="sidebar">
+        <!-- ═══ SIDEBAR ═══ -->
+        <aside class="sidebar" id="sidebar">
 
-      <div class="sidebar-header">
-        <button class="sidebar-logo-toggle" id="sidebarToggleBtn" title="Toggle sidebar">
-          <img src="/logo.png" alt="Creo" class="sidebar-logo-img" id="sidebarLogoImg">
-        </button>
-        <span class="sidebar-brand-text">
-          <a href="../index.html" style="text-decoration:none;color:inherit;">Creo</a>
-        </span>
-      </div>
-
-      <nav class="sidebar-nav">
-
-        <div class="nav-section">Create</div>
-
-        <button class="nav-item" data-target="script-view" data-title="Script Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-file-lines"></i>
-          <span>Script Studio</span>
-        </button>
-
-        <button class="nav-item" data-target="hook-view" data-title="Hook Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-magnet"></i>
-          <span>Hook Studio</span>
-        </button>
-
-        <button class="nav-item" data-target="caption-view" data-title="Caption Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-quote-left"></i>
-          <span>Caption Studio</span>
-        </button>
-
-        <button class="nav-item" data-target="thumbnail-view" data-title="Thumbnail Studio" onclick="switchView(this)">
-          <i class="fa-solid fa-image"></i>
-          <span>Thumbnail Studio</span>
-        </button>
-
-        <div class="nav-section">Insights</div>
-
-        <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard" onclick="switchView(this)">
-          <i class="fa-solid fa-house"></i>
-          <span>Dashboard</span>
-        </button>
-
-        <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
-          onclick="switchView(this)">
-          <i class="fa-solid fa-magnifying-glass-chart"></i>
-          <span>Channel Analysis</span>
-        </button>
-
-        <div class="nav-section">Account</div>
-
-        <button class="nav-item" data-target="profile-view" data-title="User Profile" onclick="switchView(this)">
-          <i class="fa-solid fa-user"></i>
-          <span>Profile</span>
-        </button>
-
-        <button class="nav-item" data-target="billing-view" data-title="Billing &amp; Usage" onclick="switchView(this)">
-          <i class="fa-solid fa-wallet"></i>
-          <span>Billing &amp; Usage</span>
-        </button>
-
-        <button class="nav-item" data-target="settings-view" data-title="Account Settings" onclick="switchView(this)">
-          <i class="fa-solid fa-gear"></i>
-          <span>Settings</span>
-        </button>
-
-      </nav>
-
-      <!-- Footer / User Row -->
-      <div class="sidebar-footer">
-        <div class="user-row">
-          <div class="user-avatar" id="userAvatar">SH</div>
-          <div class="user-meta">
-            <div class="user-name" id="userName">Loading...</div>
-            <div class="user-plan-badge" id="userPlanBadge">Free</div>
-          </div>
-        </div>
-      </div>
-
-    </aside>
-
-    <!-- ═══ MAIN ═══ -->
-    <div class="main-wrapper">
-
-      <!-- TOPBAR -->
-      <header class="topbar">
-        <div class="topbar-title">
-          <span id="current-view-title">Dashboard</span>
-          <span class="topbar-badge">LIVE</span>
-        </div>
-        <div style="margin-left:auto;">
-          <button class="btn-ghost" id="logoutBtn" title="Log out">
-            <i class="fa-solid fa-power-off"></i>
-          </button>
-          <button class="btn-primary" id="topbarUpgradeBtn" onclick="window.showUpgradeModal()">
-            Upgrade Plan
-          </button>
-        </div>
-      </header>
-
-      <!-- WORKSPACE -->
-      <main class="workspace">
-        <div id="featurePartials">
-          <div data-partial="partials/dashboard.html"></div>
-          <div data-partial="partials/script-studio.html"></div>
-          <div data-partial="partials/hook-studio.html"></div>
-          <div data-partial="partials/caption-studio.html"></div>
-          <div data-partial="partials/thumbnail-studio.html"></div>
-          <div data-partial="partials/channel-analysis.html"></div>
-          <div data-partial="partials/profile.html"></div>
-          <div data-partial="partials/billing.html"></div>
-          <div data-partial="partials/settings.html"></div>
-        </div>
-
-      </main>
-    </div>
-  </div>
-
-  <!-- Plan Upgrade Modal -->
-  <div class="modal-overlay" id="upgradeModal">
-    <div class="modal-window">
-      <button class="modal-close-btn" onclick="window.hideUpgradeModal()"><i class="fa-solid fa-xmark"></i></button>
-      <div class="modal-header">
-        <div
-          style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px;">
-          <i class="fa-solid fa-crown"></i>
-        </div>
-        <h2>Upgrade Your Creator Studio</h2>
-        <p>You've reached your trial generation limits or requested premium features. Unlock unlimited potential.</p>
-      </div>
-
-      <div class="plans-selection-grid">
-        <!-- Pro Plan selection card -->
-        <div class="plan-select-card" id="modalPlanPro" onclick="selectModalPlan('pro')">
-          <div class="plan-select-info">
-            <div class="plan-select-title">
-              <span>Pro Studio</span>
-              <span class="plan-badge">Popular</span>
+            <!-- Background aurora blobs -->
+            <div class="sidebar-bg">
+                <div class="blob blob-1"></div>
+                <div class="blob blob-2"></div>
+                <div class="blob blob-3"></div>
             </div>
-            <span class="plan-select-desc">250 generations/mo, full studio access</span>
-          </div>
-          <div class="plan-select-price">
-            $9<span>/mo</span>
-          </div>
-        </div>
 
-        <!-- Creator Plan selection card -->
-        <div class="plan-select-card" id="modalPlanCreator" onclick="selectModalPlan('creator')">
-          <div class="plan-select-info">
-            <div class="plan-select-title">
-              <span>Creator Pro</span>
-              <span class="plan-badge plan-badge-popular">Unlimited</span>
-            </div>
-            <span class="plan-select-desc">Unlimited generations/mo, priority queue</span>
-          </div>
-          <div class="plan-select-price">
-            $29<span>/mo</span>
-          </div>
-        </div>
-      </div>
+            <!-- Frosted glass layer -->
+            <div class="sidebar-glass"></div>
 
-      <div style="display: flex; gap: 12px; margin-top: 24px;">
-        <button class="btn-secondary" style="flex: 1;" onclick="window.hideUpgradeModal()">Cancel</button>
-        <button class="btn-primary" style="flex: 1;" id="modalUpgradeConfirmBtn" onclick="submitModalPlanUpgrade()"
-          disabled>Confirm Upgrade</button>
-      </div>
+            <!-- Content above glass -->
+            <div class="sidebar-content">
+
+                <div class="sidebar-header">
+                    <button class="sidebar-logo-toggle" id="sidebarToggleBtn" title="Toggle sidebar">
+                        <img src="/logo.png" alt="Creo" class="sidebar-logo-img" id="sidebarLogoImg">
+                    </button>
+                    <span class="sidebar-brand-text">
+                        <a href="../index.html" style="text-decoration:none;color:inherit;">Creo</a>
+                    </span>
+                </div>
+
+                <nav class="sidebar-nav">
+
+                    <!-- Liquid glass pill indicator — slides behind active tab -->
+                    <div class="nav-indicator-pill" id="navIndicatorPill"></div>
+
+                    <div class="nav-section">Create</div>
+
+                    <button class="nav-item" data-target="script-view" data-title="Script Studio"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span>Script Studio</span>
+                    </button>
+
+                    <button class="nav-item" data-target="hook-view" data-title="Hook Studio"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-magnet"></i>
+                        <span>Hook Studio</span>
+                    </button>
+
+                    <button class="nav-item" data-target="caption-view" data-title="Caption Studio"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-quote-left"></i>
+                        <span>Caption Studio</span>
+                    </button>
+
+                    <button class="nav-item" data-target="thumbnail-view" data-title="Thumbnail Studio"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-image"></i>
+                        <span>Thumbnail Studio</span>
+                    </button>
+
+                    <div class="nav-section">Insights</div>
+
+                    <button class="nav-item active" data-target="dashboard-view" data-title="Dashboard"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </button>
+
+                    <button class="nav-item" data-target="channel-analysis-view" data-title="Channel Analysis"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        <span>Channel Analysis</span>
+                    </button>
+
+                    <div class="nav-section">Account</div>
+
+                    <button class="nav-item" data-target="profile-view" data-title="User Profile"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+
+                    <button class="nav-item" data-target="billing-view" data-title="Billing &amp; Usage"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-wallet"></i>
+                        <span>Billing &amp; Usage</span>
+                    </button>
+
+                    <button class="nav-item" data-target="settings-view" data-title="Account Settings"
+                        onclick="switchView(this)">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </button>
+
+                </nav>
+
+                <!-- Footer / User Row -->
+                <div class="sidebar-footer">
+                    <div class="user-row">
+                        <div class="user-avatar" id="userAvatar">SH</div>
+                        <div class="user-meta">
+                            <div class="user-name" id="userName">Loading...</div>
+                            <div class="user-plan-badge" id="userPlanBadge">Free</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /sidebar-content -->
+
+        </aside>
+
+        <!-- ═══ MAIN ═══ -->
+        <div class="main-wrapper">
+
+            <!-- TOPBAR -->
+            <header class="topbar">
+                <div class="topbar-title">
+                    <span id="current-view-title">Dashboard</span>
+                    <span class="topbar-badge" style="display: inline-flex; align-items: center; gap: 6px;">
+                        <span class="status-dot-live" style="width: 6px; height: 6px; border-radius: 50%; background-color: var(--green, #10b981); display: inline-block; transition: all 0.2s ease;"></span>
+                        LIVE
+                    </span>
+                </div>
+                <div style="margin-left:auto;">
+                    <button class="btn-ghost" id="logoutBtn" title="Log out">
+                        <i class="fa-solid fa-power-off"></i>
+                    </button>
+                    <button class="btn-primary" id="topbarUpgradeBtn" onclick="window.showUpgradeModal()">
+                        Upgrade Plan
+                    </button>
+                </div>
+            </header>
+
+            <!-- WORKSPACE -->
+            <main class="workspace">
+                <div id="featurePartials">
+                    <div data-partial="partials/dashboard.html"></div>
+                    <div data-partial="partials/script-studio.html"></div>
+                    <div data-partial="partials/hook-studio.html"></div>
+                    <div data-partial="partials/caption-studio.html"></div>
+                    <div data-partial="partials/thumbnail-studio.html"></div>
+                    <div data-partial="partials/channel-analysis.html"></div>
+                    <div data-partial="partials/profile.html"></div>
+                    <div data-partial="partials/billing.html"></div>
+                    <div data-partial="partials/settings.html"></div>
+                </div>
+
+            </main>
+        </div>
     </div>
-  </div>
 
-  <!-- Toast Notifications Container -->
-  <div class="toast-container" id="toastContainer"></div>
+    <!-- Plan Upgrade Modal -->
+    <div class="modal-overlay" id="upgradeModal">
+        <div class="modal-window">
+            <button class="modal-close-btn" onclick="window.hideUpgradeModal()"><i
+                    class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <div
+                    style="width: 48px; height: 48px; border-radius: 50%; background: var(--accent-bg); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 20px; margin: 0 auto 16px;">
+                    <i class="fa-solid fa-crown"></i>
+                </div>
+                <h2>Upgrade Your Creator Studio</h2>
+                <p>You've reached your trial generation limits or requested premium features. Unlock unlimited
+                    potential.</p>
+            </div>
 
-  <!-- Scripts -->
-  <script src="js/partials.js?v=2"></script>
-  <script src="app.js?v=2"></script>
-  <script src="js/shared.js?v=2"></script>
-  <script src="js/dashboard.js?v=2"></script>
-  <script src="js/script-studio.js?v=2"></script>
-  <script src="js/hook-studio.js?v=2"></script>
-  <script src="js/caption-studio.js?v=2"></script>
-  <script src="js/thumbnail-studio.js?v=2"></script>
-  <script src="js/channel-analysis.js?v=2"></script>
-  <script src="js/profile.js?v=2"></script>
-  <script src="js/settings.js?v=2"></script>
-  <script src="js/billing.js?v=2"></script>
-  <script src="../feedback.js" defer></script>
+            <div class="plans-selection-grid">
+                <!-- Pro Plan selection card -->
+                <div class="plan-select-card" id="modalPlanPro" onclick="selectModalPlan('pro')">
+                    <div class="plan-select-info">
+                        <div class="plan-select-title">
+                            <span>Pro Studio</span>
+                            <span class="plan-badge">Popular</span>
+                        </div>
+                        <span class="plan-select-desc">250 generations/mo, full studio access</span>
+                    </div>
+                    <div class="plan-select-price">
+                        $9<span>/mo</span>
+                    </div>
+                </div>
+
+                <!-- Creator Plan selection card -->
+                <div class="plan-select-card" id="modalPlanCreator" onclick="selectModalPlan('creator')">
+                    <div class="plan-select-info">
+                        <div class="plan-select-title">
+                            <span>Creator Pro</span>
+                            <span class="plan-badge plan-badge-popular">Unlimited</span>
+                        </div>
+                        <span class="plan-select-desc">Unlimited generations/mo, priority queue</span>
+                    </div>
+                    <div class="plan-select-price">
+                        $29<span>/mo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; margin-top: 24px;">
+                <button class="btn-secondary" style="flex: 1;" onclick="window.hideUpgradeModal()">Cancel</button>
+                <button class="btn-primary" style="flex: 1;" id="modalUpgradeConfirmBtn"
+                    onclick="submitModalPlanUpgrade()" disabled>Confirm Upgrade</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="js/partials.js?v=3"></script>
+    <script src="app.js?v=3"></script>
+    <script src="js/shared.js?v=3"></script>
+    <script src="js/dashboard.js?v=3"></script>
+    <script src="js/script-studio.js?v=3"></script>
+    <script src="js/hook-studio.js?v=3"></script>
+    <script src="js/caption-studio.js?v=3"></script>
+    <script src="js/thumbnail-studio.js?v=3"></script>
+    <script src="js/channel-analysis.js?v=4"></script>
+    <script src="js/profile.js?v=3"></script>
+    <script src="js/settings.js?v=3"></script>
+    <script src="js/billing.js?v=3"></script>
+    <script src="../feedback.js" defer></script>
 </body>
 
 </html>

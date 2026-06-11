@@ -11,9 +11,29 @@
       </div>
 
       <div id="hooksContent">
-        <div class="hooks-empty-state hooks-empty-large">
-          <div class="ei"><i class="fa-solid fa-magnet"></i></div>
-          Hook ideas will appear here
+        <div id="hooksEmptyState" class="flex flex-col gap-3.5 w-full transition-opacity duration-200" style="opacity: 0.55; pointer-events: none;">
+          <!-- Card 1 -->
+          <div class="hook-item best relative border border-slate-200 rounded-xl p-4 bg-white shadow-sm flex flex-col gap-2">
+            <span class="absolute top-3 right-3 bg-slate-100 text-slate-400 text-[10px] font-medium rounded-full px-2 py-0.5">example</span>
+            <div class="flex flex-col gap-2.5">
+              <div class="flex items-center gap-2">
+                <span class="hook-best-label bg-blue-50 text-blue-600 border border-blue-100 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider" style="margin-bottom:0; font-family: var(--mono);">Controversial</span>
+                <span class="bg-blue-100 text-blue-600 text-[10px] font-bold rounded-full px-1.5 py-0.5 inline-flex items-center justify-center" style="font-family: var(--mono);">94</span>
+              </div>
+              <div class="hook-text text-sm font-normal text-slate-600">"I lost $40,000 following every productivity guru's advice. Here's what actually works."</div>
+            </div>
+          </div>
+          <!-- Card 2 -->
+          <div class="hook-item relative border border-slate-200 rounded-xl p-4 bg-white shadow-sm flex flex-col gap-2">
+            <span class="absolute top-3 right-3 bg-slate-100 text-slate-400 text-[10px] font-medium rounded-full px-2 py-0.5">example</span>
+            <div class="flex flex-col gap-2.5">
+              <div class="flex items-center gap-2">
+                <span class="hook-best-label bg-indigo-50 text-indigo-600 border border-indigo-100 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider" style="margin-bottom:0; color: #4f46e5; border-color: #e0e7ff; background-color: #f5f3ff; font-family: var(--mono);">Authority</span>
+                <span class="bg-indigo-100 text-indigo-600 text-[10px] font-bold rounded-full px-1.5 py-0.5 inline-flex items-center justify-center" style="color: #4f46e5; background-color: #e0e7ff; font-family: var(--mono);">91</span>
+              </div>
+              <div class="hook-text text-sm font-normal text-slate-600">"Nobody talks about the real reason your YouTube channel isn't growing — and it's not the algorithm."</div>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -42,6 +62,7 @@
   </div>
 
   <div class="hook-input-bar-wrapper">
+    <div id="hookStateLine" class="text-center text-slate-400 text-xs mb-2 transition-opacity duration-150" style="display: none;"></div>
     <div class="input-shell hook-input-shell">
       <textarea id="hookGeneratorInput" rows="1"
         placeholder="Topic, niche, story, or offer..."

@@ -12,10 +12,10 @@
       <!-- Platform Pill Selector -->
       <div class="platform-selector-row">
         <button class="platform-pill active" id="platform-btn-youtube" onclick="setAnalysisPlatform('youtube')">
-          <i class="fa-brands fa-youtube" style="color: #ff0000; font-size: 15px;"></i> YouTube
+          <i class="fa-brands fa-youtube" style="font-size: 15px;"></i> YouTube
         </button>
         <button class="platform-pill" id="platform-btn-instagram" onclick="setAnalysisPlatform('instagram')">
-          <i class="fa-brands fa-instagram" style="color: #e1306c; font-size: 15px;"></i> Instagram
+          <i class="fa-brands fa-instagram" style="font-size: 15px;"></i> Instagram
         </button>
       </div>
 
@@ -132,20 +132,20 @@
       <!-- ═══ PREMIUM TAB SWITCHER PILLS ═══ -->
       <div class="report-tabs">
         <button class="report-tab-btn active" onclick="switchReportTab(this, 'tab-performance')">
-          <i class="fa-solid fa-arrow-trend-up" style="color: var(--accent);"></i> Growth Engine
+          <i class="fa-solid fa-chart-line"></i> Growth & Timing
         </button>
         <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-dna')">
-          <i class="fa-solid fa-key" style="color: var(--accent);"></i> Secret Playbook
+          <i class="fa-solid fa-gears"></i> Content & Script Logic
         </button>
         <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-actions')">
-          <i class="fa-solid fa-compass" style="color: var(--amber);"></i> Niche Battle Map
+          <i class="fa-solid fa-chess"></i> Moat & Psychology
         </button>
         <button class="report-tab-btn" onclick="switchReportTab(this, 'tab-videos')">
-          <i class="fa-solid fa-clapperboard" style="color: var(--green);"></i> library & formulas
+          <i class="fa-solid fa-compass"></i> Library & Gaps
         </button>
       </div>
 
-      <!-- 🎴 TAB 1: GROWTH ENGINE -->
+      <!-- 🎴 TAB 1: GROWTH & TIMING -->
       <div id="tab-performance" class="report-tab-content active">
         <!-- STATS GRID -->
         <div class="stats-grid">
@@ -161,12 +161,12 @@
           </div>
           <div class="stat-metric-card">
             <div class="stat-label" id="lblAvgViews">Avg Views / Video</div>
-            <div class="stat-val" id="statAvgViews" style="color: var(--accent);">45.2K</div>
+            <div class="stat-val" id="statAvgViews">45.2K</div>
             <div class="stat-desc">Typical video performance</div>
           </div>
           <div class="stat-metric-card">
             <div class="stat-label">Engagement Rate</div>
-            <div class="stat-val" id="statER" style="color: var(--green);">5.4%</div>
+            <div class="stat-val" id="statER">5.4%</div>
             <div class="stat-desc">Likes + Comments relative to views</div>
           </div>
         </div>
@@ -195,132 +195,178 @@
           </div>
         </div>
 
+        <!-- NEW: POSTING SCHEDULE STRATEGY & REACH DYNAMICS -->
+        <div class="two-column-grid">
+          <div class="creator-notebook-card">
+            <div class="notebook-header"><i class="fa-solid fa-clock"></i> Posting Schedule Strategy</div>
+            <div class="notebook-body">
+              <p id="rptPostingSchedule" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.6; margin: 0;">
+                Analyzing upload cadence patterns...
+              </p>
+            </div>
+          </div>
+          <div class="creator-notebook-card">
+            <div class="notebook-header"><i class="fa-solid fa-chart-simple"></i> Reach & Audience Dynamics</div>
+            <div class="notebook-body">
+              <p id="rptEngagementSummary" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.6; margin: 0;">
+                Analyzing audience reach and community dynamics...
+              </p>
+            </div>
+          </div>
+        </div>
+
         <!-- ESTIMATED REVENUE METRIC GRID -->
         <div class="revenue-highlight-grid">
-          <div class="stat-metric-card" style="border-left: 4px solid var(--green); background: rgba(22, 163, 74, 0.01);">
-            <div class="stat-label" id="lblMonthlyRev" style="color: var(--green);">Est. Monthly Ad Revenue</div>
-            <div class="stat-val" id="statMonthlyRev" style="color: var(--green); font-size: 26px;">$0</div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--accent); background: rgba(0, 122, 255, 0.015);">
+            <div class="stat-label" id="lblMonthlyRev">Est. Monthly Ad Revenue</div>
+            <div class="stat-val" id="statMonthlyRev" style="font-size: 26px;">$0</div>
             <div class="stat-desc">Based on upload density & niche CPM views model</div>
           </div>
-          <div class="stat-metric-card" style="border-left: 4px solid var(--accent); background: rgba(124, 92, 255, 0.01);">
-            <div class="stat-label" id="lblYearlyRev" style="color: var(--accent);">Est. Annual Ad Revenue</div>
-            <div class="stat-val" id="statYearlyRev" style="color: var(--accent); font-size: 26px;">$0</div>
+          <div class="stat-metric-card" style="border-left: 4px solid var(--accent); background: rgba(0, 122, 255, 0.015);">
+            <div class="stat-label" id="lblYearlyRev">Est. Annual Ad Revenue</div>
+            <div class="stat-val" id="statYearlyRev" style="font-size: 26px;">$0</div>
             <div class="stat-desc">Yearly earnings projections at current velocity</div>
           </div>
         </div>
       </div>
 
-      <!-- 🎴 TAB 2: SECRET PLAYBOOK (Actionable checklists & blueprints) -->
+      <!-- 🎴 TAB 2: CONTENT & SCRIPT LOGIC -->
       <div id="tab-dna" class="report-tab-content">
+        <!-- Storytelling Flow & Pacing Notebook Card -->
+        <div class="creator-notebook-card">
+          <div class="notebook-header"><i class="fa-solid fa-scroll"></i> Storytelling Pacing & Script Logic</div>
+          <div class="notebook-body" style="padding: 4px 0;">
+            <p id="rptScriptLogic" style="font-size: 14px; font-family: var(--font); color: var(--text-sec); line-height: 1.65; margin: 0; background: var(--surface2); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-soft);">
+              Script structural rules and logic...
+            </p>
+          </div>
+        </div>
+
         <div class="two-column-grid">
           <!-- Hook Strategy Checklists -->
-          <div class="creator-notebook-card" style="border-top: 3.5px solid var(--accent);">
-            <div class="notebook-header"><i class="fa-solid fa-clipboard-list" style="color: var(--accent);"></i> Title Hook Strategy Checklist</div>
+          <div class="creator-notebook-card">
+            <div class="notebook-header"><i class="fa-solid fa-clipboard-list"></i> Title Hook Strategy Checklist</div>
             <div class="notebook-body" id="rptHookStrategy">
               <!-- Dynamically populated check items -->
             </div>
           </div>
-          <!-- Visual Thumbnail Blueprints -->
-          <div class="creator-notebook-card" style="border-top: 3.5px solid var(--green);">
-            <div class="notebook-header"><i class="fa-solid fa-compass-drafting" style="color: var(--green);"></i> Thumbnail Visual Guidelines</div>
-            <div class="notebook-body" id="rptThumbnailStrategy">
-              <!-- Dynamically populated design indicators -->
-            </div>
-          </div>
-        </div>
 
-        <!-- Content DNA Topic Cloud -->
-        <div class="report-panel">
-          <h4>🧬 Scanned Content DNA & Keywords</h4>
-          <div style="margin-bottom: 16px;">
-            <div class="stat-label" style="margin-bottom: 10px;">Scanned Core Topics</div>
-            <div class="chip-container" id="rptTopics">
-              <!-- Chips -->
+          <!-- Content DNA Topic Cloud -->
+          <div class="report-panel">
+            <h4>🧬 Scanned Content DNA & Keywords</h4>
+            <div style="margin-bottom: 16px;">
+              <div class="stat-label" style="margin-bottom: 10px;">Scanned Core Topics</div>
+              <div class="chip-container" id="rptTopics">
+                <!-- Chips -->
+              </div>
             </div>
-          </div>
-          <div>
-            <div class="stat-label" style="margin-bottom: 8px;">Observed Title Optimization Pattern</div>
-            <p id="rptTitlePatterns" style="font-size: 13px; font-family: var(--font-mono); color: var(--text-sec); background: var(--surface); padding: 14px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin: 0; line-height: 1.5;">
-              Title details...
-            </p>
+            <div>
+              <div class="stat-label" style="margin-bottom: 8px;">Observed Title Optimization Pattern</div>
+              <p id="rptTitlePatterns" style="font-size: 13px; font-family: var(--mono); color: var(--text-sec); background: var(--surface2); padding: 14px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin: 0; line-height: 1.5;">
+                Title details...
+              </p>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- 🎴 TAB 3: NICHE BATTLE MAP -->
+      <!-- 🎴 TAB 3: MOAT & PSYCHOLOGY -->
       <div id="tab-actions" class="report-tab-content">
         <div class="two-column-grid">
-          <!-- CONTENT GAPS -->
-          <div class="report-panel" style="border-top: 3.5px solid var(--red);">
-            <h4 style="color: var(--red);"><i class="fa-solid fa-triangle-exclamation"></i> High-Potential Niche Gaps</h4>
-            <p style="font-size: 12px; color: var(--muted); margin-bottom: 14px; line-height: 1.45;">These are high-demand search topics where this competitor has zero content. Build video scripts around these to capture their traffic!</p>
-            <ul id="rptGaps" style="margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--text-sec); line-height: 1.9;">
-              <!-- Dynamically populated list -->
-            </ul>
+          <!-- Visual Thumbnail Blueprints -->
+          <div class="creator-notebook-card">
+            <div class="notebook-header"><i class="fa-solid fa-compass-drafting"></i> Thumbnail Visual Guidelines</div>
+            <div class="notebook-body" id="rptThumbnailStrategy">
+              <!-- Dynamically populated design indicators -->
+            </div>
           </div>
 
+          <!-- Thumbnail Click triggers psychology -->
+          <div class="creator-notebook-card">
+            <div class="notebook-header"><i class="fa-solid fa-brain"></i> Thumbnail Click Psychology</div>
+            <div class="notebook-body">
+              <p id="rptThumbnailPsychology" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.6; margin: 0;">
+                Analyzing visual click triggers...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-column-grid">
           <!-- MOAT & CONQUEST -->
-          <div class="report-panel" style="border-top: 3.5px solid var(--amber);">
-            <h4 style="color: var(--amber);"><i class="fa-solid fa-chess-rook"></i> Key Moat Analysis</h4>
+          <div class="report-panel">
+            <h4 style="margin-bottom: 16px;"><i class="fa-solid fa-chess-rook"></i> Key Moat Analysis</h4>
             <p id="rptThreatReasoning" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.6; margin-bottom: 16px;">
               Their primary moat...
             </p>
             <div style="background: var(--surface2); border: 1px dashed var(--border-mid); padding: 16px; border-radius: var(--radius);">
               <h5 style="margin: 0 0 8px 0; font-size: 12.5px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px;">
-                <span style="color: var(--green);"><i class="fa-solid fa-bullseye"></i></span> How to Outperform Them
+                <span style="color: var(--accent);"><i class="fa-solid fa-bullseye"></i></span> How to Outperform Them
               </h5>
               <p id="rptConquestRule" style="font-size: 12.5px; color: var(--text-sec); line-height: 1.5; margin: 0;">
                 Synthesize their tags and title structures but focus on deep-dive production values.
               </p>
             </div>
           </div>
-        </div>
 
-        <!-- AUDIENCE INTERACTION METER -->
-        <div class="report-panel">
-          <h4 style="justify-content: space-between; display: flex; align-items: center; margin-bottom: 16px;">
-            <span>🎯 Competitor Threat Assessment</span>
-            <div style="display: flex; align-items: center; gap: 10px; width: 220px; font-weight: normal;">
+          <!-- AUDIENCE INTERACTION METER -->
+          <div class="report-panel">
+            <h4 style="justify-content: space-between; display: flex; align-items: center; margin-bottom: 16px;">
+              <span>🎯 Competitor Threat Assessment</span>
+              <div style="display: flex; align-items: center; gap: 10px; width: 220px; font-weight: normal;">
+                <div class="progress-bar-track">
+                  <div class="progress-bar-fill fill-accent" id="barThreat" style="width: 0%;"></div>
+                </div>
+                <span class="badge" id="rptThreatBadge" style="min-width: 65px; text-align: center;">Medium</span>
+              </div>
+            </h4>
+            
+            <div style="background: var(--surface2); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="stat-label">Interaction Index</div>
+                  <span id="rptRating" style="font-size: 15px; font-weight: 750; color: var(--accent);">Strong</span>
+                </div>
+                <div style="text-align: right;">
+                  <div class="stat-label">Niche Benchmark</div>
+                  <span id="rptBenchmark" style="font-size: 12px; font-style: italic; color: var(--text-sec);">Benchmark index...</span>
+                </div>
+              </div>
               <div class="progress-bar-track">
-                <div class="progress-bar-fill fill-amber" id="barThreat" style="width: 0%;"></div>
-              </div>
-              <span class="badge" id="rptThreatBadge" style="min-width: 65px; text-align: center;">Medium</span>
-            </div>
-          </h4>
-          
-          <div style="background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border-soft); margin-bottom: 16px; display: flex; flex-direction: column; gap: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <div>
-                <div class="stat-label">Interaction Index</div>
-                <span id="rptRating" style="font-size: 15px; font-weight: 750; color: var(--green);">Strong</span>
-              </div>
-              <div style="text-align: right;">
-                <div class="stat-label">Niche Benchmark</div>
-                <span id="rptBenchmark" style="font-size: 12px; font-style: italic; color: var(--text-sec);">Benchmark index...</span>
+                <div class="progress-bar-fill fill-accent" id="barEngagement" style="width: 0%;"></div>
               </div>
             </div>
-            <div class="progress-bar-track">
-              <div class="progress-bar-fill fill-green" id="barEngagement" style="width: 0%;"></div>
-            </div>
-          </div>
-          <p id="rptEngagementNotes" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.5; margin: 0;">
-            Engagement details...
-          </p>
-        </div>
-
-        <!-- STRATEGIC RECOMMENDATIONS GRID -->
-        <div class="report-panel" style="margin-top: 24px; border-top: 3.5px solid var(--accent);">
-          <h4><i class="fa-solid fa-list-check" style="color: var(--accent);"></i> Priority Growth Action Items</h4>
-          <div id="rptRecommendations">
-            <!-- Dynamically populated cards -->
+            <p id="rptEngagementNotes" style="font-size: 13.5px; color: var(--text-sec); line-height: 1.5; margin: 0;">
+              Engagement details...
+            </p>
           </div>
         </div>
       </div>
 
-      <!-- 🎴 TAB 4: VIDEOS LIBRARY -->
+      <!-- 🎴 TAB 4: LIBRARY & GAPS -->
       <div id="tab-videos" class="report-tab-content">
+        <div class="two-column-grid">
+          <!-- CONTENT GAPS -->
+          <div class="report-panel">
+            <h4><i class="fa-solid fa-circle-exclamation"></i> High-Potential Niche Gaps</h4>
+            <p style="font-size: 12px; color: var(--text-sec); margin-bottom: 14px; line-height: 1.45;">These are high-demand search topics where this competitor has zero content. Build video scripts around these to capture their traffic!</p>
+            <ul id="rptGaps" style="margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--text-sec); line-height: 1.9;">
+              <!-- Dynamically populated list -->
+            </ul>
+          </div>
+
+          <!-- STRATEGIC RECOMMENDATIONS GRID -->
+          <div class="report-panel">
+            <h4><i class="fa-solid fa-list-check"></i> Priority Growth Action Items</h4>
+            <div id="rptRecommendations">
+              <!-- Dynamically populated cards -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Videos list -->
         <div class="report-panel">
-          <h4>🏆 Top 10 Scanned Videos</h4>
+          <h4>🏆 Top Scanned Videos</h4>
           <div style="overflow-x: auto; width: 100%;">
             <table class="top-videos-table">
               <thead>

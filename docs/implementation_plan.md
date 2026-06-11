@@ -1,96 +1,69 @@
-# Implementation Plan — Repository Restructuring for Deployment
+# Redesign Caption Studio UI and Fix Tenglish Support
 
-This plan details the migration of the Aurora codebase into a separated deployment architecture containing clean `frontend`, `admin`, `backend`, `docs`, and `scripts` workspaces.
+## Goal Description
+
+Revamp the Caption Studio front‑end to match the premium “Skybooker” glass‑morphism aesthetic, use the SF Display font, reposition the generate button, and ensure error messages appear at the top. Additionally, finalize the multi‑language support, especially the Tenglish workflow, by externalising the transliteration dictionary and wiring it into the backend.
 
 ## User Review Required
 
-> [!IMPORTANT]
-> **Static File Serving:** The backend Express server will statically serve both the frontend files and admin dashboard locally, keeping single-port execution intact. In production, these directories (`frontend/public` and `admin/public`) can be served directly by Nginx or static host CDNs.
-> **Avatar Upload Directory:** User avatar uploads will now save into `backend/uploads/avatars` rather than inside frontend directories, decoupling data storage from static code assets.
+- **Design direction**: Confirm the glass‑morphism style (blur, semi‑transparent surfaces) and the usage of SF Display font.
+- **Generate button placement**: You requested moving it to the left side of the footer – confirm if it should be left‑aligned within the unified footer or completely separate.
+- **Error message location**: Ensure top‑of‑page placement and styling (red background, rounded corners).
+- **Tenglish dictionary**: Currently a small JSON file; confirm if you want to expand it later or keep as‑is.
 
----
+> [!IMPORTANT] Verify the colour palette aligns with the existing theme variables (e.g., `--accent`, `--surface2`).
+
+## Open Questions
+
+- Do you want a dark‑mode variant for the Caption Studio, or will the current light theme suffice?
+- Should the language dropdown be integrated into the existing composer‑header or placed elsewhere?
+- Any additional UI elements (e.g., tooltips, micro‑animations) you’d like to add?
 
 ## Proposed Changes
 
-### 1. root directory
-* Create `docker-compose.yml` for multi-container local configuration.
-* Create `.env.example` file.
-* Update `package.json` at root to support concurrent startup of frontend and backend.
+---
+### Front‑end
 
-#### [NEW] [docker-compose.yml](file:///c:/Users/zenix/Desktop/Projectx/docker-compose.yml)
-#### [NEW] [.env.example](file:///c:/Users/zenix/Desktop/Projectx/.env.example)
+#### [MODIFY] [caption-studio.html](file:///c:/Users/zenix/Desktop/Projectx/frontend/public/app/partials/caption-studio.html)
+- Re‑structure markup to a single container with glass‑morphism background (`backdrop-filter: blur(12px)`).
+- Insert `<select id="captionLanguage">` dropdown with options for all languages (including Tenglish) right after the file‑upload input.
+- Relocate the generate button into the left side of the unified footer (`.composer-footer-unified`).
+- Add an error banner element at the top of `.caption-studio-layout`.
+- Use `<link href="https://fonts.googleapis.com/css2?family=SF+Display:wght@400;600;800&display=swap" rel="stylesheet">` and apply `font-family: 'SF Display', sans-serif;` globally.
+
+#### [MODIFY] [caption-studio.css](file:///c:/Users/zenix/Desktop/Projectx/frontend/public/app/css/caption-studio.css)
+- Introduce glass‑morphism styles: `background: rgba(255,255,255,0.12); backdrop-filter: blur(12px); border-radius: 20px;` for main panels.
+- Update colour variables to use harmonious HSL palette (e.g., `--primary: hsl(220, 90%, 60%);`).
+- Style the error banner with a subtle gradient and red accent.
+- Adjust the generate button class to `.studio-generate-btn-left` with left‑alignment and matching hover animation.
+- Add micro‑animations for mode‑switch buttons (`transform: scale(1.02)` on hover).
 
 ---
+### Back‑end
 
-### 2. frontend workspace
-* Move all Vite/React files (`src/`, `index.html`, `vite.config.ts`, `tsconfig.json`) into `frontend/`.
-* Move static public assets (`public/` EXCEPT admin files) into `frontend/public/`.
-* Create `frontend/package.json` with react, tailwind, and vite dependencies.
+#### [MODIFY] [caption.js](file:///c:/Users/zenix/Desktop/Projectx/backend/src/routes/caption.js)
+- Ensure the incoming `language` field from the form is read and passed to the Whisper request.
+- Load the Tenglish dictionary from `backend/data/tenglishDict.json` and perform a lookup/replace before returning the transcription when `lang === "tenglish"`.
+- Return a structured JSON response that includes any validation errors; the front‑end will render them in the top error banner.
 
-#### [NEW] [frontend/package.json](file:///c:/Users/zenix/Desktop/Projectx/frontend/package.json)
-#### [NEW] [frontend/public/](file:///c:/Users/zenix/Desktop/Projectx/frontend/public)
-#### [NEW] [frontend/src/](file:///c:/Users/zenix/Desktop/Projectx/frontend/src)
-
----
-
-### 3. admin workspace
-* Create a dedicated `admin/` directory.
-* Move `admin-login.html`, `admin.html`, `css/admin.css`, and `js/admin.js` into `admin/public/`.
-* Rename `admin.html` to `index.html` and `admin-login.html` to `login.html` within `admin/public/` for cleaner route mapping.
-
-#### [NEW] [admin/public/](file:///c:/Users/zenix/Desktop/Projectx/admin/public)
+#### [NEW] [tenglishDict.json](file:///c:/Users/zenix/Desktop/Projectx/backend/data/tenglishDict.json)
+- Already exists; no changes needed now, but keep it external for future expansion.
 
 ---
+### Tests & Verification
 
-### 4. backend workspace
-* Move `server.js` to `backend/server.js`.
-* Update static serving paths in `server.js` to route `/` to `frontend/public` and `/admin` to `admin/public`.
-* Move routes, models, services, middlewares, prompts, and utilities to `backend/src/`.
-* Update internal `require` paths in all backend scripts to point relative to the new `backend/src/` structure.
-* Create `backend/package.json` with express, mongoose, bcrypt, jwt, sharp, and nodemailer dependencies.
-
-#### [NEW] [backend/package.json](file:///c:/Users/zenix/Desktop/Projectx/backend/package.json)
-#### [NEW] [backend/server.js](file:///c:/Users/zenix/Desktop/Projectx/backend/server.js)
-#### [NEW] [backend/src/](file:///c:/Users/zenix/Desktop/Projectx/backend/src)
-
----
-
-### 5. docs & scripts workspaces
-* Move walkthrough.md and other artifacts into `docs/`.
-* Move scratch/ debug scripts into `scripts/`.
-
-#### [NEW] [docs/](file:///c:/Users/zenix/Desktop/Projectx/docs)
-#### [NEW] [scripts/](file:///c:/Users/zenix/Desktop/Projectx/scripts)
-
----
-
-## Path Adjustments Mapping
-
-Here is the exact module resolution mapping that will be executed for backend files:
-
-| Original Path | Restructured Path |
-| :--- | :--- |
-| `routes/*.js` | `backend/src/routes/*.js` |
-| `backend/routes/*.js` | `backend/src/routes/*.js` |
-| `backend/models/*.js` | `backend/src/models/*.js` |
-| `backend/middleware/*.js` | `backend/src/middleware/*.js` |
-| `backend/services/*.js` | `backend/src/services/*.js` |
-| `services/auth/*.js` | `backend/src/services/auth/*.js` |
-| `services/prompts/*.js` | `backend/src/services/prompts/*.js` |
-| `services/imageGeneration/` | `backend/src/ai/imageGeneration/` |
-| `prompts/*.js` | `backend/src/ai/prompts/*.js` |
-| `utils/*.js` | `backend/src/utils/*.js` |
-| `backend/gemini.js` | `backend/src/ai/gemini.js` |
-
----
+- Manual UI testing on Windows Chrome/Edge to verify layout, glass effect, and button placement.
+- Upload a short audio file, select "Tenglish", and confirm the output contains transliterated Telugu words (e.g., "aim chesthunnav").
+- Trigger an error (e.g., missing audio) and verify the message appears at the top.
 
 ## Verification Plan
 
-## Automated Checks
-* Run `node backend/server.js` locally to ensure server boots up without syntax errors or broken module imports.
-* Validate MongoDB Atlas connection.
+### Automated Tests
+- Run `npm test` (if a test suite exists) after UI changes to ensure no regression on existing routes.
 
 ### Manual Verification
-* Navigate to `http://localhost:3000/` and verify the marketing landing page loads.
-* Navigate to `http://localhost:3000/app/` and verify the creator dashboard welcome metrics load.
-* Navigate to `http://localhost:3000/admin/login` and verify the admin page login page is visible.
+- Open `http://localhost:3000/caption-studio` and inspect the new design.
+- Check responsiveness on mobile widths.
+- Verify colour contrast meets WCAG AA.
+
+---
