@@ -531,7 +531,6 @@ class CanvasEmptyStateManager {
   }
 
   evaluateState() {
-    const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isEmpty = this.isCanvasEmpty();
 
     if (isEmpty && !this.isGenerating && !this.isInputFocused) {
@@ -548,13 +547,8 @@ class CanvasEmptyStateManager {
         });
       }
 
-      if (isReduced) {
-        this.stopOnboardingCycle();
-        this.renderStaticState();
-      } else {
-        if (!this.isActive) {
-          this.startOnboardingCycle();
-        }
+      if (!this.isActive) {
+        this.startOnboardingCycle();
       }
     } else {
       // Hide onboarding container
@@ -625,37 +619,6 @@ class CanvasEmptyStateManager {
     this.clearTimers();
   }
 
-  renderStaticState() {
-    const step1 = document.getElementById(`${this.name}-step-1`);
-    const step2 = document.getElementById(`${this.name}-step-2`);
-    const step3 = document.getElementById(`${this.name}-step-3`);
-    
-    const chip1 = document.getElementById(`${this.name}-preview-tone-1`) || document.getElementById(`${this.name}-preview-mode-1`);
-    const chip2 = document.getElementById(`${this.name}-preview-tone-2`) || document.getElementById(`${this.name}-preview-mode-3`);
-    
-    const textEl = document.getElementById(`${this.name}-preview-prompt-text`);
-    const cardEl = document.getElementById(`${this.name}-preview-card`);
-
-    const promptText = this.name === 'hook' 
-      ? "I lost $40,000 following productivity advice. Here's what works."
-      : "You've been using AI wrong this entire time. The creators actually winning? They use it to think.";
-
-    if (step1) step1.classList.add('active');
-    if (step2) step2.classList.add('active');
-    if (step3) step3.classList.add('active');
-
-    if (chip1) chip1.classList.remove('active');
-    if (chip2) chip2.classList.add('active');
-
-    if (textEl) textEl.textContent = promptText;
-
-    if (cardEl) {
-      cardEl.style.opacity = "1";
-      cardEl.style.transform = "translateY(0)";
-      cardEl.style.transition = "none";
-    }
-  }
-
   runStepCycle() {
     this.clearTimers();
     if (!this.isActive) return;
@@ -678,6 +641,8 @@ class CanvasEmptyStateManager {
     const showStep1 = () => {
       if (!this.isActive) return;
 
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       if (step1) step1.classList.add('active');
       if (step2) step2.classList.remove('active');
       if (step3) step3.classList.remove('active');
@@ -688,20 +653,33 @@ class CanvasEmptyStateManager {
 
       if (textEl) textEl.textContent = "";
       if (cardEl) {
-        cardEl.style.opacity = "0";
-        cardEl.style.transform = "translateY(4px)";
+        if (isReduced) {
+          cardEl.style.transition = "none";
+          cardEl.style.opacity = "0";
+          cardEl.style.transform = "none";
+        } else {
+          cardEl.style.opacity = "0";
+          cardEl.style.transform = "translateY(4px)";
+        }
       }
 
-      this.scheduleTimeout(() => {
+      if (isReduced) {
         if (chip1) chip1.classList.remove('active');
         if (chip2) chip2.classList.add('active');
-      }, 500);
-
-      this.scheduleTimeout(showStep2, 1600);
+        this.scheduleTimeout(showStep2, 2000);
+      } else {
+        this.scheduleTimeout(() => {
+          if (chip1) chip1.classList.remove('active');
+          if (chip2) chip2.classList.add('active');
+        }, 500);
+        this.scheduleTimeout(showStep2, 1600);
+      }
     };
 
     const showStep2 = () => {
       if (!this.isActive) return;
+
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (step1) step1.classList.remove('active');
       if (step2) step2.classList.add('active');
@@ -710,46 +688,66 @@ class CanvasEmptyStateManager {
       if (chip1) chip1.classList.remove('active');
       if (chip2) chip2.classList.add('active');
 
-      let index = 0;
-      const typeChar = () => {
-        if (!this.isActive) return;
-        if (index < promptText.length) {
-          if (textEl) textEl.textContent = promptText.slice(0, index + 1);
-          index++;
-          const charDelay = 35 + Math.random() * 20;
-          this.scheduleTimeout(typeChar, charDelay);
-        } else {
-          this.scheduleTimeout(showStep3, 800);
-        }
-      };
-
-      this.scheduleTimeout(typeChar, 300);
+      if (isReduced) {
+        if (textEl) textEl.textContent = promptText;
+        this.scheduleTimeout(showStep3, 2000);
+      } else {
+        let index = 0;
+        const typeChar = () => {
+          if (!this.isActive) return;
+          if (index < promptText.length) {
+            if (textEl) textEl.textContent = promptText.slice(0, index + 1);
+            index++;
+            const charDelay = 35 + Math.random() * 20;
+            this.scheduleTimeout(typeChar, charDelay);
+          } else {
+            this.scheduleTimeout(showStep3, 800);
+          }
+        };
+        this.scheduleTimeout(typeChar, 300);
+      }
     };
 
     const showStep3 = () => {
       if (!this.isActive) return;
+
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       if (step1) step1.classList.remove('active');
       if (step2) step2.classList.remove('active');
       if (step3) step3.classList.add('active');
 
       if (cardEl) {
-        cardEl.style.opacity = "1";
-        cardEl.style.transform = "translateY(0)";
+        if (isReduced) {
+          cardEl.style.transition = "none";
+          cardEl.style.opacity = "1";
+          cardEl.style.transform = "none";
+        } else {
+          cardEl.style.opacity = "1";
+          cardEl.style.transform = "translateY(0)";
+        }
       }
 
       this.scheduleTimeout(() => {
-        if (cardEl) cardEl.style.opacity = "0";
+        if (cardEl) {
+          if (isReduced) {
+            cardEl.style.transition = "none";
+            cardEl.style.opacity = "0";
+          } else {
+            cardEl.style.opacity = "0";
+          }
+        }
         this.scheduleTimeout(() => {
           if (this.isActive) {
             showStep1();
           }
-        }, 400);
+        }, isReduced ? 0 : 400);
       }, 4000);
     };
 
     showStep1();
   }
+
 }
 
 document.addEventListener('creo:partials-loaded', () => {
