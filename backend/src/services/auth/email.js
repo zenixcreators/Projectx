@@ -17,6 +17,9 @@ const sendVerificationOtp = async ({ email, firstName, otp }) => {
   const appName = process.env.APP_NAME || "Creo";
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
 
+  // SAFEGUARD WARNING: The fallback to console log for OTP delivery is STRICTLY for local development.
+  // In production, SMTP_HOST, SMTP_USER, and SMTP_PASS environment variables MUST be configured.
+  // Do not deploy to production without active SMTP credentials as email delivery will fail and expose OTPs in logs.
   if (!hasSmtpConfig()) {
     console.warn(`[AUTH OTP DEV MODE] ${email}: ${otp}`);
     return { delivered: false, devMode: true };
@@ -89,6 +92,9 @@ const sendPasswordResetOtp = async ({ email, firstName, otp }) => {
   const appName = process.env.APP_NAME || "Creo";
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
 
+  // SAFEGUARD WARNING: The fallback to console log for OTP delivery is STRICTLY for local development.
+  // In production, SMTP_HOST, SMTP_USER, and SMTP_PASS environment variables MUST be configured.
+  // Do not deploy to production without active SMTP credentials as email delivery will fail and expose OTPs in logs.
   if (!hasSmtpConfig()) {
     console.warn(`[PASSWORD RESET OTP DEV MODE] ${email}: ${otp}`);
     return { delivered: false, devMode: true };

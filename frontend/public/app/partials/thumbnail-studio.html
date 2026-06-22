@@ -91,6 +91,32 @@
           </div>
         </div>
 
+        <!-- Believable premium processing/loading state -->
+        <div class="analysis-loader-container" id="analysisLoader" style="display: none;">
+          <div class="loader-card">
+            <div class="loader-spinner-wrap">
+              <div class="loader-spinner-glow"></div>
+              <div class="loader-spinner"></div>
+            </div>
+            <h3 id="loaderProgressText">Initializing vision audit...</h3>
+            <p>Our vision AI is auditing your composition structure and calculating conversion retention metrics.</p>
+          </div>
+        </div>
+
+        <!-- Dedicated visual error state -->
+        <div class="analysis-error-container" id="analysisErrorState" style="display: none;">
+          <div class="error-card">
+            <div class="error-icon-wrap">
+              <i class="fa-solid fa-circle-exclamation"></i>
+            </div>
+            <h3 id="errorStateTitle">Analysis Interrupted</h3>
+            <p id="errorStateMsg">An unexpected error occurred. Please verify your connection and try again.</p>
+            <button class="generate-btnn btn-clear" onclick="resetAll()" style="margin: 0 auto; display: flex; width: auto;">
+              <span>Clear and Retry</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Vision Audit Results Section (Plain English Output & Recreation Prompts) -->
         <div class="analysis-results-container" id="analysisResults" style="display: none;">
 

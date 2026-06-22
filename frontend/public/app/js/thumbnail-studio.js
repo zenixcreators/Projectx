@@ -274,6 +274,64 @@ function handleFileSelected(file) {
   reader.readAsDataURL(file);
 }
 
+let loaderInterval = null;
+
+function startLoaderAnimation() {
+  const loader = document.getElementById('analysisLoader');
+  const resultsContainer = document.getElementById('analysisResults');
+  const errorPanel = document.getElementById('analysisErrorState');
+  const progressText = document.getElementById('loaderProgressText');
+
+  if (resultsContainer) resultsContainer.style.display = 'none';
+  if (errorPanel) errorPanel.style.display = 'none';
+  if (loader) loader.style.display = 'flex';
+
+  if (progressText) progressText.textContent = "Initializing vision audit...";
+
+  const steps = [
+    "Analyzing layout & rule of thirds...",
+    "Extracting color palette hex codes...",
+    "Coupling hex codes with color temperature...",
+    "Auditing subject focal points & framing...",
+    "Scanning typography size & readability...",
+    "Measuring composition lighting & depth...",
+    "Calculating click-through psychological triggers...",
+    "Resolving cognitive viewer intent...",
+    "Synthesizing recreation prompt scripts..."
+  ];
+
+  let stepIdx = 0;
+  clearInterval(loaderInterval);
+  loaderInterval = setInterval(() => {
+    if (progressText && stepIdx < steps.length) {
+      progressText.textContent = steps[stepIdx];
+      stepIdx++;
+    } else {
+      clearInterval(loaderInterval);
+    }
+  }, 750);
+}
+
+function stopLoaderAnimation() {
+  clearInterval(loaderInterval);
+  const loader = document.getElementById('analysisLoader');
+  if (loader) loader.style.display = 'none';
+}
+
+function showErrorState(title, message) {
+  stopLoaderAnimation();
+  const resultsContainer = document.getElementById('analysisResults');
+  const errorPanel = document.getElementById('analysisErrorState');
+  const errorTitle = document.getElementById('errorStateTitle');
+  const errorMsg = document.getElementById('errorStateMsg');
+
+  if (resultsContainer) resultsContainer.style.display = 'none';
+  if (errorPanel) errorPanel.style.display = 'flex';
+
+  if (errorTitle) errorTitle.textContent = title || "Analysis Interrupted";
+  if (errorMsg) errorMsg.textContent = message || "An unexpected error occurred. Please check your file and try again.";
+}
+
 function resetAll() {
   selectedImageFile = null;
   selectedYoutubeUrl = null;
@@ -292,6 +350,12 @@ function resetAll() {
   const analyzeBtn = document.getElementById('analyzeBtn');
   const resetBtn = document.getElementById('resetBtn');
   const resultsContainer = document.getElementById('analysisResults');
+  const loader = document.getElementById('analysisLoader');
+  const errorPanel = document.getElementById('analysisErrorState');
+
+  if (loader) loader.style.display = 'none';
+  if (errorPanel) errorPanel.style.display = 'none';
+  stopLoaderAnimation();
 
   if (preview) {
     preview.onload = null;
@@ -337,12 +401,14 @@ function handleAnalyzeClick(btn) {
   btn.disabled = true;
 
   setGeneratingState();
+  startLoaderAnimation();
 
   if (currentSourceMode === 'url') {
     if (!selectedYoutubeUrl) {
       window.showToast("No URL Loaded", "Please load a valid YouTube URL first.", "warning");
       btn.innerHTML = originalHTML;
       btn.disabled = false;
+      stopLoaderAnimation();
       return;
     }
 
@@ -357,13 +423,22 @@ function handleAnalyzeClick(btn) {
           throw new Error(data.error || "Vision analysis failed.");
         }
 
-        // Show the extracted base64 image on the URL preview node (disabled to prevent image from vanishing on reload)
-        // const urlPreview = document.getElementById('urlThumbnailPreview');
-        // if (urlPreview && data.extractedThumbnailUrl) {
-        //   urlPreview.src = data.extractedThumbnailUrl;
-        // }
-
         const payload = data.data;
+
+        // Verify if the model flagged the image as blurry or invalid
+        if (payload.error && payload.error.is_invalid) {
+          showErrorState("Invalid Image Uploaded", payload.error.reason);
+          return;
+        }
+
+        // Show the extracted base64 image on the URL preview node to keep it visible
+        const urlPreview = document.getElementById('urlThumbnailPreview');
+        if (urlPreview && data.extractedThumbnailUrl) {
+          urlPreview.src = data.extractedThumbnailUrl;
+          urlPreview.style.display = 'block';
+        }
+
+        stopLoaderAnimation();
         updateDnaPanel(payload);
         showDetailedReport(payload);
 
@@ -376,6 +451,7 @@ function handleAnalyzeClick(btn) {
           userFriendlyMsg = "Network connection failed. Please check if your computer is online and try again.";
         }
         window.showToast("Analysis Failed", userFriendlyMsg, "error");
+        showErrorState("Audit Failed", userFriendlyMsg);
         resetSidebarOnFail();
       })
       .finally(() => {
@@ -388,6 +464,7 @@ function handleAnalyzeClick(btn) {
       window.showToast("No File Selected", "Please upload a thumbnail image or video.", "warning");
       btn.innerHTML = originalHTML;
       btn.disabled = false;
+      stopLoaderAnimation();
       return;
     }
 
@@ -405,6 +482,14 @@ function handleAnalyzeClick(btn) {
         }
 
         const payload = data.data;
+
+        // Verify if the model flagged the image as blurry or invalid
+        if (payload.error && payload.error.is_invalid) {
+          showErrorState("Invalid Image Uploaded", payload.error.reason);
+          return;
+        }
+
+        stopLoaderAnimation();
         updateDnaPanel(payload);
         showDetailedReport(payload);
 
@@ -417,6 +502,7 @@ function handleAnalyzeClick(btn) {
           userFriendlyMsg = "Network connection failed. Please check if your computer is online and try again.";
         }
         window.showToast("Analysis Failed", userFriendlyMsg, "error");
+        showErrorState("Audit Failed", userFriendlyMsg);
         resetSidebarOnFail();
       })
       .finally(() => {
